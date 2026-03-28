@@ -1,7 +1,7 @@
 const express = require('express');
 const serverless = require('serverless-http');
 const cors = require('cors');
-const { Pool } = require('pg');
+const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -9,19 +9,26 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Connect to Supabase
-const pool = new Pool({
-  connectionString: process.env.SUPABASE_DB_URL,
-  ssl: { rejectUnauthorized: false }
+// MySQL connection pool for Railway
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT || 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
 // Health check
 app.get('/api/health', async (req, res) => {
   try {
-    await pool.query('SELECT 1');
-    res.json({ status: 'ok', message: 'Connected to Supabase' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const connection = await pool.getConnection();
+    connection.release();
+    res.json({ status: 'ok', message: 'Connected to Railway MySQL' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -31,16 +38,24 @@ app.post('/api/auth/register', async (req, res) => {
     const { name, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    const result = await pool.query(
-      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email',
+    const [result] = await pool.query(
+      'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
       [name, email, hashedPassword]
     );
     
-    const token = jwt.sign({ id: result.rows[0].id, email }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user: result.rows[0] });
-  } catch (err) {
-    if (err.code === '23505') res.status(400).json({ error: 'Email already exists' });
-    else res.status(500).json({ error: 'Server error' });
+    const token = jwt.sign({ id: result.insertId, email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    
+    res.json({
+      token,
+      user: { id: result.insertId, name, email }
+    });
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      res.status(400).json({ error: 'Email already exists' });
+    } else {
+      console.error(error);
+      res.status(500).json({ error: 'Server error' });
+    }
   }
 });
 
@@ -48,17 +63,49 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (result.rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
     
-    const user = result.rows[0];
+    const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    
+    if (rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    const user = rows[0];
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
     
-    const token = jwt.sign({ id: user.id, email }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
-  } catch (err) {
+    if (!valid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    
+    res.json({
+      token,
+      user: { id: user.id, name: user.name, email: user.email }
+    });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get user profile (protected)
+app.get('/api/user/profile', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: 'No token' });
+  
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const [rows] = await pool.query('SELECT id, name, email FROM users WHERE id = ?', [decoded.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
+    res.json(rows[0]);
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid token' });
   }
 });
 
