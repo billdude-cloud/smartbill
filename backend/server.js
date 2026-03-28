@@ -101,10 +101,11 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 // MySQL Database connection pool
 const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'bill_splitter',
+    host: process.env.MYSQLHOST || 'gondola.proxy.rlwy.net',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || 'dFKdKoFFyfmyJEnSjEDumeuADaBepGgs',
+    database: process.env.MYSQLDATABASE || 'railway',
+    port: process.env.MYSQLPORT || 48363,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -294,18 +295,17 @@ async function createTables() {
 }
 
 // Initialize database connection
-async function initializeDatabase() {
+async function testConnection() {
     try {
         const connection = await pool.getConnection();
         await connection.query('SELECT 1');
         connection.release();
-        console.log('✅ MySQL database connected');
-        
+        console.log('? MySQL connected successfully to Railway');
+
         await createTables();
         return true;
     } catch (err) {
-        console.error('❌ Database connection error:', err.message);
-        console.log('⚠️  Make sure XAMPP MySQL is running');
+        console.error('? MySQL connection failed:', err.message);
         return false;
     }
 }
@@ -2025,18 +2025,18 @@ app.get('*', (req, res) => {
 // ============================================
 // START SERVER
 // ============================================
-initializeDatabase().then(() => {
+testConnection().then(() => {
     app.listen(PORT, () => {
         console.log(`✅ Server running on http://localhost:${PORT}`);
         console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
         console.log(`✅ Default avatar: http://localhost:${PORT}/api/profile/default-avatar?name=Test&size=100`);
         console.log(`✅ Environment: ${process.env.NODE_ENV || 'development'}`);
-        console.log(`✅ Make sure XAMPP MySQL is running!`);
+        console.log(`? Database host: ${process.env.MYSQLHOST || 'gondola.proxy.rlwy.net'}`);
     });
 }).catch(err => {
     console.error('Failed to initialize database:', err);
     app.listen(PORT, () => {
         console.log(`⚠️  Server running without database on port ${PORT}`);
-        console.log(`⚠️  Make sure XAMPP MySQL is running and database is created`);
+        console.log(`??  Check your Railway MySQL environment variables`);
     });
 });
