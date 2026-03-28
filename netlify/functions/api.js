@@ -109,4 +109,23 @@ app.get('/api/user/profile', async (req, res) => {
   }
 });
 
+// Debug endpoint
+app.get('/api/debug', (req, res) => {
+  res.json({
+    message: 'Debug endpoint working',
+    db_host: process.env.DB_HOST || 'NOT SET',
+    db_user: process.env.DB_USER || 'NOT SET',
+    db_password: process.env.DB_PASSWORD ? 'SET (value hidden)' : 'NOT SET',
+    db_name: process.env.DB_NAME || 'NOT SET',
+    db_port: process.env.DB_PORT || 'NOT SET',
+    jwt_secret: process.env.JWT_SECRET ? 'SET' : 'NOT SET',
+    node_env: process.env.NODE_ENV || 'NOT SET'
+  });
+});
+
+// Simple test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working!' });
+});
+
 exports.handler = serverless(app);
