@@ -1,13 +1,13 @@
 {
-  "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "cd backend && npm install"
-  },
-  "deploy": {
-    "startCommand": "cd backend && node server.js",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10,
-    "healthcheckPath": "/api/health",
-    "healthcheckTimeout": 300
-  }
+ "build": {
+ "builder": "RAILPACK",
+ "buildCommand": "cd backend && npm install"
+ },
+ "deploy": {
+ "startCommand": "cd backend && node server.js",
+ "restartPolicyType": "ON_FAILURE",
+ "restartPolicyMaxRetries": 10,
+ "healthcheckPath": "/api/health",
+ "healthcheckTimeout": 300
+ }
 }
