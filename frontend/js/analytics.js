@@ -9,9 +9,9 @@
     // ============================================
     const MODULE_API_BASE = typeof API_BASE !== 'undefined'
         ? API_BASE
-        : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        : (window.location.hostname === 'localhost'
         ? 'http://localhost:5000/api'
-        : 'https://smartbill-hrcu.onrender.com/api');
+        : 'https://your-railway-backend-url.up.railway.app/api');
     
     const CATEGORY_RULES = [
         { name: "Food & Dining", keywords: ["food", "dinner", "lunch", "breakfast", "restaurant", "cafe", "pizza", "burger", "meal", "groceries", "supermarket", "market"] },

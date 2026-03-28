@@ -3,16 +3,11 @@
 // ============================================
 
 // Detect environment and set API base URL
-const API_BASE = (() => {
-    // Check if running locally
-    if (window.location.hostname === 'localhost' || 
-        window.location.hostname === '127.0.0.1' ||
-        window.location.hostname === '') {
-        return 'http://localhost:5000/api';
-    }
-    // For production (if you deploy later)
-    return 'https://smartbill.onrender.com/api';
-})();
+const API_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:5000/api'
+    : 'https://your-railway-backend-url.up.railway.app/api';
+
+const API_BASE = API_URL;
 
 console.log('🔧 API_BASE:', API_BASE);
 
