@@ -11,7 +11,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const avatarUploadDir = path.join(__dirname, '../frontend/uploads/avatars');
+const avatarUploadDir = path.join(__dirname, 'frontend/uploads/avatars');
 
 // Ensure upload directory exists
 if (!fs.existsSync(avatarUploadDir)) {
@@ -97,15 +97,14 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 // MySQL Database connection pool
 const pool = mysql.createPool({
-    host: process.env.MYSQLHOST || 'gondola.proxy.rlwy.net',
-    user: process.env.MYSQLUSER || 'root',
-    password: process.env.MYSQLPASSWORD || 'dFKdKoFFyfmyJEnSjEDumeuADaBepGgs',
-    database: process.env.MYSQLDATABASE || 'railway',
-    port: process.env.MYSQLPORT || 48363,
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'bill_splitter',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -295,17 +294,18 @@ async function createTables() {
 }
 
 // Initialize database connection
-async function testConnection() {
+async function initializeDatabase() {
     try {
         const connection = await pool.getConnection();
         await connection.query('SELECT 1');
         connection.release();
-        console.log('? MySQL connected successfully to Railway');
-
+        console.log('✅ MySQL database connected');
+        
         await createTables();
         return true;
     } catch (err) {
-        console.error('? MySQL connection failed:', err.message);
+        console.error('❌ Database connection error:', err.message);
+        console.log('⚠️  Make sure XAMPP MySQL is running');
         return false;
     }
 }
@@ -906,7 +906,7 @@ app.post('/api/profile/avatar', authenticateToken, uploadAvatar.single('avatar')
         await pool.query('UPDATE users SET avatar = ? WHERE id = ?', [avatarPath, req.user.id]);
         
         if (oldAvatar && oldAvatar !== avatarPath) {
-            const oldPath = path.join(__dirname, '../frontend', oldAvatar);
+            const oldPath = path.join(__dirname, 'frontend', oldAvatar);
             if (fs.existsSync(oldPath)) {
                 fs.unlinkSync(oldPath);
             }
@@ -928,7 +928,7 @@ app.delete('/api/profile/avatar', authenticateToken, async (req, res) => {
         await pool.query('UPDATE users SET avatar = NULL WHERE id = ?', [req.user.id]);
 
         if (currentAvatar) {
-            const filePath = path.join(__dirname, '../frontend', currentAvatar);
+            const filePath = path.join(__dirname, 'frontend', currentAvatar);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
@@ -2016,7 +2016,7 @@ app.post('/api/groups/:id/goal/contributions', authenticateToken, async (req, re
 // ============================================
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../frontend/index.html'));
+        res.sendFile(path.join(__dirname, 'frontend/index.html'));
     } else {
         res.status(404).json({ error: 'API endpoint not found' });
     }
@@ -2025,18 +2025,18 @@ app.get('*', (req, res) => {
 // ============================================
 // START SERVER
 // ============================================
-testConnection().then(() => {
+initializeDatabase().then(() => {
     app.listen(PORT, () => {
         console.log(`✅ Server running on http://localhost:${PORT}`);
         console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
         console.log(`✅ Default avatar: http://localhost:${PORT}/api/profile/default-avatar?name=Test&size=100`);
         console.log(`✅ Environment: ${process.env.NODE_ENV || 'development'}`);
-        console.log(`? Database host: ${process.env.MYSQLHOST || 'gondola.proxy.rlwy.net'}`);
+        console.log(`✅ Make sure XAMPP MySQL is running!`);
     });
 }).catch(err => {
     console.error('Failed to initialize database:', err);
     app.listen(PORT, () => {
         console.log(`⚠️  Server running without database on port ${PORT}`);
-        console.log(`??  Check your Railway MySQL environment variables`);
+        console.log(`⚠️  Make sure XAMPP MySQL is running and database is created`);
     });
 });

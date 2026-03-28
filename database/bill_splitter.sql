@@ -26,6 +26,14 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `bills`
 --
+SELECT *
+FROM bills
+WHERE group_id IN (
+    SELECT group_id
+    FROM group_members
+    WHERE user_id = ?
+)
+ORDER BY created_at DESC
 
 CREATE TABLE `bills` (
   `id` int(11) NOT NULL,

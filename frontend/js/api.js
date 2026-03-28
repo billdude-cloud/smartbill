@@ -2,12 +2,7 @@
 // API CONFIGURATION
 // ============================================
 
-// Detect environment and set API base URL
-const API_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:5000/api'
-    : 'https://your-railway-backend-url.up.railway.app/api';
-
-const API_BASE = API_URL;
+const API_BASE = '/api';
 
 console.log('🔧 API_BASE:', API_BASE);
 
