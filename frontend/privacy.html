@@ -1,0 +1,623 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - SmartBill by Bill Odhiambo</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
+    <script src="js/api.js"></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .dark-mode-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f4ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1.2rem;
+        }
+
+        .dark-mode-toggle:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 100px auto 50px;
+            padding: 0 20px;
+        }
+
+        /* Privacy Hero */
+        .privacy-hero {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 60px 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .privacy-hero h1 {
+            font-size: 3rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .privacy-hero p {
+            font-size: 1.2rem;
+            color: var(--muted-text);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .last-updated {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: var(--primary-50);
+            display: inline-block;
+            border-radius: 50px;
+            color: #667eea;
+            font-size: 0.9rem;
+            border: 1px solid var(--primary-200);
+        }
+
+        /* Privacy Content */
+        .privacy-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section h2 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2 i {
+            color: #667eea;
+            font-size: 1.5rem;
+        }
+
+        .section h3 {
+            font-size: 1.3rem;
+            color: var(--text-color);
+            margin: 20px 0 10px;
+        }
+
+        .section p {
+            color: var(--muted-text);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .section ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        .section li {
+            color: var(--muted-text);
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+
+        .section li i {
+            color: #667eea;
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        .highlight-box {
+            background: var(--primary-50);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid var(--primary-200);
+        }
+
+        .highlight-box p {
+            margin-bottom: 0;
+        }
+
+        .contact-info {
+            background: linear-gradient(135deg, var(--primary-50), rgba(118, 75, 162, 0.1));
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .contact-info p {
+            margin-bottom: 10px;
+        }
+
+        .contact-info i {
+            color: #667eea;
+            width: 25px;
+        }
+
+        .contact-info a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        /* Heart Animation */
+        .heart {
+            color: #ef4444;
+            display: inline-block;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a202c;
+            color: white;
+            padding: 60px 20px 30px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .footer-section a {
+            color: #a0aec0;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 40px auto 0;
+            padding-top: 30px;
+            border-top: 1px solid #2d3748;
+            text-align: center;
+            color: #a0aec0;
+        }
+
+        @media (max-width: 768px) {
+            .privacy-hero h1 {
+                font-size: 2rem;
+            }
+
+            .privacy-content {
+                padding: 30px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .section h2 {
+                font-size: 1.5rem;
+            }
+
+            .section h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-receipt"></i>
+                <span>SmartBill</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="features.html">Features</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="login.html" class="btn btn-outline">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+                <a href="signup.html" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Sign Up
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Privacy Hero -->
+        <section class="privacy-hero">
+            <h1>Privacy Policy</h1>
+            <p>Your privacy is important to us. This policy outlines how we collect, use, and protect your information.</p>
+            <div class="last-updated">
+                <i class="fas fa-calendar-alt"></i> Last Updated: March 2024
+            </div>
+        </section>
+
+        <!-- Privacy Content -->
+        <section class="privacy-content">
+            <!-- Introduction -->
+            <div class="section">
+                <h2><i class="fas fa-info-circle"></i> Introduction</h2>
+                <p>Welcome to SmartBill ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our bill splitting application.</p>
+                <p>Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the application.</p>
+            </div>
+
+            <!-- Information We Collect -->
+            <div class="section">
+                <h2><i class="fas fa-database"></i> Information We Collect</h2>
+                
+                <h3>Personal Information</h3>
+                <p>When you register for an account, we may collect the following personal information:</p>
+                <ul>
+                    <li><i class="fas fa-user"></i> Name</li>
+                    <li><i class="fas fa-envelope"></i> Email address</li>
+                    <li><i class="fas fa-lock"></i> Password (encrypted)</li>
+                    <li><i class="fas fa-camera"></i> Profile picture (optional)</li>
+                </ul>
+
+                <h3>Usage Data</h3>
+                <p>We automatically collect certain information when you use our application:</p>
+                <ul>
+                    <li><i class="fas fa-receipt"></i> Bills you create and participate in</li>
+                    <li><i class="fas fa-users"></i> Groups you join</li>
+                    <li><i class="fas fa-credit-card"></i> Payment records</li>
+                    <li><i class="fas fa-clock"></i> Time and date of activities</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <p><i class="fas fa-shield-alt"></i> <strong>Note:</strong> We do NOT collect payment method details (credit card numbers, bank accounts, etc.). All financial transactions are tracked as IOUs between users only.</p>
+                </div>
+            </div>
+
+            <!-- How We Use Your Information -->
+            <div class="section">
+                <h2><i class="fas fa-tasks"></i> How We Use Your Information</h2>
+                <p>We use the information we collect to:</p>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Create and manage your account</li>
+                    <li><i class="fas fa-calculator"></i> Process and track bill splits</li>
+                    <li><i class="fas fa-bell"></i> Send notifications about bills and payments</li>
+                    <li><i class="fas fa-envelope"></i> Respond to your inquiries and support requests</li>
+                    <li><i class="fas fa-chart-line"></i> Improve and optimize our application</li>
+                    <li><i class="fas fa-shield-alt"></i> Protect against unauthorized access and ensure security</li>
+                </ul>
+            </div>
+
+            <!-- Data Sharing -->
+            <div class="section">
+                <h2><i class="fas fa-share-alt"></i> Data Sharing and Disclosure</h2>
+                <p>We do not sell, trade, or rent your personal information to third parties. We may share information only in the following circumstances:</p>
+                <ul>
+                    <li><i class="fas fa-users"></i> <strong>With Group Members:</strong> Your name and payment status are visible to other members in groups you join.</li>
+                    <li><i class="fas fa-gavel"></i> <strong>Legal Requirements:</strong> If required by law or to protect our rights.</li>
+                </ul>
+            </div>
+
+            <!-- Data Security -->
+            <div class="section">
+                <h2><i class="fas fa-lock"></i> Data Security</h2>
+                <p>We implement appropriate technical and organizational security measures to protect your information:</p>
+                <ul>
+                    <li><i class="fas fa-key"></i> Passwords are encrypted using bcrypt</li>
+                    <li><i class="fas fa-shield-alt"></i> JWT tokens for secure authentication</li>
+                    <li><i class="fas fa-database"></i> Regular database backups</li>
+                    <li><i class="fas fa-https"></i> HTTPS encryption in transit</li>
+                </ul>
+                
+                <div class="highlight-box">
+                    <p><i class="fas fa-exclamation-triangle"></i> <strong>Remember:</strong> No method of transmission over the Internet is 100% secure. While we strive to protect your information, we cannot guarantee absolute security.</p>
+                </div>
+            </div>
+
+            <!-- Your Rights -->
+            <div class="section">
+                <h2><i class="fas fa-user-check"></i> Your Rights</h2>
+                <p>You have the right to:</p>
+                <ul>
+                    <li><i class="fas fa-eye"></i> Access the personal information we hold about you</li>
+                    <li><i class="fas fa-edit"></i> Update or correct your information</li>
+                    <li><i class="fas fa-trash"></i> Delete your account and associated data</li>
+                    <li><i class="fas fa-download"></i> Request a copy of your data</li>
+                </ul>
+                <p>To exercise these rights, please contact us using the information below.</p>
+            </div>
+
+            <!-- Data Retention -->
+            <div class="section">
+                <h2><i class="fas fa-clock"></i> Data Retention</h2>
+                <p>We retain your personal information for as long as your account is active. If you delete your account, we will delete your personal information within 30 days, except for information we need to retain for legal or legitimate business purposes.</p>
+            </div>
+
+            <!-- Children's Privacy -->
+            <div class="section">
+                <h2><i class="fas fa-child"></i> Children's Privacy</h2>
+                <p>Our application is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If we learn we have collected personal information from a child under 13, we will delete that information.</p>
+            </div>
+
+            <!-- Changes to Policy -->
+            <div class="section">
+                <h2><i class="fas fa-sync-alt"></i> Changes to This Policy</h2>
+                <p>We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last Updated" date. You are advised to review this policy periodically for any changes.</p>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="section">
+                <h2><i class="fas fa-envelope"></i> Contact Us</h2>
+                <p>If you have questions or concerns about this privacy policy or your data, please contact me:</p>
+                
+                <div class="contact-info">
+                    <p><i class="fas fa-user"></i> <strong>Bill Odhiambo</strong> (Creator)</p>
+                    <p><i class="fas fa-envelope"></i> Email: <a href="mailto:billodhiambo483@gmail.com">billodhiambo483@gmail.com</a></p>
+                    <p><i class="fas fa-phone"></i> Phone: <a href="tel:+254717182517">+254 717 182 517</a></p>
+                    <p><i class="fab fa-whatsapp"></i> WhatsApp: <a href="https://wa.me/254717182517" target="_blank">+254 717 182 517</a></p>
+                    <p><i class="fab fa-instagram"></i> Instagram: <a href="https://www.instagram.com/billdud.e" target="_blank">@billdud.e</a></p>
+                    <p><i class="fab fa-telegram"></i> Telegram: <a href="https://t.me/billdude483" target="_blank">@billdude483</a></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>SmartBill</h4>
+                <p>Created by Bill Odhiambo. A simple, fair way to split bills with friends, roommates, and groups.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="features.html">Features</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <a href="privacy.html" class="active">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="security.html">Security</a>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <a href="https://www.instagram.com/billdud.e" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+                <a href="https://wa.me/254717182517" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                <a href="https://t.me/billdude483" target="_blank"><i class="fab fa-telegram"></i> Telegram</a>
+                <a href="mailto:billodhiambo483@gmail.com"><i class="fas fa-envelope"></i> Email</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Created with <span class="heart">â¤ï¸</span> by Bill Odhiambo | Â© 2024 SmartBill. All rights reserved.</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                <a href="https://www.instagram.com/billdud.e" target="_blank" style="color: #a0aec0; text-decoration: none;">
+                    <i class="fab fa-instagram"></i> @billdud.e
+                </a> | 
+                <a href="https://t.me/billdude483" target="_blank" style="color: #a0aec0; text-decoration: none;">
+                    <i class="fab fa-telegram"></i> @billdude483
+                </a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // DARK MODE TOGGLE
+        // ============================================
+        (function() {
+            const darkMode = localStorage.getItem('darkMode');
+            const toggle = document.getElementById('darkModeToggle');
+            const icon = toggle.querySelector('i');
+            
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+            
+            toggle.addEventListener('click', function() {
+                if (document.body.classList.contains('dark-mode')) {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('darkMode', 'disabled');
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                } else {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('darkMode', 'enabled');
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            });
+        })();
+
+        // ============================================
+        // SMOOTH SCROLL
+        // ============================================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
+

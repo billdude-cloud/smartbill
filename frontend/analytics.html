@@ -1,0 +1,1143 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - SmartBill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <script src="js/api.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        /* Your existing styles remain the same */
+        .analytics-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+        }
+
+        .analytics-hero {
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: minmax(0, 2.1fr) minmax(260px, 1fr);
+            gap: 1.5rem;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #7c3aed 55%, #0ea5e9 100%);
+            color: white;
+            box-shadow: 0 18px 40px rgba(102, 126, 234, 0.22);
+        }
+
+        .analytics-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.24), transparent 30%),
+                radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.18), transparent 34%);
+            pointer-events: none;
+        }
+
+        .analytics-hero-content,
+        .analytics-hero-side {
+            position: relative;
+            z-index: 1;
+        }
+
+        .analytics-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(10px);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .analytics-hero h1 {
+            color: white;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.08;
+            margin-bottom: 0.75rem;
+        }
+
+        .analytics-hero p {
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 640px;
+            font-size: 1rem;
+        }
+
+        .analytics-hero-side {
+            display: grid;
+            gap: 1rem;
+            align-content: start;
+        }
+
+        .hero-mini-card {
+            padding: 1rem 1.1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-mini-card .label {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.8;
+            margin-bottom: 0.4rem;
+        }
+
+        .hero-mini-card .value {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .analytics-highlights {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .highlight-card {
+            position: relative;
+            overflow: hidden;
+            padding: 1.35rem;
+            border-radius: 1.2rem;
+            background: white;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .highlight-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 45px rgba(102, 126, 234, 0.12);
+        }
+
+        .highlight-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -30px -30px auto;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.14), transparent 70%);
+            pointer-events: none;
+        }
+
+        .highlight-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .highlight-title {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .highlight-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        .highlight-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 0.35rem;
+        }
+
+        .highlight-meta {
+            color: #64748b;
+            font-size: 0.92rem;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.25rem;
+        }
+
+        .analytics-card {
+            background: white;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 1.35rem;
+            padding: 1.4rem;
+            box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+        }
+
+        .analytics-card.wide {
+            grid-column: span 2;
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .card-head h3 {
+            margin: 0 0 0.35rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .card-head p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.92rem;
+        }
+
+        .chart-shell {
+            position: relative;
+            min-height: 320px;
+        }
+
+        .chart-shell canvas {
+            width: 100% !important;
+            height: 320px !important;
+        }
+
+        .chart-empty {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            border: 2px dashed #cbd5e1;
+            border-radius: 1rem;
+            color: #64748b;
+            background: linear-gradient(135deg, #f8fafc, #eef2ff);
+        }
+
+        .chart-empty.show {
+            display: flex;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .insight-panel {
+            background: white;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 1.25rem;
+            padding: 1.35rem;
+            box-shadow: 0 14px 35px rgba(15, 23, 42, 0.05);
+        }
+
+        .insight-panel h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+
+        .insight-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .insight-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: center;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .insight-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .insight-item strong,
+        .insight-item span {
+            color: #0f172a;
+        }
+
+        .insight-item small {
+            color: #64748b;
+            display: block;
+            margin-top: 0.15rem;
+        }
+
+        .analytics-status {
+            display: none;
+            padding: 1rem 1.1rem;
+            border-radius: 1rem;
+            font-weight: 500;
+        }
+
+        .analytics-status.show {
+            display: block;
+        }
+
+        .analytics-status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .analytics-status.info {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        body.dark-mode .analytics-hero {
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+        }
+
+        body.dark-mode .highlight-card,
+        body.dark-mode .analytics-card,
+        body.dark-mode .insight-panel {
+            background: var(--dark-bg-card);
+            border-color: var(--dark-border);
+            box-shadow: var(--dark-card-shadow);
+        }
+
+        body.dark-mode .highlight-title,
+        body.dark-mode .highlight-meta,
+        body.dark-mode .card-head p,
+        body.dark-mode .chart-empty,
+        body.dark-mode .insight-item small {
+            color: var(--dark-text-secondary);
+        }
+
+        body.dark-mode .highlight-value,
+        body.dark-mode .card-head h3,
+        body.dark-mode .insight-panel h3,
+        body.dark-mode .insight-item strong,
+        body.dark-mode .insight-item span {
+            color: var(--dark-text-primary);
+        }
+
+        body.dark-mode .highlight-icon {
+            background: rgba(129, 140, 248, 0.14);
+            color: #a5b4fc;
+        }
+
+        body.dark-mode .chart-empty {
+            background: linear-gradient(135deg, #1f2937, #273449);
+            border-color: var(--dark-border);
+        }
+
+        body.dark-mode .insight-item {
+            border-bottom-color: var(--dark-border);
+        }
+
+        @media (max-width: 1100px) {
+            .analytics-hero,
+            .analytics-highlights,
+            .analytics-grid,
+            .insights-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .analytics-hero-side {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .analytics-card.wide {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .analytics-hero,
+            .analytics-highlights,
+            .analytics-grid,
+            .insights-grid,
+            .analytics-hero-side {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-card.wide {
+                grid-column: span 1;
+            }
+
+            .analytics-hero {
+                padding: 1.4rem;
+            }
+
+            .highlight-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-receipt"></i>
+                <span>SmartBill</span>
+            </a>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="groups.html">Groups</a>
+                <a href="bills.html">Bills</a>
+                <a href="analytics.html" class="active">Analytics</a>
+                <a href="export.html">Export</a>
+                <a href="alerts.html">Alerts</a>
+                <a href="profile.html">Profile</a>
+            </div>
+            <div class="user-menu">
+                <div class="currency-selector" id="currencySelector">
+                    <button class="currency-btn" onclick="toggleCurrencyDropdown()">
+                        <span id="selectedCurrencyFlag">🇰🇪</span>
+                        <span id="selectedCurrencyCode">KES</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="currency-dropdown" id="currencyDropdown">
+                        <div class="currency-dropdown-header">
+                            <h4>Select Currency</h4>
+                        </div>
+                        <div class="currency-list" id="currencyList"></div>
+                    </div>
+                </div>
+                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Loading...</div>
+                </div>
+                <div class="user-avatar" id="userAvatar" onclick="window.location.href='profile.html'" style="cursor: pointer;" title="Your Profile">
+                    <img id="navbarAvatarImage" src="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                    <span id="navbarAvatarText">U</span>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container analytics-shell">
+        <section class="analytics-hero">
+            <div class="analytics-hero-content">
+                <div class="analytics-eyebrow">
+                    <i class="fas fa-chart-line"></i>
+                    Live financial overview
+                </div>
+                <h1>Track every bill, payment, and outstanding balance with confidence.</h1>
+                <p>
+                    Your analytics now combine bill totals, payment status, monthly trends, and group-level exposure
+                    so you can quickly see where money is moving and where follow-up is needed.
+                </p>
+            </div>
+            <div class="analytics-hero-side">
+                <div class="hero-mini-card">
+                    <div class="label">Tracked bills</div>
+                    <div class="value" id="trackedBillsCount">0 bills</div>
+                </div>
+                <div class="hero-mini-card">
+                    <div class="label">Tracked groups</div>
+                    <div class="value" id="trackedGroupsCount">0 groups</div>
+                </div>
+            </div>
+        </section>
+
+        <div id="analyticsStatus" class="analytics-status info">Loading analytics...</div>
+
+        <section class="analytics-highlights">
+            <article class="highlight-card">
+                <div class="highlight-top">
+                    <div class="highlight-title">Total Bill Volume</div>
+                    <div class="highlight-icon"><i class="fas fa-wallet"></i></div>
+                </div>
+                <div class="highlight-value" id="totalTrackedAmount">KSh 0.00</div>
+                <div class="highlight-meta" id="totalTrackedMeta">Across all shared bills you can access</div>
+            </article>
+
+            <article class="highlight-card">
+                <div class="highlight-top">
+                    <div class="highlight-title">Outstanding Balance</div>
+                    <div class="highlight-icon"><i class="fas fa-hourglass-half"></i></div>
+                </div>
+                <div class="highlight-value" id="outstandingAmount">KSh 0.00</div>
+                <div class="highlight-meta" id="outstandingMeta">Still unpaid across tracked bills</div>
+            </article>
+
+            <article class="highlight-card">
+                <div class="highlight-top">
+                    <div class="highlight-title">Your Open Share</div>
+                    <div class="highlight-icon"><i class="fas fa-user-clock"></i></div>
+                </div>
+                <div class="highlight-value" id="yourOpenShare">KSh 0.00</div>
+                <div class="highlight-meta" id="yourOpenShareMeta">Amount still unpaid from your own splits</div>
+            </article>
+
+            <article class="highlight-card">
+                <div class="highlight-top">
+                    <div class="highlight-title">Settlement Rate</div>
+                    <div class="highlight-icon"><i class="fas fa-bullseye"></i></div>
+                </div>
+                <div class="highlight-value" id="settlementRate">0%</div>
+                <div class="highlight-meta" id="settlementMeta">Share of tracked volume already paid</div>
+            </article>
+        </section>
+
+        <section class="analytics-grid">
+            <article class="analytics-card">
+                <div class="card-head">
+                    <div>
+                        <h3><i class="fas fa-chart-pie"></i> Spending by Category</h3>
+                        <p>Auto-grouped from bill titles so you can spot where spend is concentrated.</p>
+                    </div>
+                </div>
+                <div class="chart-shell">
+                    <canvas id="categoryChart"></canvas>
+                    <div class="chart-empty" id="categoryEmpty">No bill data available for category tracking yet.</div>
+                </div>
+            </article>
+
+            <article class="analytics-card">
+                <div class="card-head">
+                    <div>
+                        <h3><i class="fas fa-chart-line"></i> Monthly Bill Trend</h3>
+                        <p>A rolling view of total bill volume by month.</p>
+                    </div>
+                </div>
+                <div class="chart-shell">
+                    <canvas id="trendChart"></canvas>
+                    <div class="chart-empty" id="trendEmpty">Add more bills to unlock monthly trend analysis.</div>
+                </div>
+            </article>
+
+            <article class="analytics-card">
+                <div class="card-head">
+                    <div>
+                        <h3><i class="fas fa-users"></i> Outstanding by Group</h3>
+                        <p>See which groups still carry the highest unpaid amounts.</p>
+                    </div>
+                </div>
+                <div class="chart-shell">
+                    <canvas id="groupOutstandingChart"></canvas>
+                    <div class="chart-empty" id="groupOutstandingEmpty">All tracked groups are fully settled.</div>
+                </div>
+            </article>
+
+            <article class="analytics-card">
+                <div class="card-head">
+                    <div>
+                        <h3><i class="fas fa-chart-bar"></i> Top Bill Creators</h3>
+                        <p>The members creating the highest bill value in your shared workspace.</p>
+                    </div>
+                </div>
+                <div class="chart-shell">
+                    <canvas id="topSpendersChart"></canvas>
+                    <div class="chart-empty" id="topSpendersEmpty">Not enough bill creator data to rank yet.</div>
+                </div>
+            </article>
+        </section>
+
+        <section class="insights-grid">
+            <article class="insight-panel">
+                <h3><i class="fas fa-lightbulb"></i> Quick Insights</h3>
+                <div class="insight-list" id="quickInsights"></div>
+            </article>
+
+            <article class="insight-panel">
+                <h3><i class="fas fa-layer-group"></i> Group Snapshot</h3>
+                <div class="insight-list" id="groupInsights"></div>
+            </article>
+
+            <article class="insight-panel">
+                <h3><i class="fas fa-credit-card"></i> Payment Health</h3>
+                <div class="insight-list" id="paymentInsights"></div>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const PAGE_API_BASE = typeof API_BASE !== 'undefined'
+            ? API_BASE
+            : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : 'https://smartbill-hrcu.onrender.com/api');
+        
+        console.log('🔧 PAGE_API_BASE:', PAGE_API_BASE);
+        
+        let allBills = [];
+        let allGroups = [];
+        let allPaymentStatuses = {};
+        let currentUser = null;
+        
+        // Chart instances
+        let categoryChart = null;
+        let trendChart = null;
+        let groupOutstandingChart = null;
+        let topSpendersChart = null;
+
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            if (!toast) {
+                const toastDiv = document.createElement('div');
+                toastDiv.id = 'toast';
+                toastDiv.className = 'toast-message';
+                document.body.appendChild(toastDiv);
+            }
+            const toastEl = document.getElementById('toast');
+            toastEl.textContent = message;
+            toastEl.className = `toast-message toast-${type}`;
+            toastEl.style.display = 'block';
+            
+            setTimeout(() => {
+                toastEl.style.display = 'none';
+            }, 3000);
+        }
+
+        function formatCurrency(amount, currency = 'KES') {
+            return new Intl.NumberFormat('en-KE', {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // USER DATA
+        // ============================================
+        function loadUserData() {
+            currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const userNameEl = document.getElementById('userName');
+            const navbarText = document.getElementById('navbarAvatarText');
+            
+            if (userNameEl) userNameEl.textContent = currentUser.name || 'User';
+            if (navbarText) navbarText.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
+        }
+
+        async function loadUserAvatar() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/profile`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                if (res.ok) {
+                    const user = await res.json();
+                    const avatarImg = document.getElementById('navbarAvatarImage');
+                    const avatarText = document.getElementById('navbarAvatarText');
+                    
+                    if (user.avatar && avatarImg) {
+                        avatarImg.src = user.avatar;
+                        avatarImg.style.display = 'block';
+                        if (avatarText) avatarText.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading avatar:', error);
+            }
+        }
+
+        // ============================================
+        // DATA LOADING
+        // ============================================
+        async function loadData() {
+            const statusEl = document.getElementById('analyticsStatus');
+            if (statusEl) {
+                statusEl.className = 'analytics-status info show';
+                statusEl.textContent = 'Loading analytics data...';
+            }
+            
+            try {
+                // Load groups
+                const groupsRes = await fetch(`${PAGE_API_BASE}/groups`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                if (groupsRes.ok) {
+                    allGroups = await groupsRes.json();
+                    const trackedGroupsEl = document.getElementById('trackedGroupsCount');
+                    if (trackedGroupsEl) trackedGroupsEl.textContent = `${allGroups.length} group${allGroups.length !== 1 ? 's' : ''}`;
+                }
+                
+                // Load bills
+                const billsRes = await fetch(`${PAGE_API_BASE}/bills`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                if (billsRes.ok) {
+                    allBills = await billsRes.json();
+                    const trackedBillsEl = document.getElementById('trackedBillsCount');
+                    if (trackedBillsEl) trackedBillsEl.textContent = `${allBills.length} bill${allBills.length !== 1 ? 's' : ''}`;
+                    
+                    await loadPaymentStatuses();
+                    updateAnalytics();
+                    
+                    if (statusEl) statusEl.classList.remove('show');
+                } else {
+                    throw new Error('Failed to load bills');
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                if (statusEl) {
+                    statusEl.className = 'analytics-status error show';
+                    statusEl.textContent = 'Error loading analytics data. Please refresh the page.';
+                }
+            }
+        }
+        
+        async function loadPaymentStatuses() {
+            for (const bill of allBills) {
+                try {
+                    const res = await fetch(`${PAGE_API_BASE}/bills/${bill.id}/payment-status`, {
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    });
+                    if (res.ok) {
+                        allPaymentStatuses[bill.id] = await res.json();
+                    }
+                } catch (error) {
+                    console.error(`Error loading payment status for bill ${bill.id}:`, error);
+                    allPaymentStatuses[bill.id] = [];
+                }
+            }
+        }
+        
+        // ============================================
+        // ANALYTICS CALCULATIONS
+        // ============================================
+        function updateAnalytics() {
+            let totalBillVolume = 0;
+            let totalPaid = 0;
+            let totalUnpaid = 0;
+            let userUnpaid = 0;
+            
+            const groupOutstanding = {};
+            const creatorSpending = {};
+            
+            const categories = {
+                'Food & Dining': ['restaurant', 'cafe', 'lunch', 'dinner', 'meal', 'pizza', 'burger', 'food'],
+                'Groceries': ['grocery', 'supermarket', 'market', 'produce', 'shopping'],
+                'Transport': ['uber', 'taxi', 'bus', 'train', 'fuel', 'gas', 'transport', 'car', 'parking'],
+                'Entertainment': ['movie', 'cinema', 'concert', 'event', 'party', 'bar', 'drinks', 'show'],
+                'Utilities': ['electricity', 'water', 'gas', 'internet', 'wifi', 'bill', 'rent', 'utility'],
+                'Travel': ['hotel', 'flight', 'trip', 'vacation', 'airbnb', 'travel', 'booking'],
+                'Shopping': ['amazon', 'store', 'clothes', 'shoes', 'retail', 'gift', 'purchase'],
+                'Other': []
+            };
+            
+            const categoryTotals = {
+                'Food & Dining': 0,
+                'Groceries': 0,
+                'Transport': 0,
+                'Entertainment': 0,
+                'Utilities': 0,
+                'Travel': 0,
+                'Shopping': 0,
+                'Other': 0
+            };
+            
+            const monthlyTotals = {};
+            
+            for (const bill of allBills) {
+                const amount = parseFloat(bill.total) || 0;
+                totalBillVolume += amount;
+                
+                const statuses = allPaymentStatuses[bill.id] || [];
+                const paidAmount = statuses.filter(s => s.paid).reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+                const unpaidAmount = amount - paidAmount;
+                
+                totalPaid += paidAmount;
+                totalUnpaid += unpaidAmount;
+                
+                const userStatus = statuses.find(s => s.member_id === currentUser?.id);
+                if (userStatus && !userStatus.paid) {
+                    userUnpaid += parseFloat(userStatus.amount) || 0;
+                }
+                
+                const group = allGroups.find(g => g.id === bill.group_id);
+                const groupName = group?.name || 'Unknown Group';
+                if (!groupOutstanding[groupName]) groupOutstanding[groupName] = 0;
+                groupOutstanding[groupName] += unpaidAmount;
+                
+                const creatorName = bill.created_by_name || 'Unknown';
+                if (!creatorSpending[creatorName]) creatorSpending[creatorName] = 0;
+                creatorSpending[creatorName] += amount;
+                
+                const title = (bill.title || '').toLowerCase();
+                let assignedCategory = 'Other';
+                for (const [category, keywords] of Object.entries(categories)) {
+                    if (category !== 'Other' && keywords.some(kw => title.includes(kw))) {
+                        assignedCategory = category;
+                        break;
+                    }
+                }
+                categoryTotals[assignedCategory] += amount;
+                
+                if (bill.created_at) {
+                    const date = new Date(bill.created_at);
+                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    if (!monthlyTotals[monthKey]) monthlyTotals[monthKey] = 0;
+                    monthlyTotals[monthKey] += amount;
+                }
+            }
+            
+            // Update highlight cards
+            const totalTrackedEl = document.getElementById('totalTrackedAmount');
+            const outstandingEl = document.getElementById('outstandingAmount');
+            const yourOpenShareEl = document.getElementById('yourOpenShare');
+            const settlementRateEl = document.getElementById('settlementRate');
+            
+            if (totalTrackedEl) totalTrackedEl.textContent = formatCurrency(totalBillVolume);
+            if (outstandingEl) outstandingEl.textContent = formatCurrency(totalUnpaid);
+            if (yourOpenShareEl) yourOpenShareEl.textContent = formatCurrency(userUnpaid);
+            
+            const settlementRate = totalBillVolume > 0 ? (totalPaid / totalBillVolume * 100) : 0;
+            if (settlementRateEl) settlementRateEl.textContent = `${settlementRate.toFixed(1)}%`;
+            
+            updateCategoryChart(categoryTotals);
+            updateTrendChart(monthlyTotals);
+            updateGroupOutstandingChart(groupOutstanding);
+            updateTopSpendersChart(creatorSpending);
+            updateInsights(totalBillVolume, totalPaid, totalUnpaid, userUnpaid, settlementRate, groupOutstanding);
+        }
+        
+        // ============================================
+        // CHART FUNCTIONS
+        // ============================================
+        function updateCategoryChart(categoryTotals) {
+            const ctx = document.getElementById('categoryChart')?.getContext('2d');
+            if (!ctx) return;
+            
+            const hasData = Object.values(categoryTotals).some(v => v > 0);
+            const categoryEmpty = document.getElementById('categoryEmpty');
+            
+            if (!hasData) {
+                if (categoryEmpty) categoryEmpty.classList.add('show');
+                if (categoryChart) categoryChart.destroy();
+                return;
+            }
+            
+            if (categoryEmpty) categoryEmpty.classList.remove('show');
+            
+            const filteredCategories = Object.entries(categoryTotals).filter(([_, value]) => value > 0);
+            if (categoryChart) categoryChart.destroy();
+            
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: filteredCategories.map(([name]) => name),
+                    datasets: [{
+                        data: filteredCategories.map(([_, value]) => value),
+                        backgroundColor: ['#667eea', '#764ba2', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899'],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${context.label}: ${formatCurrency(value)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateTrendChart(monthlyTotals) {
+            const ctx = document.getElementById('trendChart')?.getContext('2d');
+            if (!ctx) return;
+            
+            const months = Object.keys(monthlyTotals).sort();
+            const values = months.map(m => monthlyTotals[m]);
+            const trendEmpty = document.getElementById('trendEmpty');
+            
+            if (months.length === 0) {
+                if (trendEmpty) trendEmpty.classList.add('show');
+                if (trendChart) trendChart.destroy();
+                return;
+            }
+            
+            if (trendEmpty) trendEmpty.classList.remove('show');
+            
+            const monthNames = months.map(m => {
+                const [year, month] = m.split('-');
+                return new Date(year, month - 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            });
+            
+            if (trendChart) trendChart.destroy();
+            
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        label: 'Total Bill Amount',
+                        data: values,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: 'white',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.dataset.label}: ${formatCurrency(context.raw)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: (value) => formatCurrency(value) }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateGroupOutstandingChart(groupOutstanding) {
+            const ctx = document.getElementById('groupOutstandingChart')?.getContext('2d');
+            if (!ctx) return;
+            
+            const entries = Object.entries(groupOutstanding).filter(([_, value]) => value > 0).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const groupOutstandingEmpty = document.getElementById('groupOutstandingEmpty');
+            
+            if (entries.length === 0) {
+                if (groupOutstandingEmpty) groupOutstandingEmpty.classList.add('show');
+                if (groupOutstandingChart) groupOutstandingChart.destroy();
+                return;
+            }
+            
+            if (groupOutstandingEmpty) groupOutstandingEmpty.classList.remove('show');
+            if (groupOutstandingChart) groupOutstandingChart.destroy();
+            
+            groupOutstandingChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: entries.map(([name]) => name),
+                    datasets: [{
+                        label: 'Outstanding Amount',
+                        data: entries.map(([_, value]) => value),
+                        backgroundColor: '#f59e0b',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.dataset.label}: ${formatCurrency(context.raw)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: (value) => formatCurrency(value) }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateTopSpendersChart(creatorSpending) {
+            const ctx = document.getElementById('topSpendersChart')?.getContext('2d');
+            if (!ctx) return;
+            
+            const entries = Object.entries(creatorSpending).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const topSpendersEmpty = document.getElementById('topSpendersEmpty');
+            
+            if (entries.length === 0) {
+                if (topSpendersEmpty) topSpendersEmpty.classList.add('show');
+                if (topSpendersChart) topSpendersChart.destroy();
+                return;
+            }
+            
+            if (topSpendersEmpty) topSpendersEmpty.classList.remove('show');
+            if (topSpendersChart) topSpendersChart.destroy();
+            
+            topSpendersChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: entries.map(([name]) => name),
+                    datasets: [{
+                        label: 'Total Bill Value Created',
+                        data: entries.map(([_, value]) => value),
+                        backgroundColor: '#10b981',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.dataset.label}: ${formatCurrency(context.raw)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: (value) => formatCurrency(value) }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateInsights(totalVolume, totalPaid, totalUnpaid, userUnpaid, settlementRate, groupOutstanding) {
+            const quickInsightsEl = document.getElementById('quickInsights');
+            const groupInsightsEl = document.getElementById('groupInsights');
+            const paymentInsightsEl = document.getElementById('paymentInsights');
+            
+            if (quickInsightsEl) {
+                let html = '';
+                if (totalUnpaid > 0) {
+                    html += `<div class="insight-item"><div><strong>⚠️ Pending Payments</strong><small>${formatCurrency(totalUnpaid)} still needs to be settled</small></div></div>`;
+                }
+                if (userUnpaid > 0) {
+                    html += `<div class="insight-item"><div><strong>💸 You Owe</strong><small>${formatCurrency(userUnpaid)} from your unpaid shares</small></div></div>`;
+                }
+                if (settlementRate < 30 && totalVolume > 0) {
+                    html += `<div class="insight-item"><div><strong>📊 Low Settlement Rate</strong><small>Only ${settlementRate.toFixed(1)}% of bills are paid. Consider sending reminders.</small></div></div>`;
+                } else if (settlementRate > 80 && totalVolume > 0) {
+                    html += `<div class="insight-item"><div><strong>🎉 Great Settlement Rate!</strong><small>${settlementRate.toFixed(1)}% of bills are paid. Keep it up!</small></div></div>`;
+                }
+                if (allBills.length === 0) {
+                    html = '<div class="insight-item">No bills yet. Create your first bill to see insights!</div>';
+                } else if (html === '') {
+                    html = '<div class="insight-item">All good! Your finances are on track.</div>';
+                }
+                quickInsightsEl.innerHTML = html;
+            }
+            
+            if (groupInsightsEl) {
+                const entries = Object.entries(groupOutstanding).filter(([_, value]) => value > 0).sort((a, b) => b[1] - a[1]);
+                if (entries.length === 0) {
+                    groupInsightsEl.innerHTML = '<div class="insight-item">All groups are fully settled! 🎉</div>';
+                } else {
+                    let html = '';
+                    for (const [groupName, amount] of entries.slice(0, 5)) {
+                        html += `<div class="insight-item"><div><strong>${escapeHtml(groupName)}</strong><small>${formatCurrency(amount)} outstanding</small></div></div>`;
+                    }
+                    groupInsightsEl.innerHTML = html;
+                }
+            }
+            
+            if (paymentInsightsEl) {
+                const paidBills = allBills.filter(bill => {
+                    const statuses = allPaymentStatuses[bill.id] || [];
+                    return statuses.length > 0 && statuses.every(s => s.paid);
+                }).length;
+                
+                const partialBills = allBills.filter(bill => {
+                    const statuses = allPaymentStatuses[bill.id] || [];
+                    const paidCount = statuses.filter(s => s.paid).length;
+                    return paidCount > 0 && paidCount < statuses.length;
+                }).length;
+                
+                const pendingBills = allBills.filter(bill => {
+                    const statuses = allPaymentStatuses[bill.id] || [];
+                    const paidCount = statuses.filter(s => s.paid).length;
+                    return paidCount === 0;
+                }).length;
+                
+                let html = `
+                    <div class="insight-item"><div><strong>✅ Fully Paid</strong><small>${paidBills} of ${allBills.length} bills (${allBills.length > 0 ? ((paidBills / allBills.length) * 100).toFixed(0) : 0}%)</small></div></div>
+                    <div class="insight-item"><div><strong>🔄 Partially Paid</strong><small>${partialBills} bills need follow-up</small></div></div>
+                    <div class="insight-item"><div><strong>⏳ Pending</strong><small>${pendingBills} bills have no payments yet</small></div></div>
+                `;
+                if (totalUnpaid > 0) {
+                    html += `<div class="insight-item"><div><strong>💰 Total to Collect</strong><small>${formatCurrency(totalUnpaid)} unpaid across all bills</small></div></div>`;
+                }
+                paymentInsightsEl.innerHTML = html;
+            }
+        }
+        
+        // ============================================
+        // NAVIGATION FUNCTIONS
+        // ============================================
+        function toggleMenu() {
+            document.getElementById('navLinks')?.classList.toggle('active');
+        }
+        
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+        
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserData();
+            loadUserAvatar();
+            loadData();
+        });
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

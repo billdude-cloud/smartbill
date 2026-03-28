@@ -1,0 +1,2371 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Details - SmartBill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <script src="js/api.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        /* All your existing styles remain the same - keeping them for brevity */
+        .member-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .member-card {
+            background: var(--card-bg);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .member-card:hover {
+            border-color: var(--primary-500);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .member-avatar.name-only {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .member-info {
+            flex: 1;
+        }
+        
+        .member-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .member-email {
+            color: var(--muted-text);
+            font-size: 0.9rem;
+        }
+        
+        .member-type-badge {
+            background: var(--primary-100);
+            color: var(--primary-700);
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .member-type-badge.name-only {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .admin-badge {
+            background: var(--primary-100);
+            color: var(--primary-700);
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .member-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.25rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .member-card:hover .member-actions {
+            opacity: 1;
+        }
+        
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--card-bg);
+            color: var(--muted-text);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .action-btn:hover {
+            background: var(--primary-500);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .action-btn.delete:hover {
+            background: var(--danger-500);
+        }
+        
+        .add-member-section {
+            background: linear-gradient(135deg, var(--primary-50), rgba(118, 75, 162, 0.1));
+            border: 2px dashed var(--primary-500);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .danger-zone {
+            border: 2px solid var(--danger-500);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            background: var(--danger-100);
+        }
+        
+        .danger-zone h3 {
+            color: var(--danger-500);
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn-danger {
+            background: var(--danger-500);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-danger:hover {
+            background: var(--danger-600);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .invite-code-box {
+            background: var(--primary-50);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+        
+        .invite-code {
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-600);
+            background: var(--card-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .copy-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: var(--primary-500);
+            color: white;
+            border-color: var(--primary-500);
+        }
+
+        .goal-card {
+            background: linear-gradient(135deg, #eff6ff, #f5f3ff);
+            border: 1px solid #c7d2fe;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .goal-progress {
+            height: 14px;
+            border-radius: 999px;
+            background: #dbeafe;
+            overflow: hidden;
+            margin: 1rem 0 0.75rem;
+        }
+
+        .goal-progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 999px;
+            transition: width 0.3s ease;
+        }
+
+        .goal-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .goal-metric {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .goal-contributors {
+            margin-top: 1.5rem;
+        }
+
+        .goal-contributor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1rem;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 0.75rem;
+        }
+
+        .goal-empty {
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            background: var(--surface-color);
+            border: 1px dashed var(--border-color);
+            color: var(--muted-text);
+            text-align: center;
+        }
+        
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-backdrop.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideUp 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            z-index: 10;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            position: sticky;
+            bottom: 0;
+            background: var(--card-bg);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--muted-text);
+            transition: color 0.3s;
+        }
+        
+        .close-btn:hover {
+            color: var(--danger-500);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--muted-text);
+        }
+        
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-500);
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--muted-text);
+            cursor: pointer;
+            position: relative;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+        
+        .tab-btn:hover {
+            color: var(--primary-500);
+        }
+        
+        .tab-btn.active {
+            color: var(--primary-500);
+        }
+        
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-500);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .bills-list {
+            margin-top: 1rem;
+        }
+        
+        .bill-item-small {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--surface-color);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .bill-item-small:hover {
+            background: var(--primary-50);
+            transform: translateX(5px);
+        }
+        
+        .bill-info {
+            flex: 1;
+        }
+        
+        .bill-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .bill-meta {
+            font-size: 0.8rem;
+            color: var(--muted-text);
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .bill-amount-small {
+            font-weight: bold;
+            color: var(--primary-500);
+            font-size: 1.1rem;
+            margin-right: 1rem;
+        }
+        
+        .bill-status-small {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .status-partial {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status-paid {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .payment-status-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            display: block;
+        }
+        
+        .payment-status-table th {
+            background: var(--surface-color);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-color);
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .payment-status-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .payment-status-table tr:hover {
+            background: var(--surface-color);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-badge.paid {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-badge.unpaid {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .mark-paid-btn {
+            background: var(--success-500);
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .mark-paid-btn:hover {
+            background: var(--success-600);
+            transform: scale(1.05);
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .connection-status.online {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .connection-status.offline {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .debug-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-500);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 999;
+            font-size: 14px;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .debug-btn:hover {
+            background: var(--primary-600);
+            transform: scale(1.05);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: var(--surface-color);
+            border-radius: 0.5rem;
+            color: var(--muted-text);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-400);
+            margin-bottom: 1rem;
+        }
+        
+        .payment-summary {
+            background: linear-gradient(135deg, var(--primary-50), rgba(118, 75, 162, 0.1));
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .total-paid {
+            color: var(--success-500);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .total-pending {
+            color: var(--danger-500);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-status-table {
+                font-size: 0.85rem;
+            }
+            
+            .payment-status-table th,
+            .payment-status-table td {
+                padding: 0.5rem;
+            }
+            
+            .member-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+            color: var(--danger-500);
+            background: var(--danger-100);
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .retry-btn {
+            background: var(--primary-500);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .retry-btn:hover {
+            background: var(--primary-600);
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading-spinner i {
+            font-size: 2rem;
+            color: var(--primary-500);
+            margin-bottom: 1rem;
+        }
+
+        .toast-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .toast-success {
+            background: var(--success-500);
+        }
+
+        .toast-error {
+            background: var(--danger-500);
+        }
+
+        .toast-info {
+            background: var(--primary-500);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .create-group-prompt {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--primary-50), rgba(118, 75, 162, 0.1));
+            border-radius: 1rem;
+            margin: 2rem 0;
+        }
+
+        .create-group-prompt i {
+            font-size: 4rem;
+            color: var(--primary-500);
+            margin-bottom: 1rem;
+        }
+
+        .create-group-prompt h2 {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .create-group-prompt p {
+            color: var(--muted-text);
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .create-group-prompt .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            color: var(--primary-500);
+            text-decoration: none;
+            transition: gap 0.3s;
+        }
+
+        .back-link:hover {
+            gap: 0.75rem;
+            text-decoration: underline;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Message Container -->
+    <div id="toastMessage" class="toast-message" style="display: none;"></div>
+
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="connection-status"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-receipt"></i>
+                <span>SmartBill</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="groups.html">Groups</a>
+                <a href="bills.html">Bills</a>
+                <a href="analytics.html">Analytics</a>
+                <a href="export.html">Export</a>
+                <a href="alerts.html">Alerts</a>
+                <a href="profile.html">Profile</a>
+            </div>
+            <div class="user-menu">
+                <div class="currency-selector" id="currencySelector">
+                    <button class="currency-btn" onclick="toggleCurrencyDropdown()">
+                        <span id="selectedCurrencyFlag">🇰🇪</span>
+                        <span id="selectedCurrencyCode">KES</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="currency-dropdown" id="currencyDropdown">
+                        <div class="currency-dropdown-header">
+                            <h4>Select Currency</h4>
+                        </div>
+                        <div class="currency-list" id="currencyList"></div>
+                    </div>
+                </div>
+                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="notification-badge" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count" id="notificationCount">0</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Loading...</div>
+                </div>
+                <div class="user-avatar" id="userAvatar" onclick="window.location.href='profile.html'" style="cursor: pointer;" title="Your Profile">
+                    <img id="navbarAvatarImage" src="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                    <span id="navbarAvatarText">U</span>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <a href="groups.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Groups
+        </a>
+
+        <div id="groupContent">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading group details...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Group Confirmation Modal -->
+    <div class="modal-backdrop" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 style="color: var(--danger-500);"><i class="fas fa-exclamation-triangle"></i> Delete Group</h2>
+                <button class="close-btn" onclick="hideDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem;">Are you sure you want to delete this group?</p>
+                <p style="color: var(--danger-500); font-weight: bold; margin-bottom: 1rem;">This action cannot be undone!</p>
+                <p>All bills, payments, and member data in this group will also be permanently deleted.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideDeleteModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDeleteGroup()">Delete Group</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Bill Modal -->
+    <div class="modal-backdrop" id="editBillModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Edit Bill</h2>
+                <button class="close-btn" onclick="hideEditBillModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editBillForm">
+                    <div class="form-group">
+                        <label for="editBillTitle">Bill Title</label>
+                        <input type="text" id="editBillTitle" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBillAmount">Total Amount ($)</label>
+                        <input type="number" id="editBillAmount" step="0.01" min="0" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBillStatus">Status</label>
+                        <select id="editBillStatus" class="form-control">
+                            <option value="pending">Pending</option>
+                            <option value="partial">Partially Paid</option>
+                            <option value="paid">Paid</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideEditBillModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveBillEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mark Payment Modal for Name-Only Members -->
+    <div class="modal-backdrop" id="paymentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-credit-card"></i> Record Payment</h2>
+                <button class="close-btn" onclick="hidePaymentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="paymentInfo" style="background: var(--primary-50); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                    <p style="margin-bottom: 0.5rem;"><strong>Member:</strong> <span id="paymentMemberName"></span></p>
+                    <p style="margin-bottom: 0.5rem;"><strong>Bill:</strong> <span id="paymentBillTitle"></span></p>
+                    <p style="margin-bottom: 0.5rem;"><strong>Amount Due:</strong> <span id="paymentAmountDue">$0.00</span></p>
+                </div>
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label for="paymentAmount">Payment Amount ($)</label>
+                        <input type="number" id="paymentAmount" step="0.01" min="0" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod" class="form-control">
+                            <option value="cash">Cash</option>
+                            <option value="card">Credit/Debit Card</option>
+                            <option value="bank">Bank Transfer</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="mobile">Mobile Money</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentNotes">Notes (Optional)</label>
+                        <input type="text" id="paymentNotes" class="form-control" placeholder="e.g., Paid via Venmo">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hidePaymentModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitPayment()" id="submitPaymentBtn">Record Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug Button -->
+    <button class="debug-btn" onclick="debugGroup()">
+        <i class="fas fa-bug"></i> Debug
+    </button>
+
+    <script>
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const PAGE_API_BASE = window.SmartBillAPI?.API_BASE || (typeof API_BASE !== 'undefined'
+            ? API_BASE
+            : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:5000/api'
+                : 'https://smartbill.onrender.com/api'));
+        
+        console.log('API_BASE:', PAGE_API_BASE);
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const groupId = urlParams.get('id');
+        
+        // State variables
+        let currentGroup = null;
+        let currentUser = null;
+        let isAdmin = false;
+        let groupBills = [];
+        let allMembers = [];
+        let currentGroupGoal = null;
+        let activeGroupTab = 'members';
+        let currentEditingBill = null;
+        let currentPaymentData = null;
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = message;
+            toast.className = `toast-message toast-${type}`;
+            toast.style.display = 'block';
+            
+            if (type === 'success' && typeof showConfetti === 'function') {
+                setTimeout(() => showConfetti(800, 40), 100);
+            }
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function formatCurrency(amount, currency = 'KES') {
+            return new Intl.NumberFormat('en-KE', {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // AUTHENTICATION CHECK
+        // ============================================
+        
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+
+        // ============================================
+        // USER DATA
+        // ============================================
+        
+        function loadUserData() {
+            currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const userNameEl = document.getElementById('userName');
+            const avatarText = document.getElementById('navbarAvatarText');
+            
+            if (userNameEl) userNameEl.textContent = currentUser.name || 'User';
+            if (avatarText) avatarText.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
+        }
+
+        async function loadUserAvatar() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (res.ok) {
+                    const user = await res.json();
+                    const avatarImg = document.getElementById('navbarAvatarImage');
+                    const avatarText = document.getElementById('navbarAvatarText');
+                    
+                    if (user.avatar && avatarImg) {
+                        avatarImg.src = user.avatar;
+                        avatarImg.style.display = 'block';
+                        if (avatarText) avatarText.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading avatar:', error);
+            }
+        }
+
+        // ============================================
+        // SERVER CONNECTION
+        // ============================================
+        
+        async function checkServerConnection() {
+            const statusEl = document.getElementById('connectionStatus');
+            
+            try {
+                const response = await fetch(`${PAGE_API_BASE}/health`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    statusEl.className = 'connection-status online';
+                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Connected to server';
+                    setTimeout(() => {
+                        statusEl.style.display = 'none';
+                    }, 3000);
+                } else {
+                    throw new Error('Server not responding');
+                }
+            } catch (error) {
+                statusEl.className = 'connection-status offline';
+                statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Cannot connect to server';
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // ============================================
+        // GROUP LOADING
+        // ============================================
+        
+        function showNoGroupSelected() {
+            document.getElementById('groupContent').innerHTML = `
+                <div class="create-group-prompt">
+                    <i class="fas fa-users"></i>
+                    <h2>No Group Selected</h2>
+                    <p>Please select a group from your groups list or create a new one to get started.</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <a href="groups.html" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> View My Groups
+                        </a>
+                        <a href="create-group.html" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create New Group
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadGroupDetails() {
+            const container = document.getElementById('groupContent');
+            
+            if (!groupId) {
+                showNoGroupSelected();
+                return;
+            }
+            
+            try {
+                console.log('📡 Loading group with ID:', groupId);
+                
+                const res = await fetch(`${PAGE_API_BASE}/groups/${groupId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                console.log('📥 Response status:', res.status);
+                
+                if (!res.ok) {
+                    if (res.status === 403) {
+                        throw new Error('You are not a member of this group');
+                    } else if (res.status === 404) {
+                        // Check if user has any groups
+                        const groupsRes = await fetch(`${PAGE_API_BASE}/groups`, {
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                            }
+                        });
+                        
+                        if (groupsRes.ok) {
+                            const groups = await groupsRes.json();
+                            if (groups.length > 0) {
+                                container.innerHTML = `
+                                    <div class="create-group-prompt">
+                                        <i class="fas fa-exclamation-circle" style="color: var(--warning-500);"></i>
+                                        <h2>Group Not Found</h2>
+                                        <p>The group with ID ${groupId} does not exist or you don't have access to it.</p>
+                                        <p style="margin-top: 1rem;">Here are your available groups:</p>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 2rem 0;">
+                                            ${groups.map(g => `
+                                                <a href="group-details.html?id=${g.id}" class="btn btn-secondary">
+                                                    ${escapeHtml(g.name)} (ID: ${g.id})
+                                                </a>
+                                            `).join('')}
+                                        </div>
+                                        <a href="groups.html" class="btn btn-primary">
+                                            <i class="fas fa-list"></i> View All Groups
+                                        </a>
+                                    </div>
+                                `;
+                                return;
+                            }
+                        }
+                        
+                        container.innerHTML = `
+                            <div class="create-group-prompt">
+                                <i class="fas fa-users"></i>
+                                <h2>No Groups Found</h2>
+                                <p>You don't have any groups yet. Create your first group to get started!</p>
+                                <a href="create-group.html" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Create New Group
+                                </a>
+                            </div>
+                        `;
+                        return;
+                    } else if (res.status === 401) {
+                        localStorage.clear();
+                        window.location.href = 'login.html';
+                        return;
+                    } else {
+                        throw new Error(`Failed to load group: ${res.status}`);
+                    }
+                }
+                
+                const data = await res.json();
+                console.log('📊 Group data:', data);
+                
+                currentGroup = data.group;
+                isAdmin = data.user_role === 'admin';
+                
+                await loadAllMembers();
+                await loadGroupBills();
+                await loadGroupGoal();
+                
+                displayGroup();
+                
+            } catch (error) {
+                console.error('❌ Error loading group:', error);
+                container.innerHTML = `
+                    <div class="error-container">
+                        <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <h2>Error Loading Group</h2>
+                        <p style="margin-bottom: 1rem;">${escapeHtml(error.message)}</p>
+                        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                            <button class="retry-btn" onclick="location.reload()">
+                                <i class="fas fa-sync"></i> Retry
+                            </button>
+                            <a href="groups.html" class="btn btn-secondary">
+                                Go to Groups
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadAllMembers() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/groups/${groupId}/all-members`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!res.ok) {
+                    throw new Error('Failed to load members');
+                }
+                
+                allMembers = await res.json();
+                console.log('👥 Members loaded:', allMembers.length);
+                
+            } catch (error) {
+                console.error('Error loading members:', error);
+                allMembers = [];
+                showToast('Failed to load members', 'error');
+            }
+        }
+
+        async function loadGroupBills() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/bills?group_id=${groupId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!res.ok) {
+                    throw new Error('Failed to load bills');
+                }
+                
+                groupBills = await res.json();
+                console.log('📄 Bills loaded:', groupBills.length);
+                
+            } catch (error) {
+                console.error('Error loading bills:', error);
+                groupBills = [];
+            }
+        }
+
+        async function loadGroupGoal() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/groups/${groupId}/goal`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error('Failed to load group goal');
+                }
+
+                currentGroupGoal = await res.json();
+            } catch (error) {
+                console.error('Error loading group goal:', error);
+                currentGroupGoal = { goal: null, contributors: [] };
+            }
+        }
+
+        // ============================================
+        // DISPLAY FUNCTIONS
+        // ============================================
+        
+        function displayGroup() {
+            const container = document.getElementById('groupContent');
+            
+            if (!currentGroup) {
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h1 style="margin-bottom: 0.5rem;">${escapeHtml(currentGroup.name)}</h1>
+                            <p style="color: var(--muted-text); margin-bottom: 1rem;">${escapeHtml(currentGroup.description || 'No description')}</p>
+                            <div style="display: flex; gap: 2rem; color: var(--muted-text); font-size: 0.9rem; flex-wrap: wrap;">
+                                <span><i class="fas fa-user"></i> Created by ${escapeHtml(currentGroup.creator_name || 'Unknown')}</span>
+                                <span><i class="fas fa-calendar"></i> ${new Date(currentGroup.created_at).toLocaleDateString()}</span>
+                                <span><i class="fas fa-users"></i> ${allMembers.length} members</span>
+                            </div>
+                        </div>
+                        
+                        <div class="invite-code-box">
+                            <div>
+                                <span style="color: var(--muted-text); font-size: 0.9rem;">Invite Code:</span>
+                                <span class="invite-code">${currentGroup.invite_code || 'N/A'}</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyInviteCode('${currentGroup.invite_code || ''}')">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tab-nav">
+                        <button class="tab-btn ${activeGroupTab === 'members' ? 'active' : ''}" onclick="switchTab('members')">Members</button>
+                        <button class="tab-btn ${activeGroupTab === 'bills' ? 'active' : ''}" onclick="switchTab('bills')">Bills</button>
+                        <button class="tab-btn ${activeGroupTab === 'payments' ? 'active' : ''}" onclick="switchTab('payments')">Payment Status</button>
+                        <button class="tab-btn ${activeGroupTab === 'summary' ? 'active' : ''}" onclick="switchTab('summary')">Summary</button>
+                    </div>
+
+                    <div id="members-tab" class="tab-content ${activeGroupTab === 'members' ? 'active' : ''}">
+                        ${renderMembersTab()}
+                    </div>
+
+                    <div id="bills-tab" class="tab-content ${activeGroupTab === 'bills' ? 'active' : ''}">
+                        ${renderBillsTab()}
+                    </div>
+
+                    <div id="payments-tab" class="tab-content ${activeGroupTab === 'payments' ? 'active' : ''}">
+                        <div id="paymentStatusContainer">
+                            ${renderPaymentStatusLoading()}
+                        </div>
+                    </div>
+
+                    <div id="summary-tab" class="tab-content ${activeGroupTab === 'summary' ? 'active' : ''}">
+                        ${renderSummaryTab()}
+                    </div>
+
+                    ${isAdmin ? `
+                        <div class="danger-zone">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+                            <p style="margin-bottom: 1rem;">Once you delete a group, there is no going back. All bills, payments, and member data will be permanently deleted.</p>
+                            <button class="btn-danger" onclick="showDeleteModal()">
+                                <i class="fas fa-trash"></i> Delete Group
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Load payment status if payments tab is active
+            if (activeGroupTab === 'payments') {
+                loadPaymentStatus();
+            }
+        }
+
+        function renderMembersTab() {
+            const addMemberForm = isAdmin ? `
+                <div id="addMemberForm" style="display: none; margin-top: 2rem;">
+                    <div class="add-member-section">
+                        <h3 style="margin-bottom: 1rem;"><i class="fas fa-user-plus"></i> Add New Member</h3>
+                        
+                        <div style="display: grid; gap: 1rem; max-width: 500px;">
+                            <div class="form-group">
+                                <label for="memberName">Name <span style="color: var(--danger-500);">*</span></label>
+                                <input type="text" id="memberName" class="form-control" placeholder="Enter member's full name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="memberEmail">Email (Optional - for registered users)</label>
+                                <input type="email" id="memberEmail" class="form-control" placeholder="Enter email address">
+                                <small style="color: var(--muted-text); display: block; margin-top: 0.25rem;">
+                                    <i class="fas fa-info-circle"></i> Leave empty for name-only members
+                                </small>
+                            </div>
+                            
+                            <div class="two-column">
+                                <button class="btn btn-primary" onclick="addMember()">
+                                    <i class="fas fa-user-plus"></i> Add Member
+                                </button>
+                                <button class="btn btn-secondary" onclick="hideAddMemberForm()">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="addMemberError" style="color: var(--danger-500); margin-top: 1rem;"></div>
+                    </div>
+                </div>
+            ` : '';
+
+            if (allMembers.length === 0) {
+                return `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <p>No members in this group yet.</p>
+                        ${isAdmin ? `
+                            <button class="btn btn-primary btn-sm" onclick="showAddMemberForm()">
+                                Add your first member
+                            </button>
+                        ` : ''}
+                    </div>
+                    ${addMemberForm}
+                `;
+            }
+
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3><i class="fas fa-users"></i> Members (${allMembers.length})</h3>
+                    ${isAdmin ? `
+                        <button class="btn btn-primary btn-sm" onclick="showAddMemberForm()">
+                            <i class="fas fa-user-plus"></i> Add Member
+                        </button>
+                    ` : ''}
+                </div>
+                
+                <div class="member-list">
+                    ${allMembers.map(member => `
+                        <div class="member-card">
+                            <div class="member-avatar ${member.type === 'name-only' ? 'name-only' : ''}">
+                                ${member.name ? member.name.charAt(0).toUpperCase() : '?'}
+                            </div>
+                            <div class="member-info">
+                                <div class="member-name">
+                                    ${escapeHtml(member.name)}
+                                    ${member.role === 'admin' ? '<span class="admin-badge">Admin</span>' : ''}
+                                    ${member.id === currentUser?.id ? '<span style="color: var(--primary-500); font-size: 0.8rem;">(You)</span>' : ''}
+                                </div>
+                                <div class="member-email">
+                                    ${member.email ? escapeHtml(member.email) : '<span style="color: var(--muted-text); font-style: italic;">No email</span>'}
+                                </div>
+                                <span class="member-type-badge ${member.type === 'name-only' ? 'name-only' : ''}">
+                                    <i class="fas fa-${member.type === 'name-only' ? 'user' : 'envelope'}"></i>
+                                    ${member.type === 'name-only' ? 'Name Only' : 'Registered'}
+                                </span>
+                            </div>
+                            
+                            ${isAdmin && member.id !== currentUser?.id ? `
+                                <div class="member-actions">
+                                    <button class="action-btn delete" onclick="removeMember('${member.id}', '${member.type}')" title="Remove Member">
+                                        <i class="fas fa-user-minus"></i>
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+
+                ${addMemberForm}
+            `;
+        }
+
+        function renderBillsTab() {
+            if (!groupBills || groupBills.length === 0) {
+                return `
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <p>No bills in this group yet.</p>
+                        ${isAdmin ? `
+                            <a href="create-bill.html?group=${groupId}" class="btn btn-primary btn-sm">
+                                Create First Bill
+                            </a>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3><i class="fas fa-receipt"></i> Group Bills (${groupBills.length})</h3>
+                    ${isAdmin ? `
+                        <a href="create-bill.html?group=${groupId}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> New Bill
+                        </a>
+                    ` : ''}
+                </div>
+                
+                <div class="bills-list">
+                    ${groupBills.map(bill => {
+                        const date = new Date(bill.created_at).toLocaleDateString();
+                        return `
+                            <div class="bill-item-small" onclick="viewBill(${bill.id})">
+                                <div class="bill-info">
+                                    <div class="bill-title">${escapeHtml(bill.title)}</div>
+                                    <div class="bill-meta">
+                                        <span><i class="far fa-calendar"></i> ${date}</span>
+                                        <span><i class="fas fa-tag"></i> ${bill.status}</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span class="bill-amount-small">${formatCurrency(parseFloat(bill.total))}</span>
+                                    <span class="bill-status-small status-${bill.status}">${bill.status}</span>
+                                    ${isAdmin ? `
+                                        <div style="display: flex; gap: 0.25rem;">
+                                            <button class="action-btn" onclick="event.stopPropagation(); editBill(${bill.id})" title="Edit Bill">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="action-btn delete" onclick="event.stopPropagation(); deleteBill(${bill.id})" title="Delete Bill">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function renderPaymentStatusLoading() {
+            return `
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading payment status...</p>
+                </div>
+            `;
+        }
+
+        function renderSummaryTab() {
+            const totalBills = groupBills.length;
+            const totalAmount = groupBills.reduce((sum, b) => sum + parseFloat(b.total), 0);
+            const pendingBills = groupBills.filter(b => b.status === 'pending' || b.status === 'partial').length;
+            const paidBills = groupBills.filter(b => b.status === 'paid').length;
+            const registeredCount = allMembers.filter(m => m.type === 'registered').length;
+            const nameOnlyCount = allMembers.filter(m => m.type === 'name-only').length;
+
+            return `
+                <h3 style="margin-bottom: 1rem;"><i class="fas fa-chart-bar"></i> Group Summary</h3>
+
+                ${renderGoalSection()}
+                
+                <div class="two-column">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Members</h3>
+                            <div class="stat-number">${allMembers.length}</div>
+                            <small>${registeredCount} registered, ${nameOnlyCount} name-only</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Bills</h3>
+                            <div class="stat-number">${totalBills}</div>
+                            <small>Total: ${formatCurrency(totalAmount)}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Pending Bills</h3>
+                            <div class="stat-number">${pendingBills}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Paid Bills</h3>
+                            <div class="stat-number">${paidBills}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <h4 style="margin-bottom: 1rem;">Recent Activity</h4>
+                    <div class="bills-list">
+                        ${groupBills.slice(0, 5).map(bill => `
+                            <div class="bill-item-small" onclick="viewBill(${bill.id})">
+                                <div>
+                                    <div class="bill-title">${escapeHtml(bill.title)}</div>
+                                    <div class="bill-meta">${new Date(bill.created_at).toLocaleDateString()}</div>
+                                </div>
+                                <span class="bill-status-small status-${bill.status}">${bill.status}</span>
+                            </div>
+                        `).join('')}
+                        ${groupBills.length === 0 ? '<p style="color: var(--muted-text); text-align: center;">No activity yet</p>' : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGoalSection() {
+            const goal = currentGroupGoal?.goal;
+            const contributors = currentGroupGoal?.contributors || [];
+
+            if (!goal) {
+                return `
+                    <div class="goal-card">
+                        <div class="goal-header">
+                            <div>
+                                <h4><i class="fas fa-bullseye"></i> Group Goal</h4>
+                                <p style="margin: 0.35rem 0 0; color: var(--muted-text);">Track savings for a shared plan like a trip, rent deposit, or event budget.</p>
+                            </div>
+                        </div>
+                        <div class="goal-empty">
+                            ${isAdmin ? 'Set your first group goal below to start tracking contributions.' : 'No group goal has been created yet.'}
+                        </div>
+                        ${isAdmin ? renderGoalAdminForms() : ''}
+                    </div>
+                `;
+            }
+
+            const saved = parseFloat(goal.saved) || 0;
+            const target = parseFloat(goal.target) || 0;
+            const percentage = target > 0 ? Math.min(100, (saved / target) * 100) : 0;
+            const remaining = Math.max(0, target - saved);
+
+            return `
+                <div class="goal-card">
+                    <div class="goal-header">
+                        <div>
+                            <h4><i class="fas fa-bullseye"></i> ${escapeHtml(goal.name)}</h4>
+                            <p style="margin: 0.35rem 0 0; color: var(--muted-text);">
+                                ${goal.deadline ? `Deadline: ${new Date(goal.deadline).toLocaleDateString()}` : 'No deadline set'}
+                            </p>
+                        </div>
+                        <div class="badge badge-primary">${percentage.toFixed(0)}% funded</div>
+                    </div>
+
+                    <div class="goal-progress">
+                        <div class="goal-progress-bar" style="width: ${percentage}%;"></div>
+                    </div>
+
+                    <div class="goal-metrics">
+                        <div class="goal-metric">
+                            <div style="color: var(--muted-text); font-size: 0.85rem;">Saved</div>
+                            <strong style="font-size: 1.3rem;">${formatCurrency(saved)}</strong>
+                        </div>
+                        <div class="goal-metric">
+                            <div style="color: var(--muted-text); font-size: 0.85rem;">Target</div>
+                            <strong style="font-size: 1.3rem;">${formatCurrency(target)}</strong>
+                        </div>
+                        <div class="goal-metric">
+                            <div style="color: var(--muted-text); font-size: 0.85rem;">Remaining</div>
+                            <strong style="font-size: 1.3rem;">${formatCurrency(remaining)}</strong>
+                        </div>
+                    </div>
+
+                    <div class="goal-contributors">
+                        <h4 style="margin-bottom: 1rem;">Contributors</h4>
+                        ${contributors.length > 0 ? contributors.map(contributor => `
+                            <div class="goal-contributor-item">
+                                <div>
+                                    <strong>${escapeHtml(contributor.user)}</strong>
+                                    <div style="font-size: 0.85rem; color: var(--muted-text);">${new Date(contributor.created_at).toLocaleDateString()}</div>
+                                </div>
+                                <strong>${formatCurrency(parseFloat(contributor.amount) || 0)}</strong>
+                            </div>
+                        `).join('') : '<div class="goal-empty">No contributions yet.</div>'}
+                    </div>
+
+                    ${isAdmin ? renderGoalAdminForms(goal) : ''}
+                </div>
+            `;
+        }
+
+        function renderGoalAdminForms(goal = null) {
+            return `
+                <div class="two-column" style="margin-top: 1.5rem;">
+                    <div class="card">
+                        <h4 style="margin-bottom: 1rem;">${goal ? 'Update Goal' : 'Create Goal'}</h4>
+                        <div class="form-group">
+                            <label for="goalName">Goal Name</label>
+                            <input type="text" id="goalName" class="form-control" value="${goal?.name || ''}" placeholder="Hawaii Trip 2024">
+                        </div>
+                        <div class="form-group">
+                            <label for="goalTarget">Target Amount</label>
+                            <input type="number" id="goalTarget" class="form-control" min="0" step="0.01" value="${goal ? (parseFloat(goal.target) || 0).toFixed(2) : ''}" placeholder="5000">
+                        </div>
+                        <div class="form-group">
+                            <label for="goalDeadline">Deadline</label>
+                            <input type="date" id="goalDeadline" class="form-control" value="${goal?.deadline ? new Date(goal.deadline).toISOString().slice(0, 10) : ''}">
+                        </div>
+                        <button class="btn btn-primary" onclick="saveGroupGoal()">
+                            <i class="fas fa-save"></i> Save Goal
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <h4 style="margin-bottom: 1rem;">Add Contribution</h4>
+                        <div class="form-group">
+                            <label for="goalContributor">Contributor</label>
+                            <select id="goalContributor" class="form-control">
+                                <option value="">Select member</option>
+                                ${allMembers.map(member => `
+                                    <option value="${escapeHtml(member.name)}" data-user-id="${member.type === 'registered' ? member.id : ''}">${escapeHtml(member.name)}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="goalAmount">Amount</label>
+                            <input type="number" id="goalAmount" class="form-control" min="0" step="0.01" placeholder="250">
+                        </div>
+                        <button class="btn btn-secondary" onclick="addGoalContribution()">
+                            <i class="fas fa-plus"></i> Add Contribution
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // PAYMENT STATUS
+        // ============================================
+        
+        async function loadPaymentStatus() {
+            const container = document.getElementById('paymentStatusContainer');
+            
+            if (!groupBills || groupBills.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-credit-card"></i>
+                        <p>No bills to track payments for.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                let totalPaid = 0;
+                let totalPending = 0;
+                
+                let html = '<div style="overflow-x: auto;"><table class="payment-status-table"><thead> tr';
+                html += '<th>Member</th><th>Type</th>';
+                
+                groupBills.forEach(bill => {
+                    html += `<th style="text-align: center;">${escapeHtml(bill.title)}<br><small>${formatCurrency(parseFloat(bill.total))}</small></th>`;
+                });
+                html += '</tr></thead><tbody>';
+                
+                for (const member of allMembers) {
+                    html += '<tr>';
+                    html += `<td><strong>${escapeHtml(member.name)}</strong>${member.id === currentUser?.id ? '<br><small>(You)</small>' : ''}</td>`;
+                    html += `<td><span class="member-type-badge ${member.type === 'name-only' ? 'name-only' : ''}">${member.type === 'name-only' ? 'Name Only' : 'Registered'}</span></td>`;
+                    
+                    for (const bill of groupBills) {
+                        try {
+                            const statusRes = await fetch(`${PAGE_API_BASE}/bills/${bill.id}/payment-status`, {
+                                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                            });
+                            
+                            if (!statusRes.ok) {
+                                html += '<td style="text-align: center;">-</td>';
+                                continue;
+                            }
+                            
+                            const statuses = await statusRes.json();
+                            const memberStatus = statuses.find(s => 
+                                (member.type === 'registered' && s.member_id === member.id) ||
+                                (member.type === 'name-only' && s.member_id === member.id)
+                            );
+                            
+                            if (memberStatus) {
+                                const isPaid = memberStatus.paid;
+                                const amount = memberStatus.amount;
+                                
+                                if (isPaid) {
+                                    totalPaid += amount;
+                                } else {
+                                    totalPending += amount;
+                                }
+                                
+                                html += `
+                                    <td style="text-align: center;">
+                                        <div class="status-badge ${isPaid ? 'paid' : 'unpaid'}" style="margin-bottom: 5px;">
+                                            <i class="fas fa-${isPaid ? 'check-circle' : 'clock'}"></i>
+                                            ${isPaid ? 'Paid' : 'Unpaid'}
+                                        </div>
+                                        <div style="font-size: 0.8rem;">${formatCurrency(parseFloat(amount))}</div>
+                                        ${isAdmin && !isPaid && member.type === 'name-only' ? `
+                                            <button class="mark-paid-btn" onclick="showPaymentModal(${bill.id}, ${member.id}, '${escapeHtml(member.name)}', ${amount})" style="margin-top: 5px;">
+                                                Mark Paid
+                                            </button>
+                                        ` : ''}
+                                    </td>
+                                `;
+                            } else {
+                                html += '<td style="text-align: center;">-</td>';
+                            }
+                        } catch (error) {
+                            console.error(`Error fetching status for bill ${bill.id}:`, error);
+                            html += '<td style="text-align: center; color: #999;">Error</td>';
+                        }
+                    }
+                    html += '</tr>';
+                }
+                
+                html += '</tbody></table></div>';
+                
+                html += `
+                    <div class="payment-summary" style="margin-top: 20px;">
+                        <div><strong>Total Paid:</strong> <span class="total-paid">${formatCurrency(totalPaid)}</span></div>
+                        <div><strong>Total Pending:</strong> <span class="total-pending">${formatCurrency(totalPending)}</span></div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error in loadPaymentStatus:', error);
+                container.innerHTML = `
+                    <div class="error-container">
+                        <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p>Error loading payment status: ${escapeHtml(error.message)}</p>
+                        <button class="retry-btn" onclick="loadPaymentStatus()">
+                            <i class="fas fa-sync"></i> Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
+        
+        function switchTab(tab) {
+            activeGroupTab = tab;
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tab}-tab`).classList.add('active');
+            
+            if (tab === 'payments') {
+                loadPaymentStatus();
+            }
+        }
+
+        // ============================================
+        // MEMBER MANAGEMENT
+        // ============================================
+        
+        function showAddMemberForm() {
+            const form = document.getElementById('addMemberForm');
+            if (form) {
+                form.style.display = 'block';
+                form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function hideAddMemberForm() {
+            const form = document.getElementById('addMemberForm');
+            if (form) {
+                form.style.display = 'none';
+                document.getElementById('memberName').value = '';
+                document.getElementById('memberEmail').value = '';
+                document.getElementById('addMemberError').textContent = '';
+            }
+        }
+
+        async function addMember() {
+            const name = document.getElementById('memberName').value.trim();
+            const email = document.getElementById('memberEmail').value.trim();
+            const errorDiv = document.getElementById('addMemberError');
+            const addBtn = event.target;
+            
+            if (!name) {
+                errorDiv.textContent = 'Please enter a name';
+                return;
+            }
+            
+            const originalText = addBtn.innerHTML;
+            addBtn.disabled = true;
+            addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            
+            try {
+                let url, body;
+                
+                if (email) {
+                    url = `${PAGE_API_BASE}/groups/${groupId}/members`;
+                    body = { email };
+                } else {
+                    url = `${PAGE_API_BASE}/groups/${groupId}/name-members`;
+                    body = { name };
+                }
+                
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                const contentType = res.headers.get('content-type') || '';
+                const data = contentType.includes('application/json')
+                    ? await res.json()
+                    : { error: await res.text() };
+                
+                if (res.ok) {
+                    showToast(`${email ? 'Registered' : 'Name-only'} member added successfully`, 'success');
+                    hideAddMemberForm();
+                    await loadAllMembers();
+                    displayGroup();
+                } else {
+                    errorDiv.textContent = data.error || 'Failed to add member';
+                    showToast(data.error || 'Failed to add member', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding member:', error);
+                errorDiv.textContent = 'Error adding member. Please try again.';
+                showToast('Error adding member: ' + error.message, 'error');
+            } finally {
+                addBtn.disabled = false;
+                addBtn.innerHTML = originalText;
+            }
+        }
+
+        async function removeMember(memberId, type) {
+            if (!confirm('Remove this member from the group? This action cannot be undone.')) return;
+            
+            try {
+                let url;
+                if (type === 'name-only') {
+                    url = `${PAGE_API_BASE}/groups/${groupId}/name-members/${memberId}`;
+                } else {
+                    url = `${PAGE_API_BASE}/groups/${groupId}/members/${memberId}`;
+                }
+                
+                const res = await fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (res.ok) {
+                    showToast('Member removed successfully', 'success');
+                    await loadAllMembers();
+                    displayGroup();
+                } else {
+                    const contentType = res.headers.get('content-type') || '';
+                    const data = contentType.includes('application/json')
+                        ? await res.json()
+                        : { error: 'Failed to remove member' };
+                    showToast(data.error || 'Failed to remove member', 'error');
+                }
+            } catch (error) {
+                console.error('Error removing member:', error);
+                showToast('Error removing member. Please try again.', 'error');
+            }
+        }
+
+        // ============================================
+        // BILL MANAGEMENT
+        // ============================================
+        
+        function viewBill(billId) {
+            window.location.href = `bill-details.html?id=${billId}`;
+        }
+
+        function editBill(billId) {
+            const bill = groupBills.find(b => b.id === billId);
+            if (bill) {
+                currentEditingBill = bill;
+                document.getElementById('editBillTitle').value = bill.title;
+                document.getElementById('editBillAmount').value = bill.total;
+                document.getElementById('editBillStatus').value = bill.status;
+                document.getElementById('editBillModal').classList.add('show');
+            }
+        }
+
+        async function saveBillEdit() {
+            if (!currentEditingBill) return;
+            
+            const title = document.getElementById('editBillTitle').value.trim();
+            const amount = parseFloat(document.getElementById('editBillAmount').value);
+            const status = document.getElementById('editBillStatus').value;
+            
+            if (!title || !amount) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            
+            const saveBtn = document.querySelector('#editBillModal .btn-primary');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/bills/${currentEditingBill.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ title, total: amount, status })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showToast('Bill updated successfully', 'success');
+                    hideEditBillModal();
+                    await loadGroupBills();
+                    displayGroup();
+                } else {
+                    showToast(data.error || 'Failed to update bill', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating bill:', error);
+                showToast('Failed to update bill. Please try again.', 'error');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalText;
+            }
+        }
+
+        function hideEditBillModal() {
+            document.getElementById('editBillModal').classList.remove('show');
+            currentEditingBill = null;
+        }
+
+        async function deleteBill(billId) {
+            if (!confirm('Are you sure you want to delete this bill? This action cannot be undone.')) return;
+            
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/bills/${billId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (res.ok) {
+                    showToast('Bill deleted successfully', 'success');
+                    await loadGroupBills();
+                    displayGroup();
+                } else {
+                    const data = await res.json();
+                    showToast(data.error || 'Failed to delete bill', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting bill:', error);
+                showToast('Failed to delete bill. Please try again.', 'error');
+            }
+        }
+
+        // ============================================
+        // GOAL MANAGEMENT
+        // ============================================
+        
+        async function saveGroupGoal() {
+            try {
+                const name = document.getElementById('goalName')?.value.trim();
+                const target = document.getElementById('goalTarget')?.value;
+                const deadline = document.getElementById('goalDeadline')?.value;
+
+                if (!name || !target) {
+                    showToast('Goal name and target amount are required', 'error');
+                    return;
+                }
+
+                const res = await fetch(`${PAGE_API_BASE}/groups/${groupId}/goal`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ name, target: parseFloat(target), deadline: deadline || null })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Failed to save group goal');
+                }
+
+                activeGroupTab = 'summary';
+                await loadGroupGoal();
+                displayGroup();
+                showToast('Group goal saved successfully', 'success');
+            } catch (error) {
+                console.error('Error saving group goal:', error);
+                showToast(error.message || 'Failed to save group goal', 'error');
+            }
+        }
+
+        async function addGoalContribution() {
+            try {
+                const contributorSelect = document.getElementById('goalContributor');
+                const contributorName = contributorSelect?.value;
+                const selectedOption = contributorSelect?.options[contributorSelect.selectedIndex];
+                const amount = document.getElementById('goalAmount')?.value;
+                const userId = selectedOption?.dataset?.userId || null;
+
+                if (!contributorName || !amount) {
+                    showToast('Please select a contributor and enter an amount', 'error');
+                    return;
+                }
+
+                const res = await fetch(`${PAGE_API_BASE}/groups/${groupId}/goal/contributions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        contributor_name: contributorName,
+                        amount: parseFloat(amount),
+                        user_id: userId || null
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Failed to add contribution');
+                }
+
+                activeGroupTab = 'summary';
+                await loadGroupGoal();
+                displayGroup();
+                showToast('Contribution added successfully', 'success');
+            } catch (error) {
+                console.error('Error adding contribution:', error);
+                showToast(error.message || 'Failed to add contribution', 'error');
+            }
+        }
+
+        // ============================================
+        // PAYMENT MANAGEMENT
+        // ============================================
+        
+        function showPaymentModal(billId, memberId, memberName, amount) {
+            currentPaymentData = { billId, memberId, amount };
+            document.getElementById('paymentMemberName').textContent = memberName;
+            const bill = groupBills.find(b => b.id === billId);
+            document.getElementById('paymentBillTitle').textContent = bill ? bill.title : 'Unknown Bill';
+            document.getElementById('paymentAmountDue').textContent = formatCurrency(parseFloat(amount));
+            document.getElementById('paymentAmount').value = amount.toFixed(2);
+            document.getElementById('paymentModal').classList.add('show');
+        }
+
+        function hidePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('show');
+            document.getElementById('paymentForm').reset();
+            currentPaymentData = null;
+        }
+
+        async function submitPayment() {
+            if (!currentPaymentData) return;
+            
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            const method = document.getElementById('paymentMethod').value;
+            const notes = document.getElementById('paymentNotes').value;
+            const submitBtn = document.getElementById('submitPaymentBtn');
+            
+            if (!amount || amount <= 0) {
+                showToast('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/name-payments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        bill_id: currentPaymentData.billId,
+                        name_member_id: currentPaymentData.memberId,
+                        amount: amount,
+                        method: method,
+                        notes: notes
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showToast('Payment recorded successfully', 'success');
+                    hidePaymentModal();
+                    await loadPaymentStatus();
+                } else {
+                    showToast(data.error || 'Failed to record payment', 'error');
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                showToast('Failed to record payment. Please try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // ============================================
+        // GROUP MANAGEMENT
+        // ============================================
+        
+        function copyInviteCode(code) {
+            navigator.clipboard.writeText(code);
+            showToast('Invite code copied to clipboard!', 'success');
+        }
+
+        function showDeleteModal() {
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function hideDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+        }
+
+        async function confirmDeleteGroup() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/groups/${groupId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (res.ok) {
+                    showToast('Group deleted successfully', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'groups.html';
+                    }, 1500);
+                } else {
+                    const data = await res.json();
+                    showToast(data.error || 'Failed to delete group', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting group:', error);
+                showToast('Error deleting group. Please try again.', 'error');
+            }
+        }
+
+        // ============================================
+        // NOTIFICATIONS & NAVIGATION
+        // ============================================
+        
+        async function loadNotificationCount() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/notifications`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('notificationCount').textContent = data.unreadCount || 0;
+                }
+            } catch (error) {
+                document.getElementById('notificationCount').textContent = '0';
+            }
+        }
+
+        function toggleNotifications() {
+            window.location.href = 'notifications.html';
+        }
+
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // ============================================
+        // DEBUG
+        // ============================================
+        
+        function debugGroup() {
+            console.group('GROUP DEBUG INFO');
+            console.log('Group ID:', groupId);
+            console.log('Current User:', currentUser);
+            console.log('Is Admin:', isAdmin);
+            console.log('Group Data:', currentGroup);
+            console.log('All Members:', allMembers);
+            console.log('Group Bills:', groupBills);
+            console.log('Group Goal:', currentGroupGoal);
+            console.log('\nMember Stats:');
+            console.log('  - Registered:', allMembers.filter(m => m.type === 'registered').length);
+            console.log('  - Name-only:', allMembers.filter(m => m.type === 'name-only').length);
+            console.log('\nBill Stats:');
+            console.log('  - Total:', groupBills.length);
+            console.log('  - Pending:', groupBills.filter(b => b.status === 'pending').length);
+            console.log('  - Partial:', groupBills.filter(b => b.status === 'partial').length);
+            console.log('  - Paid:', groupBills.filter(b => b.status === 'paid').length);
+            console.groupEnd();
+            showToast('Debug info logged to console (F12)', 'info');
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            checkServerConnection();
+            loadUserData();
+            loadUserAvatar();
+            loadGroupDetails();
+            loadNotificationCount();
+            
+            // Enter key support for member email
+            document.addEventListener('keypress', function(e) {
+                if (e.target.id === 'memberEmail' && e.key === 'Enter') {
+                    e.preventDefault();
+                    addMember();
+                }
+            });
+        });
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

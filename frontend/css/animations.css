@@ -1,0 +1,674 @@
+/* ============================================
+   SMARTBILL ANIMATIONS
+   Professional animations for better UX
+   ============================================ */
+
+/* ===== BASE ANIMATIONS ===== */
+
+/* Fade Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Zoom Animations */
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes zoomOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+/* Slide Animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== PAGE TRANSITIONS ===== */
+body {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.container {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* ===== CARD HOVER ANIMATIONS ===== */
+.card, 
+.stat-card, 
+.group-card, 
+.bill-item, 
+.feature-card, 
+.member-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover, 
+.stat-card:hover, 
+.group-card:hover, 
+.bill-item:hover,
+.feature-card:hover,
+.member-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.2);
+}
+
+/* Shine Effect on Hover */
+.card::after, 
+.stat-card::after, 
+.group-card::after, 
+.bill-item::after,
+.feature-card::after,
+.member-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        115deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.3) 30%,
+        rgba(255,255,255,0) 60%
+    );
+    transform: rotate(30deg);
+    transition: transform 0.6s;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.card:hover::after, 
+.stat-card:hover::after, 
+.group-card:hover::after, 
+.bill-item:hover::after,
+.feature-card:hover::after,
+.member-card:hover::after {
+    transform: rotate(30deg) translate(50%, -50%);
+    opacity: 1;
+}
+
+/* ===== BUTTON ANIMATIONS ===== */
+.btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+/* Ripple Effect for Buttons */
+.btn-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-ripple:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+.btn-ripple:active:after {
+    width: 200px;
+    height: 200px;
+}
+
+/* ===== LOADING ANIMATIONS ===== */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--gray-200);
+    border-top-color: var(--primary-500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Skeleton Loading Animation */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--gray-200) 25%,
+        var(--gray-100) 50%,
+        var(--gray-200) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+/* ===== NOTIFICATION ANIMATIONS ===== */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.notification-badge {
+    animation: pulse 2s infinite;
+}
+
+/* ===== TOAST ANIMATIONS ===== */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+.toast {
+    animation: slideInRight 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.toast.success {
+    animation: bounce 0.5s ease, slideInRight 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.toast.error {
+    animation: shake 0.5s ease, slideInRight 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ===== STAGGERED LIST ANIMATIONS ===== */
+.bill-item, 
+.group-card, 
+.member-card,
+.activity-item {
+    animation: fadeInUp 0.5s ease-out backwards;
+}
+
+.bill-item:nth-child(1) { animation-delay: 0.05s; }
+.bill-item:nth-child(2) { animation-delay: 0.1s; }
+.bill-item:nth-child(3) { animation-delay: 0.15s; }
+.bill-item:nth-child(4) { animation-delay: 0.2s; }
+.bill-item:nth-child(5) { animation-delay: 0.25s; }
+.bill-item:nth-child(6) { animation-delay: 0.3s; }
+.bill-item:nth-child(7) { animation-delay: 0.35s; }
+.bill-item:nth-child(8) { animation-delay: 0.4s; }
+.bill-item:nth-child(9) { animation-delay: 0.45s; }
+.bill-item:nth-child(10) { animation-delay: 0.5s; }
+
+.group-card:nth-child(1) { animation-delay: 0.05s; }
+.group-card:nth-child(2) { animation-delay: 0.1s; }
+.group-card:nth-child(3) { animation-delay: 0.15s; }
+.group-card:nth-child(4) { animation-delay: 0.2s; }
+.group-card:nth-child(5) { animation-delay: 0.25s; }
+.group-card:nth-child(6) { animation-delay: 0.3s; }
+
+.activity-item:nth-child(1) { animation-delay: 0.05s; }
+.activity-item:nth-child(2) { animation-delay: 0.1s; }
+.activity-item:nth-child(3) { animation-delay: 0.15s; }
+.activity-item:nth-child(4) { animation-delay: 0.2s; }
+.activity-item:nth-child(5) { animation-delay: 0.25s; }
+
+/* ===== HOVER SCALE ANIMATIONS ===== */
+.avatar-upload-btn, 
+.dark-mode-toggle, 
+.logout-btn,
+.theme-toggle,
+.currency-btn {
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.avatar-upload-btn:hover, 
+.dark-mode-toggle:hover, 
+.logout-btn:hover,
+.theme-toggle:hover,
+.currency-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* ===== GLOW EFFECT ===== */
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.2);
+    }
+}
+
+.active-tab, 
+.active-filter,
+input:focus,
+select:focus,
+textarea:focus {
+    animation: glow 2s infinite;
+}
+
+/* ===== PROGRESS BAR ANIMATION ===== */
+.progress-fill {
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== MODAL ANIMATIONS ===== */
+.modal-backdrop {
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-backdrop.show {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal {
+    animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== FLOATING ANIMATION ===== */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.user-avatar {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* ===== SPIN ANIMATION FOR ICONS ===== */
+.fa-sync-alt, 
+.fa-spinner,
+.fa-circle-notch {
+    transition: transform 0.3s;
+}
+
+.fa-sync-alt:hover, 
+.fa-spinner:hover,
+.fa-circle-notch:hover {
+    animation: spin 1s linear infinite;
+}
+
+/* ===== LOADER DOTS ===== */
+@keyframes loader {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.loader-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    padding: 20px;
+}
+
+.loader-dots div {
+    width: 10px;
+    height: 10px;
+    background: var(--primary-500);
+    border-radius: 50%;
+    animation: loader 1s infinite;
+}
+
+.loader-dots div:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loader-dots div:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* ===== CONFETTI ANIMATION ===== */
+@keyframes confetti {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: var(--primary-500);
+    pointer-events: none;
+    z-index: 9999;
+    animation: confetti 3s linear forwards;
+}
+
+/* ===== PAGE LOADER ===== */
+@keyframes pageLoader {
+    0% {
+        width: 0;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+.page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    z-index: 10000;
+    animation: pageLoader 0.3s ease-out forwards;
+}
+
+/* ===== BACKGROUND PARTICLE ANIMATION ===== */
+@keyframes floatParticle {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.5;
+    }
+    90% {
+        opacity: 0.5;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.bg-particle {
+    position: fixed;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    animation: floatParticle 20s infinite linear;
+}
+
+/* ===== DARK MODE ADJUSTMENTS ===== */
+body.dark-mode .skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--dark-border) 25%,
+        var(--dark-bg-hover) 50%,
+        var(--dark-border) 75%
+    );
+}
+
+body.dark-mode .card::after,
+body.dark-mode .stat-card::after,
+body.dark-mode .group-card::after,
+body.dark-mode .bill-item::after {
+    background: linear-gradient(
+        115deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.1) 30%,
+        rgba(255,255,255,0) 60%
+    );
+}
+
+/* ===== UTILITY ANIMATION CLASSES ===== */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.5s ease;
+}
+
+.animate-fade-in-down {
+    animation: fadeInDown 0.5s ease;
+}
+
+.animate-fade-in-left {
+    animation: fadeInLeft 0.5s ease;
+}
+
+.animate-fade-in-right {
+    animation: fadeInRight 0.5s ease;
+}
+
+.animate-zoom-in {
+    animation: zoomIn 0.3s ease;
+}
+
+.animate-slide-down {
+    animation: slideDown 0.3s ease;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.3s ease;
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.animate-bounce {
+    animation: bounce 0.5s ease;
+}
+
+/* ===== REDUCED MOTION PREFERENCE ===== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    body {
+        animation: none;
+    }
+    
+    .card:hover,
+    .stat-card:hover,
+    .group-card:hover,
+    .bill-item:hover {
+        transform: none;
+    }
+}

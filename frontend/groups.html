@@ -1,0 +1,755 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Groups - SmartBill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <script src="js/api.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        .invite-code {
+            font-family: monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #667eea;
+            background: var(--primary-50);
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .invite-code:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .group-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .join-card {
+            background: linear-gradient(135deg, var(--primary-50), rgba(118, 75, 162, 0.1));
+            border: 2px dashed #667eea;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .join-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .join-input {
+            display: flex;
+            gap: 0.5rem;
+            max-width: 400px;
+            margin: 1rem auto;
+        }
+        
+        .join-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-family: monospace;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .join-input input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .group-card {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .group-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .group-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .group-balance {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .group-balance.positive {
+            color: var(--success-500);
+        }
+        
+        .group-balance.negative {
+            color: var(--danger-500);
+        }
+        
+        .goal-progress {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+        }
+        
+        .goal-progress:hover {
+            background: var(--primary-50);
+            transform: translateX(2px);
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-bar-container {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 999px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--success-500), var(--success-600));
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Dark mode adjustments */
+        body.dark-mode .invite-code {
+            background: #374151;
+            color: #818cf8;
+        }
+        
+        body.dark-mode .invite-code:hover {
+            background: #818cf8;
+            color: white;
+        }
+        
+        body.dark-mode .goal-progress {
+            background: var(--dark-bg-hover);
+            border-color: var(--dark-border);
+        }
+        
+        body.dark-mode .goal-progress:hover {
+            background: var(--dark-bg-card);
+        }
+        
+        body.dark-mode .progress-bar-container {
+            background: var(--dark-border);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            border: 2px dashed var(--border-color);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-400);
+            margin-bottom: 1rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--muted-text);
+        }
+        
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-500);
+        }
+        
+        .error-message {
+            background: var(--danger-100);
+            color: var(--danger-700);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            display: none;
+        }
+        
+        .toast-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .toast-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .toast-error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .toast-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Message Container -->
+    <div id="toastMessage" class="toast-message" style="display: none;"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-receipt"></i>
+                <span>SmartBill</span>
+            </a>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="groups.html" class="active">Groups</a>
+                <a href="bills.html">Bills</a>
+                <a href="analytics.html">Analytics</a>
+                <a href="export.html">Export</a>
+                <a href="alerts.html">Alerts</a>
+                <a href="profile.html">Profile</a>
+            </div>
+            
+            <div class="user-menu">
+                <div class="currency-selector" id="currencySelector">
+                    <button class="currency-btn" onclick="toggleCurrencyDropdown()">
+                        <span id="selectedCurrencyFlag">🇰🇪</span>
+                        <span id="selectedCurrencyCode">KES</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="currency-dropdown" id="currencyDropdown">
+                        <div class="currency-dropdown-header">
+                            <h4>Select Currency</h4>
+                        </div>
+                        <div class="currency-list" id="currencyList"></div>
+                    </div>
+                </div>
+                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="notification-badge" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count" id="notificationCount">0</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-email" id="userEmail"></div>
+                </div>
+                <div class="user-avatar" id="userAvatar" onclick="window.location.href='profile.html'" style="cursor: pointer;" title="Your Profile">
+                    <img id="navbarAvatarImage" src="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                    <span id="navbarAvatarText">U</span>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>Notifications</h3>
+            <button class="btn btn-sm btn-outline" onclick="markAllAsRead()">Mark all read</button>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+        </div>
+    </div>
+
+    <main class="container">
+        <!-- Page Header -->
+        <div class="section-header">
+            <h2><i class="fas fa-users"></i> My Groups</h2>
+            <a href="create-group.html" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Group
+            </a>
+        </div>
+
+        <!-- Groups Grid -->
+        <div class="groups-grid" id="groupsList">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading groups...</p>
+            </div>
+        </div>
+
+        <!-- Join Group Card -->
+        <div class="join-card">
+            <i class="fas fa-key" style="font-size: 2rem; color: #667eea; margin-bottom: 1rem;"></i>
+            <h3>Have an invite code?</h3>
+            <p style="color: var(--muted-text); margin-bottom: 1rem;">Join an existing group with an invite code</p>
+            
+            <div class="join-input">
+                <input type="text" id="inviteCode" placeholder="Enter invite code (e.g., ROOM123)" maxlength="10" autocomplete="off">
+                <button class="btn btn-primary" id="joinBtn" onclick="joinGroup()">Join</button>
+            </div>
+            <div id="joinError" class="error-message" style="display: none; margin-top: 0.5rem;"></div>
+        </div>
+    </main>
+
+    <script>
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : 'https://smartbill-hrcu.onrender.com/api';
+        
+        console.log('🔧 GROUPS_API_BASE:', API_BASE);
+        
+        // Check authentication
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+
+        let notifications = [];
+        let unreadCount = 0;
+        let currentUser = null;
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = message;
+            toast.className = `toast-message toast-${type}`;
+            toast.style.display = 'block';
+            
+            if (type === 'success' && typeof showConfetti === 'function') {
+                setTimeout(() => showConfetti(600, 30), 100);
+            }
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function showError(message) {
+            showToast(message, 'error');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Invite code copied!', 'success');
+            }).catch(() => {
+                showToast('Failed to copy', 'error');
+            });
+        }
+
+        // ============================================
+        // USER DATA
+        // ============================================
+        
+        function loadUserData() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            currentUser = user;
+            const userNameEl = document.getElementById('userName');
+            const userEmailEl = document.getElementById('userEmail');
+            const avatarText = document.getElementById('navbarAvatarText');
+            
+            if (userNameEl) userNameEl.textContent = user.name || 'User';
+            if (userEmailEl) userEmailEl.textContent = user.email || '';
+            if (avatarText) avatarText.textContent = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+        }
+
+        async function loadUserAvatar() {
+            try {
+                const res = await fetch(`${API_BASE}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (res.ok) {
+                    const user = await res.json();
+                    const avatarImg = document.getElementById('navbarAvatarImage');
+                    const avatarText = document.getElementById('navbarAvatarText');
+                    
+                    if (user.avatar && avatarImg) {
+                        avatarImg.src = user.avatar;
+                        avatarImg.style.display = 'block';
+                        if (avatarText) avatarText.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading avatar:', error);
+            }
+        }
+
+        // ============================================
+        // GROUPS
+        // ============================================
+        
+        async function loadGroups() {
+            try {
+                const res = await fetch(`${API_BASE}/groups`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (res.ok) {
+                    const groups = await res.json();
+                    console.log('📊 Groups loaded:', groups.length);
+                    displayGroups(groups);
+                } else {
+                    showError('Failed to load groups');
+                    displayGroups([]);
+                }
+            } catch (error) {
+                console.error('Error loading groups:', error);
+                showError('Error loading groups');
+                displayGroups([]);
+            }
+        }
+
+        function displayGroups(groups) {
+            const container = document.getElementById('groupsList');
+            
+            if (!groups || groups.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <i class="fas fa-users-slash"></i>
+                        <h3>No Groups Yet</h3>
+                        <p>Create your first group to start splitting bills</p>
+                        <a href="create-group.html" class="btn btn-primary">Create Group</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = groups.map(group => `
+                <div class="group-card" onclick="viewGroup(${group.id})">
+                    <div class="group-avatar">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>${escapeHtml(group.name)}</h3>
+                    <p style="color: var(--muted-text); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                        ${escapeHtml(group.description || 'No description')}
+                    </p>
+                    ${group.goal_name ? `
+                        <div class="goal-progress">
+                            <div class="progress-header">
+                                <strong>${escapeHtml(group.goal_name)}</strong>
+                                <span>${((parseFloat(group.goal_saved) || 0) / Math.max(parseFloat(group.goal_target) || 1, 1) * 100).toFixed(0)}%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-fill" style="width: ${Math.min(100, ((parseFloat(group.goal_saved) || 0) / Math.max(parseFloat(group.goal_target) || 1, 1) * 100))}%;"></div>
+                            </div>
+                            <small style="color: var(--muted-text);">
+                                ${formatCurrency(parseFloat(group.goal_saved) || 0)} of ${formatCurrency(parseFloat(group.goal_target) || 0)}
+                            </small>
+                        </div>
+                    ` : ''}
+                    <div class="group-stats">
+                        <span style="color: var(--muted-text); font-size: 0.9rem;">
+                            <i class="fas fa-user"></i> ${group.member_count || 1} members
+                        </span>
+                        <span class="invite-code" onclick="event.stopPropagation(); copyToClipboard('${group.invite_code || ''}')" title="Click to copy invite code">
+                            <i class="fas fa-copy"></i> ${group.invite_code || 'N/A'}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // JOIN GROUP
+        // ============================================
+        
+        async function joinGroup() {
+            const codeInput = document.getElementById('inviteCode');
+            const code = codeInput.value.toUpperCase().trim();
+            const errorDiv = document.getElementById('joinError');
+            const joinBtn = document.getElementById('joinBtn');
+            
+            if (!code) {
+                errorDiv.textContent = 'Please enter an invite code';
+                errorDiv.style.display = 'block';
+                setTimeout(() => errorDiv.style.display = 'none', 3000);
+                return;
+            }
+            
+            const originalText = joinBtn.innerHTML;
+            joinBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
+            joinBtn.disabled = true;
+            errorDiv.style.display = 'none';
+            
+            try {
+                const res = await fetch(`${API_BASE}/groups/join`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ invite_code: code })
+                });
+                
+                const data = await res.json();
+                console.log('Join response:', data);
+                
+                if (res.ok) {
+                    showToast(`Successfully joined ${data.group?.name || 'group'}!`, 'success');
+                    codeInput.value = '';
+                    loadGroups();
+                    
+                    // Trigger confetti animation
+                    if (typeof showConfetti === 'function') {
+                        showConfetti();
+                    }
+                } else {
+                    errorDiv.textContent = data.error || 'Invalid invite code';
+                    errorDiv.style.display = 'block';
+                    showToast(data.error || 'Invalid invite code', 'error');
+                }
+            } catch (error) {
+                console.error('Error joining group:', error);
+                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.style.display = 'block';
+                showToast('Error joining group', 'error');
+            } finally {
+                joinBtn.innerHTML = originalText;
+                joinBtn.disabled = false;
+                setTimeout(() => errorDiv.style.display = 'none', 3000);
+            }
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        
+        function viewGroup(id) {
+            window.location.href = `group-details.html?id=${id}`;
+        }
+
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            if (navLinks) navLinks.classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // ============================================
+        // NOTIFICATIONS
+        // ============================================
+        
+        async function loadNotifications() {
+            try {
+                const res = await fetch(`${API_BASE}/notifications`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    notifications = data.notifications || [];
+                    unreadCount = data.unreadCount || 0;
+                    updateNotificationBadge();
+                    displayNotifications();
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                const countEl = document.getElementById('notificationCount');
+                if (countEl) countEl.textContent = '0';
+            }
+        }
+
+        function updateNotificationBadge() {
+            const countEl = document.getElementById('notificationCount');
+            if (countEl) countEl.textContent = unreadCount;
+        }
+
+        function displayNotifications() {
+            const container = document.getElementById('notificationsList');
+            
+            if (!notifications || notifications.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding: 2rem;">No notifications</div>';
+                return;
+            }
+            
+            container.innerHTML = notifications.map(notif => `
+                <div class="notification-item ${!notif.is_read ? 'unread' : ''}" onclick="markAsRead(${notif.id})">
+                    <div class="notification-title">${escapeHtml(notif.title)}</div>
+                    <div style="font-size: 0.9rem; color: var(--muted-text); margin-bottom: 0.25rem;">${escapeHtml(notif.message)}</div>
+                    <div class="notification-time">${timeAgo(notif.created_at)}</div>
+                </div>
+            `).join('');
+        }
+
+        async function markAsRead(id) {
+            try {
+                await fetch(`${API_BASE}/notifications/${id}/read`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                const notif = notifications.find(n => n.id === id);
+                if (notif && !notif.is_read) {
+                    notif.is_read = true;
+                    unreadCount--;
+                    updateNotificationBadge();
+                    displayNotifications();
+                }
+            } catch (error) {
+                console.error('Error marking as read:', error);
+            }
+        }
+
+        async function markAllAsRead() {
+            try {
+                await fetch(`${API_BASE}/notifications/read-all`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                notifications.forEach(n => n.is_read = true);
+                unreadCount = 0;
+                updateNotificationBadge();
+                displayNotifications();
+                showToast('All notifications marked as read', 'success');
+            } catch (error) {
+                console.error('Error marking all as read:', error);
+                showToast('Failed to mark all as read', 'error');
+            }
+        }
+
+        function toggleNotifications() {
+            const panel = document.getElementById('notificationsPanel');
+            if (panel) panel.classList.toggle('show');
+        }
+
+        // Close notifications when clicking outside
+        document.addEventListener('click', function(event) {
+            const panel = document.getElementById('notificationsPanel');
+            const bell = document.querySelector('.notification-badge');
+            
+            if (panel && bell && !bell.contains(event.target) && !panel.contains(event.target)) {
+                panel.classList.remove('show');
+            }
+        });
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatCurrency(amount, currency = 'KES') {
+            return new Intl.NumberFormat('en-KE', {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            
+            if (seconds < 60) return 'just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + ' minutes ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+            if (seconds < 2592000) return Math.floor(seconds / 86400) + ' days ago';
+            return Math.floor(seconds / 2592000) + ' months ago';
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            loadUserAvatar();
+            loadGroups();
+            loadNotifications();
+            
+            // Enter key support for invite code
+            const inviteInput = document.getElementById('inviteCode');
+            if (inviteInput) {
+                inviteInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        joinGroup();
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

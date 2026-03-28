@@ -1,0 +1,709 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Upload - SmartBill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
+    <script src="js/api.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        .avatar-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        .avatar-card {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .avatar-card h2 {
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .avatar-card h2 i {
+            color: var(--primary-500);
+        }
+
+        .avatar-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            overflow: hidden;
+            border: 4px solid var(--card-bg);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            transition: transform 0.3s;
+        }
+
+        .avatar-preview:hover {
+            transform: scale(1.02);
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-preview .default-avatar {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--surface-color);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-500);
+            background: var(--primary-50);
+            transform: translateY(-2px);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary-500);
+            margin-bottom: 1rem;
+        }
+
+        .upload-area p {
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-area small {
+            color: var(--muted-text);
+            font-size: 0.8rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-500), var(--secondary-500));
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-danger {
+            background: var(--danger-500);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: var(--danger-600);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-500), var(--secondary-500));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 0.75rem;
+            margin: 1rem 0;
+            display: none;
+            box-shadow: var(--shadow-md);
+        }
+
+        .image-preview.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .info-text {
+            font-size: 0.85rem;
+            color: var(--muted-text);
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: var(--primary-50);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .info-text i {
+            color: var(--primary-500);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-500);
+            text-decoration: none;
+            transition: gap 0.3s;
+        }
+
+        .back-link:hover {
+            gap: 0.75rem;
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toast-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .toast-error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .toast-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .avatar-container {
+                margin: 1rem auto;
+                padding: 1rem;
+            }
+
+            .avatar-card {
+                padding: 1.5rem;
+            }
+
+            .avatar-preview {
+                width: 120px;
+                height: 120px;
+                font-size: 2.5rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <a href="profile.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Profile
+        </a>
+
+        <div class="avatar-container">
+            <div class="avatar-card">
+                <h2><i class="fas fa-camera"></i> Profile Picture</h2>
+                
+                <!-- Avatar Preview -->
+                <div class="avatar-preview" id="avatarPreview">
+                    <div class="default-avatar" id="defaultAvatar">U</div>
+                    <img id="avatarImage" style="display: none;">
+                </div>
+
+                <!-- Upload Area -->
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to upload or drag and drop</p>
+                    <small>PNG, JPG, GIF, WEBP up to 5MB</small>
+                    <input type="file" id="fileInput" class="file-input" accept="image/*">
+                </div>
+
+                <!-- Image Preview -->
+                <img class="image-preview" id="imagePreview" alt="Preview">
+
+                <!-- Progress Bar -->
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <!-- Info Text -->
+                <div class="info-text">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Your profile picture helps others recognize you in groups</span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="cancelUpload()" id="cancelBtn" style="display: none;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="btn btn-primary" onclick="uploadAvatar()" id="uploadBtn" disabled>
+                        <i class="fas fa-upload"></i> Upload
+                    </button>
+                    <button class="btn btn-danger" onclick="removeAvatar()" id="removeBtn">
+                        <i class="fas fa-trash-alt"></i> Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const PAGE_API_BASE = typeof API_BASE !== 'undefined'
+            ? API_BASE
+            : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : 'https://smartbill-hrcu.onrender.com/api');
+        
+        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+        
+        let selectedFile = null;
+        let currentAvatar = null;
+
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toastMessage');
+            if (!toast) {
+                const toastDiv = document.createElement('div');
+                toastDiv.id = 'toastMessage';
+                toastDiv.className = 'toast-message';
+                document.body.appendChild(toastDiv);
+            }
+            const toastEl = document.getElementById('toastMessage');
+            toastEl.textContent = message;
+            toastEl.className = `toast-message toast-${type}`;
+            toastEl.style.display = 'block';
+            
+            if (type === 'success' && typeof showConfetti === 'function') {
+                setTimeout(() => showConfetti(600, 30), 100);
+            }
+            
+            setTimeout(() => {
+                toastEl.style.display = 'none';
+            }, 3000);
+        }
+
+        // ============================================
+        // AVATAR LOADING
+        // ============================================
+        async function loadCurrentAvatar() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (res.ok) {
+                    const user = await res.json();
+                    currentAvatar = user.avatar;
+                    
+                    const userData = JSON.parse(localStorage.getItem('user') || '{}');
+                    
+                    if (user.avatar) {
+                        document.getElementById('defaultAvatar').style.display = 'none';
+                        const img = document.getElementById('avatarImage');
+                        img.src = user.avatar + '?t=' + Date.now();
+                        img.style.display = 'block';
+                    } else {
+                        document.getElementById('defaultAvatar').style.display = 'flex';
+                        document.getElementById('defaultAvatar').textContent = userData.name ? userData.name.charAt(0).toUpperCase() : 'U';
+                        document.getElementById('avatarImage').style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading avatar:', error);
+                showToast('Failed to load profile picture', 'error');
+            }
+        }
+
+        // ============================================
+        // FILE HANDLING
+        // ============================================
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary-500)';
+            uploadArea.style.background = 'var(--primary-50)';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = 'var(--border-color)';
+            uploadArea.style.background = 'var(--surface-color)';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--border-color)';
+            uploadArea.style.background = 'var(--surface-color)';
+            
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                handleFileSelect(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileSelect(file);
+            }
+        });
+
+        function handleFileSelect(file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                showToast('Please select a valid image file (JPEG, PNG, GIF, WEBP)', 'error');
+                return;
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('File size must be less than 5MB', 'error');
+                return;
+            }
+
+            selectedFile = file;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById('imagePreview');
+                preview.src = e.target.result;
+                preview.classList.add('show');
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('cancelBtn').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function cancelUpload() {
+            selectedFile = null;
+            fileInput.value = '';
+            document.getElementById('imagePreview').classList.remove('show');
+            document.getElementById('uploadBtn').disabled = true;
+            document.getElementById('cancelBtn').style.display = 'none';
+            document.getElementById('progressBar').classList.remove('show');
+            uploadArea.style.borderColor = 'var(--border-color)';
+            uploadArea.style.background = 'var(--surface-color)';
+        }
+
+        // ============================================
+        // AVATAR UPLOAD
+        // ============================================
+        async function uploadAvatar() {
+            if (!selectedFile) {
+                showToast('Please select an image first', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('avatar', selectedFile);
+
+            const uploadBtn = document.getElementById('uploadBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+
+            uploadBtn.disabled = true;
+            progressBar.classList.add('show');
+            progressFill.style.width = '0%';
+
+            // Simulate progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                if (progress <= 90) {
+                    progressFill.style.width = progress + '%';
+                }
+                if (progress >= 90) clearInterval(interval);
+            }, 200);
+
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/profile/avatar`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: formData
+                });
+
+                clearInterval(interval);
+                progressFill.style.width = '100%';
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast('âœ… Profile picture uploaded successfully!', 'success');
+                    
+                    setTimeout(() => {
+                        document.getElementById('defaultAvatar').style.display = 'none';
+                        const img = document.getElementById('avatarImage');
+                        img.src = data.avatar + '?t=' + Date.now();
+                        img.style.display = 'block';
+                        
+                        cancelUpload();
+                        
+                        // Update stored user data
+                        const user = JSON.parse(localStorage.getItem('user') || '{}');
+                        user.avatar = data.avatar;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        
+                        // Update navbar avatar if exists
+                        updateNavbarAvatar(data.avatar);
+                    }, 500);
+                } else {
+                    showToast(data.error || 'Upload failed', 'error');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                showToast('Network error. Please try again.', 'error');
+            } finally {
+                clearInterval(interval);
+                uploadBtn.disabled = false;
+                setTimeout(() => {
+                    progressBar.classList.remove('show');
+                    progressFill.style.width = '0%';
+                }, 1000);
+            }
+        }
+
+        // ============================================
+        // AVATAR REMOVAL
+        // ============================================
+        async function removeAvatar() {
+            if (!confirm('âš ï¸ Are you sure you want to remove your profile picture?')) return;
+
+            const removeBtn = document.getElementById('removeBtn');
+            const originalText = removeBtn.innerHTML;
+            removeBtn.disabled = true;
+            removeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
+
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/profile/avatar`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (res.ok) {
+                    showToast('âœ… Profile picture removed successfully!', 'success');
+                    
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    document.getElementById('avatarImage').style.display = 'none';
+                    document.getElementById('defaultAvatar').style.display = 'flex';
+                    document.getElementById('defaultAvatar').textContent = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+                    
+                    user.avatar = null;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    
+                    updateNavbarAvatar(null, user.name);
+                } else {
+                    const data = await res.json();
+                    showToast(data.error || 'Failed to remove profile picture', 'error');
+                }
+            } catch (error) {
+                console.error('Remove error:', error);
+                showToast('Network error. Please try again.', 'error');
+            } finally {
+                removeBtn.disabled = false;
+                removeBtn.innerHTML = originalText;
+            }
+        }
+
+        // ============================================
+        // NAVBAR UPDATE
+        // ============================================
+        function updateNavbarAvatar(avatarUrl, userName = null) {
+            const navbarImg = document.getElementById('navbarAvatarImage');
+            const navbarText = document.getElementById('navbarAvatarText');
+            
+            if (navbarImg && navbarText) {
+                if (avatarUrl) {
+                    navbarImg.src = avatarUrl + '?t=' + Date.now();
+                    navbarImg.style.display = 'block';
+                    navbarText.style.display = 'none';
+                } else {
+                    navbarImg.style.display = 'none';
+                    navbarText.style.display = 'flex';
+                    if (userName) {
+                        navbarText.textContent = userName.charAt(0).toUpperCase();
+                    }
+                }
+            }
+        }
+
+        // ============================================
+        // LOAD USER DATA
+        // ============================================
+        function loadUserData() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const navbarText = document.getElementById('navbarAvatarText');
+            if (navbarText) {
+                navbarText.textContent = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+            }
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserData();
+            loadCurrentAvatar();
+        });
+
+        // Make functions global
+        window.cancelUpload = cancelUpload;
+        window.uploadAvatar = uploadAvatar;
+        window.removeAvatar = removeAvatar;
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
+

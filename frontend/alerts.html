@@ -1,0 +1,842 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spending Alerts - SmartBill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
+    <script src="js/api.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        .alerts-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+        }
+
+        /* Hero Section */
+        .alerts-hero {
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: minmax(0, 2.1fr) minmax(260px, 1fr);
+            gap: 1.5rem;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #7c3aed 55%, #0ea5e9 100%);
+            color: white;
+            box-shadow: 0 18px 40px rgba(102, 126, 234, 0.22);
+        }
+
+        .alerts-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.24), transparent 30%),
+                radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.18), transparent 34%);
+            pointer-events: none;
+        }
+
+        .alerts-hero-content,
+        .alerts-hero-side {
+            position: relative;
+            z-index: 1;
+        }
+
+        .alerts-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(10px);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .alerts-hero h1 {
+            color: white;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.08;
+            margin-bottom: 0.75rem;
+        }
+
+        .alerts-hero p {
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 640px;
+            font-size: 1rem;
+        }
+
+        .alerts-hero-side {
+            display: grid;
+            gap: 1rem;
+            align-content: start;
+        }
+
+        .hero-mini-card {
+            padding: 1rem 1.1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-mini-card .label {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.8;
+            margin-bottom: 0.4rem;
+        }
+
+        .hero-mini-card .value {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        /* Budget Card */
+        .budget-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.35rem;
+            padding: 1.6rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .card-head h3 {
+            margin: 0;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1.1rem;
+        }
+
+        .card-head h3 i {
+            color: var(--primary-500);
+        }
+
+        .budget-input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .budget-input-group .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .budget-input-group label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--muted-text);
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+
+        .budget-input-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .budget-input-group input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Spending Card */
+        .spending-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.35rem;
+            padding: 1.6rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .progress-section {
+            margin: 1.5rem 0;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--muted-text);
+        }
+
+        .progress-bar-large {
+            height: 12px;
+            background: var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill-large {
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stats-grid-small {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-chip {
+            background: var(--surface-color);
+            padding: 0.8rem;
+            border-radius: 0.75rem;
+            text-align: center;
+        }
+
+        .stat-chip .stat-label {
+            font-size: 0.75rem;
+            color: var(--muted-text);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-chip .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        /* Alert Cards */
+        .alert-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .alert-card:hover {
+            transform: translateX(5px);
+        }
+
+        .alert-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .alert-icon.success {
+            background: var(--success-100);
+            color: var(--success-500);
+        }
+
+        .alert-icon.warning {
+            background: var(--warning-100);
+            color: var(--warning-500);
+        }
+
+        .alert-icon.danger {
+            background: var(--danger-100);
+            color: var(--danger-500);
+        }
+
+        .alert-icon.info {
+            background: var(--primary-100);
+            color: var(--primary-500);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            color: var(--text-color);
+        }
+
+        .alert-message {
+            font-size: 0.85rem;
+            color: var(--muted-text);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-color);
+        }
+
+        .quick-action-btn:hover {
+            background: var(--primary-500);
+            border-color: var(--primary-500);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: var(--surface-color);
+            border-radius: 1rem;
+            color: var(--muted-text);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+            color: var(--primary-500);
+        }
+
+        .toast-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .toast-success {
+            background: var(--success-500);
+        }
+
+        .toast-error {
+            background: var(--danger-500);
+        }
+
+        .toast-info {
+            background: var(--primary-500);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .alerts-hero {
+                grid-template-columns: 1fr;
+                padding: 1.4rem;
+            }
+
+            .alerts-hero-side {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid-small {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .budget-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="toastMessage" class="toast-message" style="display: none;"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-receipt"></i>
+                <span>SmartBill</span>
+            </a>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="groups.html">Groups</a>
+                <a href="bills.html">Bills</a>
+                <a href="analytics.html">Analytics</a>
+                <a href="export.html">Export</a>
+                <a href="alerts.html" class="active">Alerts</a>
+                <a href="profile.html">Profile</a>
+            </div>
+            <div class="user-menu">
+                <div class="currency-selector" id="currencySelector">
+                    <button class="currency-btn" onclick="toggleCurrencyDropdown()">
+                        <span id="selectedCurrencyFlag">ðŸ‡°ðŸ‡ª</span>
+                        <span id="selectedCurrencyCode">KES</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="currency-dropdown" id="currencyDropdown">
+                        <div class="currency-dropdown-header">
+                            <h4>Select Currency</h4>
+                        </div>
+                        <div class="currency-list" id="currencyList"></div>
+                    </div>
+                </div>
+                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-avatar" id="userAvatar" onclick="window.location.href='profile.html'" style="cursor: pointer;" title="Your Profile">
+                    <img id="navbarAvatarImage" src="" style="display: none;">
+                    <span id="navbarAvatarText">U</span>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container alerts-shell">
+        <!-- Hero Section -->
+        <section class="alerts-hero">
+            <div class="alerts-hero-content">
+                <div class="alerts-eyebrow">
+                    <i class="fas fa-bell"></i>
+                    Smart Notifications
+                </div>
+                <h1>Stay on top of your spending</h1>
+                <p>Set a monthly budget and receive realâ€‘time alerts when you're approaching your limit.</p>
+            </div>
+            <div class="alerts-hero-side">
+                <div class="hero-mini-card">
+                    <div class="label">Current Status</div>
+                    <div class="value" id="statusValue">Monitoring</div>
+                </div>
+                <div class="hero-mini-card">
+                    <div class="label">Alerts Active</div>
+                    <div class="value" id="alertsActive">Yes</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Budget Settings -->
+        <div class="budget-card">
+            <div class="card-head">
+                <h3><i class="fas fa-wallet"></i> Monthly Budget</h3>
+            </div>
+            <div class="budget-input-group">
+                <div class="form-group">
+                    <label>Set your monthly spending target</label>
+                    <input type="number" id="budget" class="form-control" placeholder="e.g., 5000" step="100" min="1">
+                </div>
+                <button class="btn btn-primary" onclick="setBudget()">
+                    <i class="fas fa-save"></i> Save Budget
+                </button>
+            </div>
+            <div class="quick-actions">
+                <button class="quick-action-btn" onclick="setQuickBudget(2000)"><i class="fas fa-coffee"></i> $2,000</button>
+                <button class="quick-action-btn" onclick="setQuickBudget(3500)"><i class="fas fa-utensils"></i> $3,500</button>
+                <button class="quick-action-btn" onclick="setQuickBudget(5000)"><i class="fas fa-plane"></i> $5,000</button>
+                <button class="quick-action-btn" onclick="setQuickBudget(10000)"><i class="fas fa-home"></i> $10,000</button>
+            </div>
+        </div>
+
+        <!-- Spending Status -->
+        <div id="spendingContainer"></div>
+
+        <!-- Alerts Container -->
+        <div id="alertContainer"></div>
+    </main>
+
+    <script>
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const PAGE_API_BASE = typeof API_BASE !== 'undefined'
+            ? API_BASE
+            : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : 'https://smartbill-hrcu.onrender.com/api');
+        
+        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+        
+        let currentBudget = parseFloat(localStorage.getItem('monthlyBudget')) || 0;
+        let currentUser = null;
+
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = message;
+            toast.className = `toast-message toast-${type}`;
+            toast.style.display = 'block';
+            
+            if (type === 'success' && typeof showConfetti === 'function') {
+                setTimeout(() => showConfetti(500, 20), 100);
+            }
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function formatCurrency(amount) {
+            const currency = typeof getCurrentCurrency === 'function' ? getCurrentCurrency() : 'KES';
+            const symbols = { USD: '$', EUR: 'â‚¬', GBP: 'Â£', KES: 'KSh ', JPY: 'Â¥' };
+            const symbol = symbols[currency] || `${currency} `;
+            return `${symbol}${amount.toFixed(2)}`;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // USER DATA
+        // ============================================
+        function loadUserData() {
+            currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const navbarText = document.getElementById('navbarAvatarText');
+            if (navbarText) {
+                navbarText.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
+            }
+        }
+
+        async function loadUserAvatar() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/profile`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                if (res.ok) {
+                    const user = await res.json();
+                    const avatarImg = document.getElementById('navbarAvatarImage');
+                    const avatarText = document.getElementById('navbarAvatarText');
+                    if (user.avatar) {
+                        avatarImg.src = user.avatar;
+                        avatarImg.style.display = 'block';
+                        avatarText.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading avatar:', error);
+            }
+        }
+
+        // ============================================
+        // BUDGET FUNCTIONS
+        // ============================================
+        function setQuickBudget(amount) {
+            document.getElementById('budget').value = amount;
+            setBudget();
+        }
+
+        async function setBudget() {
+            const budget = parseFloat(document.getElementById('budget').value);
+            if (!budget || budget <= 0) {
+                showToast('Please enter a valid budget amount', 'error');
+                return;
+            }
+            
+            localStorage.setItem('monthlyBudget', budget);
+            currentBudget = budget;
+            showToast(`Budget set to ${formatCurrency(budget)}`, 'success');
+            await checkSpending();
+        }
+
+        async function checkSpending() {
+            if (!currentBudget || currentBudget <= 0) {
+                showNoBudgetState();
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${PAGE_API_BASE}/spending-alert`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ monthly_budget: currentBudget })
+                });
+                
+                if (!res.ok) {
+                    throw new Error('Failed to fetch spending data');
+                }
+                
+                const data = await res.json();
+                updateSpendingUI(data);
+                displayAlerts(data);
+                
+            } catch (error) {
+                console.error('Error checking spending:', error);
+                document.getElementById('spendingContainer').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Unable to fetch spending data. Please try again later.</p>
+                        <button class="btn btn-primary btn-sm" onclick="checkSpending()" style="margin-top: 1rem;">
+                            <i class="fas fa-sync"></i> Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function showNoBudgetState() {
+            document.getElementById('spendingContainer').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-chart-line"></i>
+                    <p>Set your monthly budget above to start tracking your spending</p>
+                </div>
+            `;
+            document.getElementById('statusValue').textContent = 'Not Set';
+            document.getElementById('alertsActive').textContent = 'Inactive';
+            document.getElementById('alertContainer').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-bell-slash"></i>
+                    <p>No alerts to display. Set a budget to enable spending alerts.</p>
+                </div>
+            `;
+        }
+
+        function updateSpendingUI(data) {
+            const percentage = data.percentage || 0;
+            const spent = data.currentSpending || 0;
+            const budget = currentBudget;
+            const remaining = Math.max(budget - spent, 0);
+            
+            const spendingHtml = `
+                <div class="spending-card">
+                    <div class="card-head">
+                        <h3><i class="fas fa-chart-line"></i> Current Spending</h3>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-header">
+                            <span>Progress to budget</span>
+                            <span id="progressPercentage">${percentage.toFixed(0)}%</span>
+                        </div>
+                        <div class="progress-bar-large">
+                            <div class="progress-fill-large" id="progressFill" style="width: ${Math.min(percentage, 100)}%; background: ${percentage >= 100 ? '#ef4444' : percentage >= 75 ? '#f59e0b' : '#10b981'};"></div>
+                        </div>
+                    </div>
+                    <div class="stats-grid-small">
+                        <div class="stat-chip">
+                            <div class="stat-label">Budgeted</div>
+                            <div class="stat-value">${formatCurrency(budget)}</div>
+                        </div>
+                        <div class="stat-chip">
+                            <div class="stat-label">Spent</div>
+                            <div class="stat-value">${formatCurrency(spent)}</div>
+                        </div>
+                        <div class="stat-chip">
+                            <div class="stat-label">Remaining</div>
+                            <div class="stat-value">${formatCurrency(remaining)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('spendingContainer').innerHTML = spendingHtml;
+            
+            // Update status
+            if (percentage >= 100) {
+                document.getElementById('statusValue').textContent = 'âš ï¸ Exceeded';
+                document.getElementById('alertsActive').textContent = 'Active';
+            } else if (percentage >= 75) {
+                document.getElementById('statusValue').textContent = 'âš ï¸ Near Limit';
+                document.getElementById('alertsActive').textContent = 'Active';
+            } else if (percentage > 0) {
+                document.getElementById('statusValue').textContent = 'âœ… On Track';
+                document.getElementById('alertsActive').textContent = 'Active';
+            } else {
+                document.getElementById('statusValue').textContent = 'ðŸ“Š No Data';
+                document.getElementById('alertsActive').textContent = 'Monitoring';
+            }
+        }
+
+        function displayAlerts(data) {
+            const container = document.getElementById('alertContainer');
+            const percentage = data.percentage || 0;
+            const spent = data.currentSpending || 0;
+            const budget = currentBudget;
+            const remaining = budget - spent;
+            
+            let alertsHtml = '';
+            
+            // Main Alert based on data.alert from backend
+            if (data.alert) {
+                const alertType = percentage >= 100 ? 'danger' : 'warning';
+                alertsHtml += `
+                    <div class="alert-card">
+                        <div class="alert-icon ${alertType}">
+                            <i class="fas fa-${percentage >= 100 ? 'exclamation-triangle' : 'bell'}"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">${percentage >= 100 ? 'Budget Exceeded' : 'Budget Alert'}</div>
+                            <div class="alert-message">${escapeHtml(data.alert)}</div>
+                        </div>
+                    </div>
+                `;
+            } else if (percentage > 0) {
+                alertsHtml += `
+                    <div class="alert-card">
+                        <div class="alert-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">All Clear</div>
+                            <div class="alert-message">You're on track with your budget. Keep up the good work!</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Additional Insights
+            if (percentage >= 75 && percentage < 100) {
+                alertsHtml += `
+                    <div class="alert-card">
+                        <div class="alert-icon warning">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">Nearing Limit</div>
+                            <div class="alert-message">You've used ${percentage.toFixed(0)}% of your budget. Only ${formatCurrency(remaining)} remaining.</div>
+                        </div>
+                    </div>
+                `;
+            } else if (percentage >= 100) {
+                alertsHtml += `
+                    <div class="alert-card">
+                        <div class="alert-icon danger">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">Budget Overrun</div>
+                            <div class="alert-message">You've exceeded your budget by ${formatCurrency(Math.abs(remaining))}. Consider reviewing your recent bills.</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Spending tip
+            if (percentage > 50 && percentage < 100) {
+                alertsHtml += `
+                    <div class="alert-card">
+                        <div class="alert-icon info">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">Spending Tip</div>
+                            <div class="alert-message">Try to keep your remaining budget of ${formatCurrency(remaining)} for the rest of the month.</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (alertsHtml === '') {
+                alertsHtml = `
+                    <div class="empty-state">
+                        <i class="fas fa-chart-line"></i>
+                        <p>Set a monthly budget to start receiving spending alerts</p>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = alertsHtml;
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        function toggleMenu() {
+            document.getElementById('navLinks')?.classList.toggle('active');
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            loadUserAvatar();
+            
+            if (currentBudget > 0) {
+                document.getElementById('budget').value = currentBudget;
+                checkSpending();
+            } else {
+                showNoBudgetState();
+            }
+        });
+
+        // Make functions global
+        window.setQuickBudget = setQuickBudget;
+        window.setBudget = setBudget;
+        window.checkSpending = checkSpending;
+        window.logout = logout;
+        window.toggleMenu = toggleMenu;
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
+

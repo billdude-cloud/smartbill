@@ -1,0 +1,926 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features - SmartBill by Bill Odhiambo</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
+    <script src="js/api.js"></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .dark-mode-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f4ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1.2rem;
+        }
+
+        .dark-mode-toggle:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 100px auto 50px;
+            padding: 0 20px;
+        }
+
+        /* Hero Section */
+        .features-hero {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 60px 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .features-hero h1 {
+            font-size: 3rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .features-hero p {
+            font-size: 1.2rem;
+            color: var(--muted-text);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* Feature Categories */
+        .category-section {
+            margin-bottom: 60px;
+        }
+
+        .category-title {
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-50), rgba(118, 75, 162, 0.1));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon i {
+            font-size: 1.8rem;
+            color: #667eea;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            color: var(--text-color);
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            color: var(--muted-text);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--primary-50);
+            color: #667eea;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Split Methods Section */
+        .split-methods {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 50px 40px;
+            margin: 40px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .split-methods h2 {
+            font-size: 2rem;
+            color: var(--text-color);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .methods-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .method-card {
+            text-align: center;
+            padding: 30px 20px;
+            background: var(--surface-color);
+            border-radius: 15px;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+        }
+
+        .method-card:hover {
+            background: linear-gradient(135deg, var(--primary-50), rgba(118, 75, 162, 0.1));
+            transform: translateY(-5px);
+        }
+
+        .method-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .method-card h3 {
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .method-card p {
+            color: var(--muted-text);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Payment Tracking Section */
+        .payment-tracking {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            padding: 50px 40px;
+            margin: 40px 0;
+            color: white;
+        }
+
+        .payment-tracking h2 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .tracking-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .tracking-item {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s;
+        }
+
+        .tracking-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .tracking-item i {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .tracking-item h3 {
+            margin-bottom: 10px;
+        }
+
+        .tracking-item p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            margin: 40px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            color: var(--muted-text);
+            margin-bottom: 30px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .cta-buttons .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Heart Animation */
+        .heart {
+            color: #ef4444;
+            display: inline-block;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a202c;
+            color: white;
+            padding: 60px 20px 30px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .footer-section a {
+            color: #a0aec0;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 40px auto 0;
+            padding-top: 30px;
+            border-top: 1px solid #2d3748;
+            text-align: center;
+            color: #a0aec0;
+        }
+
+        @media (max-width: 768px) {
+            .features-grid,
+            .methods-grid,
+            .tracking-grid,
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .features-hero h1 {
+                font-size: 2rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-receipt"></i>
+                <span>SmartBill</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="features.html" class="active">Features</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="login.html" class="btn btn-outline">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+                <a href="signup.html" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Sign Up
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="features-hero">
+            <h1>Powerful Features for Effortless Bill Splitting</h1>
+            <p>Everything you need to manage group expenses, track payments, and never argue about money again.</p>
+        </section>
+
+        <!-- Group Management Features -->
+        <section class="category-section">
+            <h2 class="category-title">Group Management</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Create Groups</h3>
+                    <p>Create groups for roommates, trips, dinners, events, or any shared expense situation.</p>
+                    <span class="feature-tag">Core Feature</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3>Add Members</h3>
+                    <p>Add members with or without email. Name-only members can still be included in splits.</p>
+                    <span class="feature-tag">Flexible</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h3>Invite Codes</h3>
+                    <p>Share invite codes so friends can join your groups easily and securely.</p>
+                    <span class="feature-tag">Easy Sharing</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <h3>Admin Controls</h3>
+                    <p>Admins can manage members, edit bills, and track payments for the whole group.</p>
+                    <span class="feature-tag">Admin Features</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-minus"></i>
+                    </div>
+                    <h3>Remove Members</h3>
+                    <p>Admins can remove members who are no longer part of the group.</p>
+                    <span class="feature-tag">Management</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-address-book"></i>
+                    </div>
+                    <h3>Member Directory</h3>
+                    <p>See all members in a group, their roles, and when they joined.</p>
+                    <span class="feature-tag">Overview</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bill Creation Features -->
+        <section class="category-section">
+            <h2 class="category-title">Bill Creation</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <h3>Create Bills</h3>
+                    <p>Add bills with title, description, items, tax, and tip.</p>
+                    <span class="feature-tag">Core Feature</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <h3>Itemized Entries</h3>
+                    <p>Add multiple items with quantities and prices for detailed tracking.</p>
+                    <span class="feature-tag">Detailed</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3>Auto Calculation</h3>
+                    <p>Subtotal, tax, tip, and total are calculated automatically.</p>
+                    <span class="feature-tag">Smart</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                    <h3>Edit Bills</h3>
+                    <p>Admins can edit bill details, amounts, and status anytime.</p>
+                    <span class="feature-tag">Flexible</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-copy"></i>
+                    </div>
+                    <h3>Duplicate Bills</h3>
+                    <p>Quickly duplicate existing bills for recurring expenses.</p>
+                    <span class="feature-tag">Time Saver</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <h3>Delete Bills</h3>
+                    <p>Remove bills when they're no longer needed.</p>
+                    <span class="feature-tag">Management</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Split Methods Section -->
+        <section class="split-methods">
+            <h2>5 Flexible Split Methods</h2>
+            <div class="methods-grid">
+                <div class="method-card">
+                    <div class="method-icon">
+                        <i class="fas fa-equals"></i>
+                    </div>
+                    <h3>Equal Split</h3>
+                    <p>Split the bill equally among all group members. Perfect for when everyone shares equally.</p>
+                </div>
+                <div class="method-card">
+                    <div class="method-icon">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                    <h3>By Percentage</h3>
+                    <p>Assign different percentages to each member. Great for income-based splits.</p>
+                </div>
+                <div class="method-card">
+                    <div class="method-icon">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                    <h3>Custom Amounts</h3>
+                    <p>Enter specific dollar amounts for each person. Total must equal the bill amount.</p>
+                </div>
+                <div class="method-card">
+                    <div class="method-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>Item-Based Split</h3>
+                    <p>Assign each item to specific members. Perfect for restaurants where people order different things.</p>
+                </div>
+                <div class="method-card">
+                    <div class="method-icon">
+                        <i class="fas fa-scale-balanced"></i>
+                    </div>
+                    <h3>Unequal Shares</h3>
+                    <p>Set different share counts (e.g., 2x for someone who ate more). Value per share is calculated automatically.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Tracking Features -->
+        <section class="payment-tracking">
+            <h2>Real-Time Payment Tracking</h2>
+            <div class="tracking-grid">
+                <div class="tracking-item">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Payment Status</h3>
+                    <p>See at a glance who has paid and who hasn't. Status updates in real-time.</p>
+                </div>
+                <div class="tracking-item">
+                    <i class="fas fa-history"></i>
+                    <h3>Payment History</h3>
+                    <p>View complete payment history for every bill, including who paid when.</p>
+                </div>
+                <div class="tracking-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>Progress Tracking</h3>
+                    <p>Visual progress bars show how much of each bill has been paid.</p>
+                </div>
+                <div class="tracking-item">
+                    <i class="fas fa-bell"></i>
+                    <h3>Payment Reminders</h3>
+                    <p>Get notified when payments are made or when bills are fully settled.</p>
+                </div>
+                <div class="tracking-item">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    <h3>Mark Payments</h3>
+                    <p>Admins can mark name-only members as paid. Registered users can mark themselves.</p>
+                </div>
+                <div class="tracking-item">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <h3>Payment Summary</h3>
+                    <p>See totals for payments made and received across all your bills.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Features -->
+        <section class="category-section">
+            <h2 class="category-title">User Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h3>Profile Management</h3>
+                    <p>Update your name, change password, and manage your account settings.</p>
+                    <span class="feature-tag">Account</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3>Profile Pictures</h3>
+                    <p>Upload a profile photo or use a generated avatar with your initials.</p>
+                    <span class="feature-tag">Personalization</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Notifications</h3>
+                    <p>Receive notifications for new bills, payments, and group activities.</p>
+                    <span class="feature-tag">Alerts</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure Authentication</h3>
+                    <p>JWT-based authentication keeps your account and data secure.</p>
+                    <span class="feature-tag">Security</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3>Password Reset</h3>
+                    <p>Forgot your password? Reset it securely via email.</p>
+                    <span class="feature-tag">Recovery</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Responsive</h3>
+                    <p>Works perfectly on desktop, tablet, and mobile devices.</p>
+                    <span class="feature-tag">Accessibility</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Features -->
+        <section class="category-section">
+            <h2 class="category-title">Dashboard & Analytics</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Financial Overview</h3>
+                    <p>See at a glance how much you owe and how much is owed to you.</p>
+                    <span class="feature-tag">Dashboard</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Pending Bills</h3>
+                    <p>Track bills that are pending, partially paid, or fully settled.</p>
+                    <span class="feature-tag">Status</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <h3>Payments Made</h3>
+                    <p>See the total amount you've paid to others' bills.</p>
+                    <span class="feature-tag">Analytics</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <h3>Payments Received</h3>
+                    <p>Track money received from others on bills you created.</p>
+                    <span class="feature-tag">Analytics</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Active Groups</h3>
+                    <p>See all your groups and how many members are in each.</p>
+                    <span class="feature-tag">Overview</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>Recent Activity</h3>
+                    <p>View the latest bills and payments across all your groups.</p>
+                    <span class="feature-tag">Timeline</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <h2>Ready to try SmartBill?</h2>
+            <p>Join thousands of users who never argue about money again.</p>
+            <div class="cta-buttons">
+                <a href="signup.html" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    Get Started Free
+                </a>
+                <a href="about.html" class="btn btn-outline">
+                    <i class="fas fa-info-circle"></i>
+                    Learn More
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>SmartBill</h4>
+                <p>Created by Bill Odhiambo. A simple, fair way to split bills with friends, roommates, and groups.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="features.html">Features</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="security.html">Security</a>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <a href="https://github.com/billdude-cloud" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://www.instagram.com/billdud.e" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+                <a href="https://wa.me/254717182517" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                <a href="https://t.me/billdude483" target="_blank"><i class="fab fa-telegram"></i> Telegram</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Created with <span class="heart">â¤ï¸</span> by Bill Odhiambo | Â© 2024 SmartBill. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // DARK MODE TOGGLE
+        // ============================================
+        (function() {
+            const darkMode = localStorage.getItem('darkMode');
+            const toggle = document.getElementById('darkModeToggle');
+            const icon = toggle.querySelector('i');
+            
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+            
+            toggle.addEventListener('click', function() {
+                if (document.body.classList.contains('dark-mode')) {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('darkMode', 'disabled');
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                } else {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('darkMode', 'enabled');
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            });
+        })();
+
+        // ============================================
+        // SMOOTH SCROLL
+        // ============================================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // ============================================
+        // LOAD USER DATA FOR NAVBAR (if logged in)
+        // ============================================
+        if (localStorage.getItem('token')) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            // Optional: update navbar to show user info if needed
+        }
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
+

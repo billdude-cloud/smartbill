@@ -1,0 +1,63 @@
+/* Shared mobile adjustments for pages that reference css/mobile.css */
+
+@media (max-width: 900px) {
+    .nav-container,
+    .navbar .nav-container,
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .nav-links {
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .user-menu {
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .container,
+    .auth-container,
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .stats-grid,
+    .groups-grid,
+    .features-grid,
+    .footer-content {
+        grid-template-columns: 1fr !important;
+    }
+
+    .welcome-banner,
+    .hero,
+    .auth-card,
+    .card,
+    .stat-card,
+    .group-card {
+        border-radius: 1rem;
+    }
+}
+
+@media (max-width: 560px) {
+    .nav-links,
+    .user-info {
+        display: none;
+    }
+
+    .banner-actions,
+    .hero-buttons,
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn,
+    .banner-actions .btn,
+    .hero-buttons .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

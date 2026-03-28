@@ -1,0 +1,591 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - SmartBill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
+    <script src="js/api.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .notifications-shell {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .notifications-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .notifications-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--surface-color);
+        }
+
+        .notifications-toolbar strong {
+            color: var(--text-color);
+        }
+
+        .notifications-list {
+            display: grid;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .notification-row {
+            display: grid;
+            grid-template-columns: 48px 1fr auto;
+            gap: 1rem;
+            align-items: start;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .notification-row:hover {
+            background: var(--surface-color);
+            transform: translateX(2px);
+        }
+
+        .notification-row.unread {
+            background: var(--primary-50);
+            border-left: 3px solid var(--primary-500);
+        }
+
+        .notification-row:last-child {
+            border-bottom: none;
+        }
+
+        .notification-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.group_invite { background: #3b82f6; }
+        .notification-icon.bill_created { background: #8b5cf6; }
+        .notification-icon.bill_updated { background: #f59e0b; }
+        .notification-icon.bill_deleted { background: #ef4444; }
+        .notification-icon.payment_received { background: #10b981; }
+        .notification-icon.payment_reminder { background: #f59e0b; }
+        .notification-icon.member_joined { background: #06b6d4; }
+        .notification-icon.default { background: #6b7280; }
+
+        .notification-title {
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .notification-message {
+            color: var(--muted-text);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .notification-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+            color: var(--muted-text);
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .unread-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--primary-500);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(59, 130, 246, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        .empty-state {
+            padding: 3rem 1.5rem;
+            text-align: center;
+            color: var(--muted-text);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--gray-400);
+        }
+
+        .empty-state p {
+            margin: 0;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--muted-text);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary-500);
+            color: var(--primary-500);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-500);
+            border-color: var(--primary-500);
+            color: white;
+        }
+
+        @media (max-width: 700px) {
+            .page-header,
+            .notifications-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .notification-row {
+                grid-template-columns: 40px 1fr;
+            }
+
+            .notification-meta {
+                grid-column: 2;
+                align-items: flex-start;
+                margin-top: 0.25rem;
+            }
+
+            .notification-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="toastMessage" class="toast-message" style="display: none;"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-receipt"></i>
+                <span>SmartBill</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="groups.html">Groups</a>
+                <a href="bills.html">Bills</a>
+                <a href="analytics.html">Analytics</a>
+                <a href="export.html">Export</a>
+                <a href="alerts.html">Alerts</a>
+                <a href="profile.html">Profile</a>
+            </div>
+            <div class="user-menu">
+                <div class="currency-selector" id="currencySelector">
+                    <button class="currency-btn" onclick="toggleCurrencyDropdown()">
+                        <span id="selectedCurrencyFlag">ðŸ‡°ðŸ‡ª</span>
+                        <span id="selectedCurrencyCode">KES</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="currency-dropdown" id="currencyDropdown">
+                        <div class="currency-dropdown-header">
+                            <h4>Select Currency</h4>
+                        </div>
+                        <div class="currency-list" id="currencyList"></div>
+                    </div>
+                </div>
+                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Loading...</div>
+                </div>
+                <div class="user-avatar" id="userAvatar" onclick="window.location.href='profile.html'" style="cursor: pointer;" title="Your Profile">
+                    <img id="navbarAvatarImage" src="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                    <span id="navbarAvatarText">U</span>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <div>
+                <h2><i class="fas fa-bell"></i> Notifications</h2>
+                <p style="color: var(--muted-text); margin-top: 0.35rem;">Stay on top of invites, bills, and payments.</p>
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterNotifications('all')">All</button>
+                <button class="filter-btn" onclick="filterNotifications('unread')">Unread</button>
+                <button class="filter-btn" onclick="filterNotifications('read')">Read</button>
+            </div>
+        </div>
+
+        <div class="notifications-shell">
+            <div class="notifications-card">
+                <div class="notifications-toolbar">
+                    <div>
+                        <strong id="notificationSummary">Loading notifications...</strong>
+                    </div>
+                    <div style="color: var(--muted-text);" id="unreadSummary">Unread: 0</div>
+                </div>
+                <div class="notifications-list" id="notificationsList">
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading notifications...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const PAGE_API_BASE = typeof API_BASE !== 'undefined'
+            ? API_BASE
+            : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : 'https://smartbill-hrcu.onrender.com/api');
+        
+        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+        
+        let notifications = [];
+        let currentFilter = 'all';
+
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = message;
+            toast.className = `toast-message toast-${type}`;
+            toast.style.display = 'block';
+            
+            if (type === 'success' && typeof showConfetti === 'function') {
+                setTimeout(() => showConfetti(600, 30), 100);
+            }
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function iconForType(type) {
+            const icons = {
+                'group_invite': 'fa-users',
+                'bill_created': 'fa-receipt',
+                'bill_updated': 'fa-pen',
+                'bill_deleted': 'fa-trash',
+                'payment_received': 'fa-dollar-sign',
+                'payment_reminder': 'fa-bell',
+                'member_joined': 'fa-user-plus',
+                'bill_settled': 'fa-check-circle'
+            };
+            return icons[type] || 'fa-bell';
+        }
+
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMin = Math.floor(diffMs / 60000);
+            const diffHr = Math.floor(diffMin / 60);
+            const diffDay = Math.floor(diffHr / 24);
+            const diffWeek = Math.floor(diffDay / 7);
+            const diffMonth = Math.floor(diffDay / 30);
+            const diffYear = Math.floor(diffDay / 365);
+
+            if (diffMin < 1) return 'Just now';
+            if (diffMin < 60) return `${diffMin}m ago`;
+            if (diffHr < 24) return `${diffHr}h ago`;
+            if (diffDay < 7) return `${diffDay}d ago`;
+            if (diffWeek < 4) return `${diffWeek}w ago`;
+            if (diffMonth < 12) return `${diffMonth}mo ago`;
+            return `${diffYear}y ago`;
+        }
+
+        // ============================================
+        // USER DATA
+        // ============================================
+        function loadUserData() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('userName').textContent = user.name || 'User';
+            document.getElementById('navbarAvatarText').textContent = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+        }
+
+        async function loadUserAvatar() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+                    const avatarImg = document.getElementById('navbarAvatarImage');
+                    const avatarText = document.getElementById('navbarAvatarText');
+
+                    if (user.avatar) {
+                        avatarImg.src = user.avatar;
+                        avatarImg.style.display = 'block';
+                        avatarText.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading avatar:', error);
+            }
+        }
+
+        // ============================================
+        // NOTIFICATIONS
+        // ============================================
+        async function loadNotifications() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/notifications`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(data.error || 'Failed to load notifications');
+                }
+
+                notifications = data.notifications || [];
+                const unreadCount = data.unreadCount || 0;
+                renderNotifications(unreadCount);
+                
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                document.getElementById('notificationsList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>${escapeHtml(error.message || 'Failed to load notifications')}</p>
+                        <button class="btn btn-primary btn-sm" onclick="loadNotifications()" style="margin-top: 1rem;">
+                            <i class="fas fa-sync"></i> Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderNotifications(unreadCount) {
+            const filteredNotifications = notifications.filter(notif => {
+                if (currentFilter === 'unread') return !notif.is_read;
+                if (currentFilter === 'read') return notif.is_read;
+                return true;
+            });
+
+            document.getElementById('notificationSummary').textContent = 
+                `${filteredNotifications.length} notification${filteredNotifications.length === 1 ? '' : 's'}`;
+            document.getElementById('unreadSummary').textContent = `Unread: ${unreadCount}`;
+
+            const container = document.getElementById('notificationsList');
+            
+            if (filteredNotifications.length === 0) {
+                let emptyMessage = 'No notifications yet.';
+                if (currentFilter === 'unread') emptyMessage = 'No unread notifications.';
+                if (currentFilter === 'read') emptyMessage = 'No read notifications.';
+                
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>${emptyMessage}</p>
+                        ${currentFilter !== 'all' ? `
+                            <button class="btn btn-outline btn-sm" onclick="filterNotifications('all')" style="margin-top: 1rem;">
+                                View all notifications
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredNotifications.map(notif => `
+                <div class="notification-row ${!notif.is_read ? 'unread' : ''}" onclick="markAsRead(${notif.id})">
+                    <div class="notification-icon ${notif.type || 'default'}">
+                        <i class="fas ${iconForType(notif.type)}"></i>
+                    </div>
+                    <div>
+                        <div class="notification-title">${escapeHtml(notif.title)}</div>
+                        <div class="notification-message">${escapeHtml(notif.message)}</div>
+                    </div>
+                    <div class="notification-meta">
+                        <div title="${new Date(notif.created_at).toLocaleString()}">${timeAgo(notif.created_at)}</div>
+                        ${!notif.is_read ? '<div class="unread-dot" title="Unread"></div>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function markAsRead(id) {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/notifications/${id}/read`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error('Failed to mark notification as read');
+                }
+
+                const notif = notifications.find(item => item.id === id);
+                if (notif) notif.is_read = true;
+                
+                const unreadCount = notifications.filter(item => !item.is_read).length;
+                renderNotifications(unreadCount);
+                
+                showToast('Notification marked as read', 'success');
+                
+            } catch (error) {
+                console.error('Error marking notification read:', error);
+                showToast(error.message || 'Failed to mark as read', 'error');
+            }
+        }
+
+        async function markAllAsRead() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/notifications/read-all`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error('Failed to mark all notifications as read');
+                }
+
+                notifications.forEach(item => {
+                    item.is_read = true;
+                });
+                renderNotifications(0);
+                showToast('All notifications marked as read', 'success');
+                
+            } catch (error) {
+                console.error('Error marking all notifications read:', error);
+                showToast(error.message || 'Failed to update notifications', 'error');
+            }
+        }
+
+        function filterNotifications(filter) {
+            currentFilter = filter;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(filter)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            const unreadCount = notifications.filter(item => !item.is_read).length;
+            renderNotifications(unreadCount);
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserData();
+            loadUserAvatar();
+            loadNotifications();
+        });
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
+

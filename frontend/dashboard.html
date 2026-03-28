@@ -1,0 +1,1298 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SmartBill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
+    <script src="js/api.js"></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <script src="js/animations.js" defer></script>
+    <style>
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f7fafc;
+            color: #1a202c;
+        }
+
+        /* Dark mode support */
+        body.dark-mode {
+            background: #1a202c;
+            color: #f7fafc;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        body.dark-mode .navbar {
+            background: #2d3748;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #667eea;
+        }
+
+        body.dark-mode .nav-links a {
+            color: #cbd5e0;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .dark-mode-toggle,
+        .notification-badge,
+        .logout-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #4a5568;
+            transition: color 0.3s;
+        }
+
+        body.dark-mode .dark-mode-toggle,
+        body.dark-mode .notification-badge,
+        body.dark-mode .logout-btn {
+            color: #cbd5e0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            box-shadow: 0 20px 45px rgba(102, 126, 234, 0.28);
+            animation: welcomeEntrance 0.8s ease-out both;
+        }
+
+        .welcome-banner::before,
+        .welcome-banner::after {
+            content: "";
+            position: absolute;
+            border-radius: 999px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .welcome-banner::before {
+            width: 220px;
+            height: 220px;
+            top: -90px;
+            right: -50px;
+            background: radial-gradient(circle, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 70%);
+            animation: bannerFloat 8s ease-in-out infinite;
+        }
+
+        .welcome-banner::after {
+            width: 180px;
+            height: 180px;
+            bottom: -80px;
+            left: -40px;
+            background: radial-gradient(circle, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 72%);
+            animation: bannerFloat 10s ease-in-out infinite reverse;
+        }
+
+        .welcome-banner > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-banner h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.1;
+        }
+
+        .welcome-banner p {
+            max-width: 38rem;
+        }
+
+        .welcome-decor {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .welcome-orb {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.45);
+            box-shadow: 0 0 20px rgba(255,255,255,0.25);
+            animation: orbDrift 12s linear infinite;
+        }
+
+        .welcome-orb:nth-child(1) {
+            top: 18%;
+            left: 12%;
+            animation-duration: 11s;
+        }
+
+        .welcome-orb:nth-child(2) {
+            top: 68%;
+            left: 78%;
+            width: 9px;
+            height: 9px;
+            animation-duration: 14s;
+        }
+
+        .welcome-orb:nth-child(3) {
+            top: 38%;
+            left: 58%;
+            width: 7px;
+            height: 7px;
+            animation-duration: 16s;
+        }
+
+        .welcome-orb:nth-child(4) {
+            top: 76%;
+            left: 28%;
+            width: 10px;
+            height: 10px;
+            animation-duration: 13s;
+        }
+
+        @keyframes welcomeEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes bannerFloat {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+            50% {
+                transform: translate3d(-8px, 10px, 0) scale(1.06);
+            }
+        }
+
+        @keyframes orbDrift {
+            0% {
+                transform: translate3d(0, 16px, 0) scale(0.9);
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.9;
+            }
+            85% {
+                opacity: 0.55;
+            }
+            100% {
+                transform: translate3d(22px, -26px, 0) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        .banner-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-outline {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        body.dark-mode .stat-card {
+            background: #2d3748;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.blue { background: #e6f0ff; color: #3b82f6; }
+        .stat-icon.orange { background: #fff3e6; color: #f59e0b; }
+        .stat-icon.green { background: #e6f9ed; color: #10b981; }
+        .stat-icon.purple { background: #f0e6ff; color: #8b5cf6; }
+
+        .stat-info h3 {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Section Header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0 1rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.25rem;
+        }
+
+        .view-all {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        /* Groups Grid */
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .group-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        body.dark-mode .group-card {
+            background: #2d3748;
+        }
+
+        .group-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .group-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .group-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .group-meta {
+            font-size: 0.75rem;
+            color: #718096;
+        }
+
+        /* Bills List */
+        .bills-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .bill-item {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        body.dark-mode .bill-item {
+            background: #2d3748;
+        }
+
+        .bill-item:hover {
+            transform: translateX(5px);
+        }
+
+        .bill-icon {
+            width: 40px;
+            height: 40px;
+            background: #e6f0ff;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+        }
+
+        .bill-info {
+            flex: 1;
+        }
+
+        .bill-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .bill-info p {
+            font-size: 0.75rem;
+            color: #718096;
+        }
+
+        .bill-amount {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .bill-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-pending { background: #fff3e6; color: #f59e0b; }
+        .status-partial { background: #e6f0ff; color: #3b82f6; }
+        .status-paid { background: #e6f9ed; color: #10b981; }
+
+        /* Recent Activity */
+        .recent-activity {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        body.dark-mode .recent-activity {
+            background: #2d3748;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .activity-icon.bill {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .activity-icon.payment {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-description {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-bottom: 0.25rem;
+        }
+
+        body.dark-mode .activity-description {
+            color: #cbd5e0;
+        }
+
+        .activity-meta {
+            font-size: 0.75rem;
+            color: #718096;
+        }
+
+        .activity-amount {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        /* Toast Messages */
+        .toast-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast-success { background: #10b981; }
+        .toast-error { background: #ef4444; }
+        .toast-info { background: #3b82f6; }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            color: #718096;
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+            color: #dc2626;
+            background: #fee2e2;
+            border-radius: 0.5rem;
+        }
+
+        .retry-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        /* Notifications Panel */
+        .notifications-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        body.dark-mode .notifications-panel {
+            background: #2d3748;
+        }
+
+        .notifications-panel.show {
+            display: block;
+        }
+
+        .notifications-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notifications-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .notification-item.unread {
+            background: #f0f4ff;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        .notification-badge {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .debug-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .stats-grid,
+            .groups-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Message Container -->
+    <div id="toastMessage" class="toast-message" style="display: none;"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-receipt"></i>
+                <span>SmartBill</span>
+            </a>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="dashboard.html" class="active">Dashboard</a>
+                <a href="groups.html">Groups</a>
+                <a href="bills.html">Bills</a>
+                <a href="analytics.html">Analytics</a>
+                <a href="export.html">Export</a>
+                <a href="alerts.html">Alerts</a>
+                <a href="profile.html">Profile</a>
+            </div>
+            
+            <div class="user-menu">
+                <div class="currency-selector" id="currencySelector">
+                    <button class="currency-btn" onclick="toggleCurrencyDropdown()">
+                        <span id="selectedCurrencyFlag">🇰🇪</span>
+                        <span id="selectedCurrencyCode">KES</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="currency-dropdown" id="currencyDropdown">
+                        <div class="currency-dropdown-header">
+                            <h4>Select Currency</h4>
+                        </div>
+                        <div class="currency-list" id="currencyList"></div>
+                    </div>
+                </div>
+                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="notification-badge" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count" id="notificationCount">0</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Loading...</div>
+                </div>
+                <div class="user-avatar" id="userAvatar" onclick="window.location.href='profile.html'">
+                    <span id="navbarAvatarText">U</span>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>Notifications</h3>
+            <button class="btn btn-sm" onclick="markAllAsRead()">Mark all read</button>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+        </div>
+    </div>
+
+    <main class="container">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner" id="welcomeBanner">
+            <div class="welcome-decor" aria-hidden="true">
+                <span class="welcome-orb"></span>
+                <span class="welcome-orb"></span>
+                <span class="welcome-orb"></span>
+                <span class="welcome-orb"></span>
+            </div>
+            <h1 id="welcomeMessage">Welcome back!</h1>
+            <p id="welcomeSubtext">Here's what's happening with your finances today.</p>
+            <div class="banner-actions">
+                <a href="create-bill.html" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Bill
+                </a>
+                <a href="create-group.html" class="btn btn-outline">
+                    <i class="fas fa-users"></i> New Group
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>You are Owed</h3>
+                    <div class="stat-number" id="totalOwed">KSh 0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>You Owe</h3>
+                    <div class="stat-number" id="youOwe">KSh 0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Active Groups</h3>
+                    <div class="stat-number" id="activeGroups">0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Pending Bills</h3>
+                    <div class="stat-number" id="pendingBills">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Your Groups -->
+        <div class="section-header">
+            <h2><i class="fas fa-users"></i> Your Groups</h2>
+            <a href="groups.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="groups-grid" id="groupsList">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading groups...</p>
+            </div>
+        </div>
+
+        <!-- Recent Bills -->
+        <div class="section-header">
+            <h2><i class="fas fa-receipt"></i> Recent Bills</h2>
+            <a href="bills.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="bills-list" id="billsList">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading bills...</p>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h3>Recent Activity</h3>
+            <div id="activityList">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading activity...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <button class="debug-btn" onclick="debugDashboard()">
+        <i class="fas fa-bug"></i> Debug
+    </button>
+
+    <script>
+        // Check authentication using SmartBillAPI
+        if (typeof SmartBillAPI !== 'undefined') {
+            if (!SmartBillAPI.isAuthenticated()) {
+                window.location.href = 'login.html';
+            }
+        } else if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+
+        let currentUser = null;
+        let allGroups = [];
+        let allBills = [];
+
+        function getBillRoute(id) {
+            return `bills.html?billId=${encodeURIComponent(id)}`;
+        }
+
+        function formatDashboardCurrency(amount) {
+            const currentCurrency = typeof getCurrentCurrency === 'function' ? getCurrentCurrency() : 'KES';
+            const convertedAmount = typeof convertCurrency === 'function'
+                ? convertCurrency(amount, 'KES', currentCurrency)
+                : amount;
+
+            return new Intl.NumberFormat('en-KE', {
+                style: 'currency',
+                currency: currentCurrency,
+                minimumFractionDigits: 2
+            }).format(convertedAmount || 0);
+        }
+
+        function animateWelcomeMessage(message) {
+            const element = document.getElementById('welcomeMessage');
+            if (!element) return;
+
+            const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (prefersReducedMotion) {
+                element.textContent = message;
+                return;
+            }
+
+            let index = 0;
+            element.textContent = '';
+            const typeNext = () => {
+                element.textContent = message.slice(0, index);
+                if (index < message.length) {
+                    index += 1;
+                    window.setTimeout(typeNext, 24);
+                }
+            };
+            typeNext();
+        }
+
+        function initWelcomeBannerEffects() {
+            const banner = document.getElementById('welcomeBanner');
+            if (!banner) return;
+
+            banner.addEventListener('mousemove', (event) => {
+                const rect = banner.getBoundingClientRect();
+                const offsetX = ((event.clientX - rect.left) / rect.width - 0.5) * 10;
+                const offsetY = ((event.clientY - rect.top) / rect.height - 0.5) * 10;
+                banner.style.transform = `translate3d(${offsetX * 0.2}px, ${offsetY * 0.2}px, 0)`;
+            });
+
+            banner.addEventListener('mouseleave', () => {
+                banner.style.transform = '';
+            });
+        }
+
+        // Toast function
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = message;
+            toast.className = `toast-message toast-${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Load user data
+        async function loadUserData() {
+            if (typeof SmartBillAPI !== 'undefined' && SmartBillAPI.getCurrentUser) {
+                currentUser = SmartBillAPI.getCurrentUser();
+                if (currentUser) {
+                    document.getElementById('userName').textContent = currentUser.name;
+                    animateWelcomeMessage(`Welcome back, ${currentUser.name.split(' ')[0]}!`);
+                    const initials = currentUser.name.charAt(0).toUpperCase();
+                    document.getElementById('navbarAvatarText').textContent = initials;
+                }
+            } else {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user.name) {
+                    document.getElementById('userName').textContent = user.name;
+                    animateWelcomeMessage(`Welcome back, ${user.name.split(' ')[0]}!`);
+                    document.getElementById('navbarAvatarText').textContent = user.name.charAt(0).toUpperCase();
+                }
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Try using SmartBillAPI first
+                if (typeof SmartBillAPI !== 'undefined') {
+                    const groupsResult = await SmartBillAPI.getGroups();
+                    if (groupsResult.success) {
+                        allGroups = groupsResult.data;
+                        displayGroups(allGroups.slice(0, 4));
+                        document.getElementById('activeGroups').textContent = allGroups.length;
+                    }
+
+                    const billsResult = await SmartBillAPI.getBills();
+                    if (billsResult.success) {
+                        allBills = billsResult.data;
+                        displayBills(allBills.slice(0, 5));
+                    }
+
+                    const summaryResult = await SmartBillAPI.getDashboardSummary();
+                    if (summaryResult.success) {
+                        const data = summaryResult.data;
+                        document.getElementById('totalOwed').textContent = formatDashboardCurrency(data.owedToMe);
+                        document.getElementById('youOwe').textContent = formatDashboardCurrency(data.iOwe);
+                        document.getElementById('pendingBills').textContent = data.pendingBills;
+                    }
+
+                    const paymentsResult = await SmartBillAPI.getPaymentSummary();
+                    if (paymentsResult.success) {
+                        // Update payment cards if needed
+                    }
+
+                    await generateActivity();
+                } else {
+                    // Fallback to direct fetch
+                    const token = localStorage.getItem('token');
+                    const headers = { 'Authorization': `Bearer ${token}` };
+
+                    const groupsRes = await fetch('http://localhost:5000/api/groups', { headers });
+                    if (groupsRes.ok) {
+                        allGroups = await groupsRes.json();
+                        displayGroups(allGroups.slice(0, 4));
+                        document.getElementById('activeGroups').textContent = allGroups.length;
+                    }
+
+                    const billsRes = await fetch('http://localhost:5000/api/bills', { headers });
+                    if (billsRes.ok) {
+                        allBills = await billsRes.json();
+                        displayBills(allBills.slice(0, 5));
+                    }
+
+                    const summaryRes = await fetch('http://localhost:5000/api/dashboard/summary', { headers });
+                    if (summaryRes.ok) {
+                        const data = await summaryRes.json();
+                        document.getElementById('totalOwed').textContent = formatDashboardCurrency(data.owedToMe);
+                        document.getElementById('youOwe').textContent = formatDashboardCurrency(data.iOwe);
+                        document.getElementById('pendingBills').textContent = data.pendingBills;
+                    }
+
+                    await generateActivity();
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showToast('Error loading dashboard data', 'error');
+            }
+        }
+
+        function displayGroups(groups) {
+            const container = document.getElementById('groupsList');
+            if (!groups || groups.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <i class="fas fa-users-slash"></i>
+                        <h3>No Groups Yet</h3>
+                        <p>Create your first group to start splitting bills</p>
+                        <a href="create-group.html" class="btn btn-primary">Create Group</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = groups.map(group => `
+                <div class="group-card" onclick="viewGroup(${group.id})">
+                    <div class="group-avatar">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>${escapeHtml(group.name)}</h3>
+                    <div class="group-meta">
+                        <i class="fas fa-user"></i> ${group.member_count || 1} members
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayBills(bills) {
+            const container = document.getElementById('billsList');
+            if (!bills || bills.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <h3>No Bills Yet</h3>
+                        <p>Create your first bill to get started</p>
+                        <a href="create-bill.html" class="btn btn-primary">Create Bill</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = bills.map(bill => `
+                <div class="bill-item" onclick="viewBill(${bill.id})">
+                    <div class="bill-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="bill-info">
+                        <h4>${escapeHtml(bill.title)}</h4>
+                        <p><i class="fas fa-users"></i> ${escapeHtml(bill.group_name)}</p>
+                    </div>
+                    <div class="bill-amount">${formatDashboardCurrency(parseFloat(bill.total) || 0)}</div>
+                    <span class="bill-status status-${bill.status}">${bill.status}</span>
+                </div>
+            `).join('');
+        }
+
+        async function generateActivity() {
+            const container = document.getElementById('activityList');
+            const activities = [];
+            const recentBills = allBills.slice(0, 5);
+            const activityApiBase = typeof API_BASE !== 'undefined' ? API_BASE : 'http://localhost:5000/api';
+            const token = localStorage.getItem('token');
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+            recentBills.forEach(bill => {
+                activities.push({
+                    type: 'bill',
+                    title: bill.title,
+                    group: bill.group_name,
+                    date: new Date(bill.created_at).toLocaleDateString(),
+                    timestamp: new Date(bill.created_at).getTime(),
+                    amount: bill.total,
+                    description: 'New bill created'
+                });
+            });
+
+            for (const bill of recentBills) {
+                try {
+                    const response = await fetch(`${activityApiBase}/bills/${bill.id}/payment-status`, { headers });
+                    if (!response.ok) {
+                        continue;
+                    }
+
+                    const statuses = await response.json();
+                    statuses
+                        .filter(status => status.paid)
+                        .forEach(status => {
+                            const paidAt = status.paid_at ? new Date(status.paid_at) : new Date(bill.created_at);
+                            activities.push({
+                                type: 'payment',
+                                title: `${status.name} paid`,
+                                group: bill.group_name,
+                                date: paidAt.toLocaleDateString(),
+                                timestamp: paidAt.getTime(),
+                                amount: status.amount,
+                                description: `Paid for ${bill.title}`
+                            });
+                        });
+                } catch (error) {
+                    console.error(`Error loading payment activity for bill ${bill.id}:`, error);
+                }
+            }
+
+            activities.sort((a, b) => b.timestamp - a.timestamp);
+            
+            if (activities.length === 0) {
+                container.innerHTML = '<p style="color: #718096; text-align: center;">No recent activity</p>';
+                return;
+            }
+            
+            container.innerHTML = activities.slice(0, 8).map(item => `
+                <div class="activity-item">
+                    <div class="activity-icon ${item.type}">
+                        <i class="fas fa-${item.type === 'bill' ? 'receipt' : 'credit-card'}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${escapeHtml(item.title)}</div>
+                        <div class="activity-description">${escapeHtml(item.description)}</div>
+                        <div class="activity-meta">
+                            <span><i class="fas fa-users"></i> ${escapeHtml(item.group)}</span>
+                            <span><i class="fas fa-calendar"></i> ${item.date}</span>
+                        </div>
+                    </div>
+                    <div class="activity-amount">${formatDashboardCurrency(parseFloat(item.amount) || 0)}</div>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function viewGroup(id) {
+            window.location.href = `group-details.html?id=${id}`;
+        }
+
+        function viewBill(id) {
+            window.location.href = getBillRoute(id);
+        }
+
+        function toggleNotifications() {
+            document.getElementById('notificationsPanel').classList.toggle('show');
+        }
+
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            if (navLinks) {
+                navLinks.classList.toggle('active');
+            }
+        }
+
+        async function markAllAsRead() {
+            if (typeof SmartBillAPI !== 'undefined') {
+                await SmartBillAPI.markAllNotificationsRead();
+            }
+            document.getElementById('notificationCount').textContent = '0';
+            document.getElementById('notificationsList').innerHTML = '<div class="loading">No notifications</div>';
+        }
+
+        function logout() {
+            if (typeof SmartBillAPI !== 'undefined') {
+                SmartBillAPI.logout();
+            } else {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+
+        function debugDashboard() {
+            console.log('=== SmartBill Dashboard Debug ===');
+            console.log('User:', currentUser);
+            console.log('Groups:', allGroups);
+            console.log('Bills:', allBills);
+            showToast('Debug info logged to console (F12)', 'info');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initWelcomeBannerEffects();
+            loadUserData();
+            loadDashboardData();
+        });
+    </script>
+</body>
+</html>
+
+

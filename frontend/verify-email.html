@@ -1,0 +1,680 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Verify Email - SmartBill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
+    <script src="js/api.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .verify-container {
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .verify-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 40px 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: fadeInUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .logo a {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 40px;
+            color: #667eea;
+        }
+
+        .logo span {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        p {
+            color: var(--muted-text);
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        .info-text {
+            background: var(--primary-50);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 20px 0;
+            font-size: 0.85rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--primary-200);
+            text-align: left;
+        }
+
+        .info-text i {
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 18px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            font-size: 16px;
+            transition: all 0.3s;
+            -webkit-appearance: none;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .code-input {
+            text-align: center;
+            font-size: 1.8rem;
+            letter-spacing: 0.5rem;
+            font-weight: bold;
+            font-family: monospace;
+            padding: 14px 16px;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+            margin-top: 12px;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .message {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid transparent;
+        }
+
+        .message.show {
+            display: flex;
+        }
+
+        .message.error {
+            background: var(--danger-100);
+            border-left-color: var(--danger-500);
+            color: var(--danger-700);
+        }
+
+        .message.success {
+            background: var(--success-100);
+            border-left-color: var(--success-500);
+            color: var(--success-700);
+        }
+
+        .message i {
+            font-size: 18px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .countdown {
+            font-size: 0.85rem;
+            color: var(--muted-text);
+            margin-top: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        .countdown.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .toast-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .toast-error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Dark mode adjustments */
+        body.dark-mode .verify-card {
+            background: var(--card-bg);
+        }
+
+        @media (max-width: 480px) {
+            .verify-card {
+                padding: 32px 24px;
+            }
+
+            .logo i {
+                font-size: 32px;
+            }
+
+            .logo span {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .code-input {
+                font-size: 1.4rem;
+                letter-spacing: 0.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="bg-particles" id="particles"></div>
+
+    <!-- Toast Message Container -->
+    <div id="toastMessage" class="toast-message" style="display: none;"></div>
+
+    <div class="verify-container">
+        <div class="verify-card">
+            <div class="logo">
+                <a href="index.html">
+                    <i class="fas fa-receipt"></i>
+                    <span>SmartBill</span>
+                </a>
+            </div>
+
+            <h2>Verify Your Email</h2>
+            <p>Enter the verification code sent to your email address.</p>
+
+            <div id="messageBox" class="message error"></div>
+
+            <div class="info-text">
+                <i class="fas fa-info-circle"></i>
+                <span>Check your inbox for a 6-digit verification code. The code expires in 15 minutes.</span>
+            </div>
+
+            <form id="verifyForm">
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="Email address" required autocomplete="email">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <i class="fas fa-key"></i>
+                        <input type="text" id="code" class="code-input" maxlength="6" placeholder="------" inputmode="numeric" required autocomplete="off">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" id="verifyBtn">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Verify Code</span>
+                </button>
+                <button type="button" class="btn btn-outline" id="resendBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Resend Code</span>
+                </button>
+            </form>
+
+            <div class="countdown" id="countdown">
+                <i class="fas fa-clock"></i>
+                <span>You can request a new code in <span id="countdownTimer">60</span> seconds</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const PAGE_API_BASE = typeof API_BASE !== 'undefined'
+            ? API_BASE
+            : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : 'https://smartbill-hrcu.onrender.com/api');
+        
+        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+
+        // Get email from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const emailParam = urlParams.get('email');
+
+        if (emailParam) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('email').value = decodeURIComponent(emailParam);
+                document.getElementById('code').focus();
+            });
+        }
+
+        // ============================================
+        // CREATE BACKGROUND PARTICLES
+        // ============================================
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 25;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                const size = Math.random() * 50 + 15;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 20}s`;
+                particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
+                particle.style.opacity = Math.random() * 0.3;
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function showMessage(type, text) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.className = `message ${type}`;
+            messageBox.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>${text}`;
+            messageBox.classList.add('show');
+            
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 5000);
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = message;
+            toast.className = `toast-message toast-${type}`;
+            toast.style.display = 'block';
+            
+            if (type === 'success' && typeof showConfetti === 'function') {
+                setTimeout(() => showConfetti(500, 25), 100);
+            }
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function startCountdown(seconds) {
+            const countdownDiv = document.getElementById('countdown');
+            const timerSpan = document.getElementById('countdownTimer');
+            const resendBtn = document.getElementById('resendBtn');
+            let remaining = seconds;
+            
+            countdownDiv.classList.add('show');
+            resendBtn.disabled = true;
+            
+            const interval = setInterval(() => {
+                remaining--;
+                timerSpan.textContent = remaining;
+                
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    countdownDiv.classList.remove('show');
+                    resendBtn.disabled = false;
+                }
+            }, 1000);
+        }
+
+        // ============================================
+        // VERIFICATION CODE INPUT HANDLING
+        // ============================================
+        const codeInput = document.getElementById('code');
+        codeInput.addEventListener('input', function(e) {
+            // Only allow numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            // Auto-submit when 6 digits are entered
+            if (this.value.length === 6) {
+                document.getElementById('verifyForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // ============================================
+        // FORM SUBMISSION
+        // ============================================
+        document.getElementById('verifyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const code = document.getElementById('code').value.trim();
+            const verifyBtn = document.getElementById('verifyBtn');
+            const originalBtnText = verifyBtn.innerHTML;
+
+            if (!email) {
+                showMessage('error', 'Please enter your email address');
+                return;
+            }
+
+            if (!code) {
+                showMessage('error', 'Please enter the verification code');
+                return;
+            }
+
+            if (code.length !== 6) {
+                showMessage('error', 'Please enter the 6-digit verification code');
+                return;
+            }
+
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<span class="spinner"></span> Verifying...';
+
+            try {
+                console.log('ðŸ“¡ Sending verification request to:', `${PAGE_API_BASE}/verify-email-code`);
+                
+                const response = await fetch(`${PAGE_API_BASE}/verify-email-code`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, code })
+                });
+
+                const data = await response.json();
+                console.log('ðŸ“¥ Response:', { status: response.status, data });
+
+                if (response.ok) {
+                    if (data.token && data.user) {
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                    }
+
+                    showMessage('success', data.message || 'Email verified successfully!');
+                    showToast('Email verified! Redirecting to dashboard...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    showMessage('error', data.error || 'Verification failed. Please check your code.');
+                    showToast(data.error || 'Invalid verification code', 'error');
+                }
+            } catch (error) {
+                console.error('âŒ Verification error:', error);
+                showMessage('error', 'Network error. Please check your connection and try again.');
+                showToast('Network error. Please try again.', 'error');
+            } finally {
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = originalBtnText;
+            }
+        });
+
+        // ============================================
+        // RESEND CODE
+        // ============================================
+        document.getElementById('resendBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            const resendBtn = document.getElementById('resendBtn');
+            const originalBtnText = resendBtn.innerHTML;
+            
+            if (!email) {
+                showMessage('error', 'Please enter your email address first');
+                return;
+            }
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMessage('error', 'Please enter a valid email address');
+                return;
+            }
+
+            resendBtn.disabled = true;
+            resendBtn.innerHTML = '<span class="spinner"></span> Sending...';
+
+            try {
+                console.log('ðŸ“¡ Sending resend request to:', `${PAGE_API_BASE}/resend-verification`);
+                
+                const response = await fetch(`${PAGE_API_BASE}/resend-verification`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+                console.log('ðŸ“¥ Response:', { status: response.status, data });
+
+                if (response.ok) {
+                    showMessage('success', data.message || 'Verification code sent! Check your email.');
+                    showToast('Verification code sent!', 'success');
+                    
+                    // Start countdown to prevent spam
+                    startCountdown(60);
+                    
+                    // Clear previous code and focus
+                    document.getElementById('code').value = '';
+                    document.getElementById('code').focus();
+                } else {
+                    showMessage('error', data.error || 'Failed to send verification code');
+                    showToast(data.error || 'Failed to send code', 'error');
+                    resendBtn.disabled = false;
+                    resendBtn.innerHTML = originalBtnText;
+                }
+            } catch (error) {
+                console.error('âŒ Resend error:', error);
+                showMessage('error', 'Network error. Please try again.');
+                showToast('Network error. Please try again.', 'error');
+                resendBtn.disabled = false;
+                resendBtn.innerHTML = originalBtnText;
+            }
+        });
+
+        // ============================================
+        // CHECK IF ALREADY LOGGED IN
+        // ============================================
+        if (localStorage.getItem('token')) {
+            window.location.href = 'dashboard.html';
+        }
+
+        // ============================================
+        // FOCUS EMAIL INPUT IF NO EMAIL IN URL
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!emailParam) {
+                document.getElementById('email').focus();
+            }
+        });
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
+

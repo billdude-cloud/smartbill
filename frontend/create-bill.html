@@ -1,0 +1,1725 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Bill - SmartBill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
+    <script src="js/api.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+            background: var(--surface-color);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .total-section {
+            background: var(--primary-50);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin: 1.5rem 0;
+            border: 1px solid var(--primary-200);
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .grand-total {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-600);
+            border-top: 2px solid var(--primary-200);
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .quick-amount {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .quick-amount-btn {
+            padding: 0.25rem 1rem;
+            background: var(--primary-100);
+            border: none;
+            border-radius: 2rem;
+            color: var(--primary-600);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quick-amount-btn:hover {
+            background: var(--primary-500);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .loading-overlay.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .loading-spinner {
+            text-align: center;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .loading-spinner i {
+            font-size: 3rem;
+            color: var(--primary-500);
+            margin-bottom: 1rem;
+        }
+        
+        .split-method-section {
+            background: var(--surface-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 2px solid var(--border-color);
+        }
+        
+        .split-method-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .split-method-tab {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 2rem;
+            background: var(--card-bg);
+            color: var(--muted-text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .split-method-tab:hover {
+            border-color: var(--primary-500);
+            color: var(--primary-500);
+            transform: translateY(-2px);
+        }
+        
+        .split-method-tab.active {
+            background: var(--primary-500);
+            border-color: var(--primary-500);
+            color: white;
+        }
+        
+        .split-method-content {
+            display: none;
+        }
+        
+        .split-method-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .member-split-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+        
+        .member-split-row .member-info {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .member-split-row .member-name {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .member-split-row .member-email {
+            font-size: 0.8rem;
+            color: var(--muted-text);
+        }
+        
+        .member-split-row input {
+            width: 100px;
+            padding: 0.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            text-align: right;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .member-split-row .percentage-symbol {
+            color: var(--muted-text);
+            font-weight: 600;
+        }
+        
+        .member-split-row .amount-display {
+            font-weight: bold;
+            color: var(--primary-500);
+            min-width: 100px;
+            text-align: right;
+        }
+        
+        .split-summary {
+            background: var(--primary-50);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid var(--primary-200);
+        }
+        
+        .split-summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+        }
+        
+        .split-summary-total {
+            font-weight: bold;
+            color: var(--primary-600);
+            border-top: 2px solid var(--primary-200);
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .split-warning {
+            color: var(--danger-500);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .item-assign-section {
+            background: var(--surface-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .item-assign-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            color: var(--primary-500);
+            font-weight: 600;
+        }
+        
+        .item-assign-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .item-assign-grid.show {
+            display: grid;
+        }
+        
+        .item-assign-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .item-assign-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-500);
+        }
+        
+        .member-split-summary {
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .member-split-summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .member-split-summary-row:last-child {
+            border-bottom: none;
+        }
+        
+        .member-split-summary-row .amount {
+            font-weight: bold;
+            color: var(--primary-500);
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .connection-status.online {
+            background: var(--success-100);
+            color: var(--success-700);
+            display: block;
+        }
+        
+        .connection-status.offline {
+            background: var(--danger-100);
+            color: var(--danger-700);
+            display: block;
+        }
+        
+        .debug-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-500);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 999;
+            font-size: 14px;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .debug-btn:hover {
+            background: var(--primary-600);
+            transform: scale(1.05);
+        }
+
+        .toast-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .toast-success {
+            background: var(--success-500);
+        }
+
+        .toast-error {
+            background: var(--danger-500);
+        }
+
+        .toast-info {
+            background: var(--primary-500);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: var(--surface-color);
+            border-radius: 1rem;
+            color: var(--muted-text);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-400);
+            margin-bottom: 1rem;
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+            color: var(--danger-500);
+            background: var(--danger-100);
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .retry-btn {
+            background: var(--primary-500);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .group-loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted-text);
+        }
+
+        .group-loading i {
+            font-size: 2rem;
+            color: var(--primary-500);
+            margin-bottom: 1rem;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 0.5rem;
+            background: var(--danger-100);
+            color: var(--danger-500);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-icon:hover {
+            background: var(--danger-500);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-control, input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        .form-control:focus, input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            color: var(--primary-500);
+            text-decoration: none;
+            transition: gap 0.3s;
+        }
+
+        .back-link:hover {
+            gap: 0.75rem;
+            text-decoration: underline;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .item-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .member-split-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .member-split-row input {
+                width: 100%;
+            }
+            
+            .split-method-tabs {
+                flex-direction: column;
+            }
+            
+            .split-method-tab {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Message Container -->
+    <div id="toastMessage" class="toast-message" style="display: none;"></div>
+
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="connection-status"></div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <h3>Creating Bill...</h3>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-receipt"></i>
+                <span>SmartBill</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="groups.html">Groups</a>
+                <a href="bills.html">Bills</a>
+                <a href="analytics.html">Analytics</a>
+                <a href="export.html">Export</a>
+                <a href="alerts.html">Alerts</a>
+                <a href="profile.html">Profile</a>
+            </div>
+            <div class="user-menu">
+                <div class="currency-selector" id="currencySelector">
+                    <button class="currency-btn" onclick="toggleCurrencyDropdown()">
+                        <span id="selectedCurrencyFlag">ðŸ‡°ðŸ‡ª</span>
+                        <span id="selectedCurrencyCode">KES</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="currency-dropdown" id="currencyDropdown">
+                        <div class="currency-dropdown-header">
+                            <h4>Select Currency</h4>
+                        </div>
+                        <div class="currency-list" id="currencyList"></div>
+                    </div>
+                </div>
+                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Loading...</div>
+                </div>
+                <div class="user-avatar" id="userAvatar" onclick="window.location.href='profile.html'" style="cursor: pointer;" title="Your Profile">
+                    <img id="navbarAvatarImage" src="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                    <span id="navbarAvatarText">U</span>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <a href="bills.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Bills
+        </a>
+
+        <div class="card">
+            <h2 style="margin-bottom: 2rem;">Create New Bill</h2>
+            
+            <form id="billForm">
+                <div class="form-group">
+                    <label for="title">Bill Title <span style="color: var(--danger-500);">*</span></label>
+                    <input type="text" id="title" placeholder="e.g., Dinner at Italian Restaurant" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="group">Select Group <span style="color: var(--danger-500);">*</span></label>
+                    <select id="group" required onchange="loadGroupMembers()">
+                        <option value="">Select a group</option>
+                    </select>
+                    <div id="groupLoading" class="group-loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading groups...
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description (Optional)</label>
+                    <textarea id="description" rows="2" placeholder="Add any notes about this bill..."></textarea>
+                </div>
+                
+                <h3 style="margin: 2rem 0 1rem;">Items</h3>
+                
+                <div id="itemsList"></div>
+                
+                <button type="button" class="btn btn-secondary" onclick="addItem()" style="margin-bottom: 2rem;">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="tax">Tax</label>
+                        <input type="number" id="tax" value="0" step="0.01" min="0" oninput="calculateTotal()">
+                        <div class="quick-amount">
+                            <button type="button" class="quick-amount-btn" onclick="setTaxPercentage(10)">10%</button>
+                            <button type="button" class="quick-amount-btn" onclick="setTaxPercentage(8)">8%</button>
+                            <button type="button" class="quick-amount-btn" onclick="setTaxPercentage(5)">5%</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tip">Tip</label>
+                        <input type="number" id="tip" value="0" step="0.01" min="0" oninput="calculateTotal()">
+                        <div class="quick-amount">
+                            <button type="button" class="quick-amount-btn" onclick="setTipPercentage(15)">15%</button>
+                            <button type="button" class="quick-amount-btn" onclick="setTipPercentage(18)">18%</button>
+                            <button type="button" class="quick-amount-btn" onclick="setTipPercentage(20)">20%</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Split Method Section -->
+                <div class="split-method-section" id="splitMethodSection" style="display: none;">
+                    <h3 style="margin-bottom: 1rem;"><i class="fas fa-divide"></i> Choose Split Method</h3>
+                    
+                    <div class="split-method-tabs">
+                        <button type="button" class="split-method-tab active" onclick="changeSplitMethod('equal')">
+                            <i class="fas fa-equals"></i> Equal Split
+                        </button>
+                        <button type="button" class="split-method-tab" onclick="changeSplitMethod('percentage')">
+                            <i class="fas fa-percent"></i> By Percentage
+                        </button>
+                        <button type="button" class="split-method-tab" onclick="changeSplitMethod('custom')">
+                            <i class="fas fa-pencil-alt"></i> Custom Amounts
+                        </button>
+                        <button type="button" class="split-method-tab" onclick="changeSplitMethod('item-based')">
+                            <i class="fas fa-utensils"></i> Item-Based Split
+                        </button>
+                        <button type="button" class="split-method-tab" onclick="changeSplitMethod('unequal')">
+                            <i class="fas fa-scale-balanced"></i> Unequal Shares
+                        </button>
+                    </div>
+
+                    <!-- Equal Split -->
+                    <div id="equal-split" class="split-method-content active">
+                        <p style="color: var(--muted-text); margin-bottom: 1rem;">
+                            <i class="fas fa-info-circle"></i> Bill will be split equally among all group members.
+                        </p>
+                        <div id="equalSplitPreview"></div>
+                    </div>
+
+                    <!-- Percentage Split -->
+                    <div id="percentage-split" class="split-method-content">
+                        <p style="color: var(--muted-text); margin-bottom: 1rem;">
+                            <i class="fas fa-info-circle"></i> Enter percentages for each member (total must equal 100%)
+                        </p>
+                        <div id="percentageInputs"></div>
+                        <div class="split-summary">
+                            <div class="split-summary-row">
+                                <span>Total Allocated:</span>
+                                <span id="percentageTotal">0%</span>
+                            </div>
+                            <div class="split-summary-row split-summary-total">
+                                <span>Remaining:</span>
+                                <span id="percentageRemaining">100%</span>
+                            </div>
+                            <div id="percentageWarning" class="split-warning" style="display: none;">
+                                <i class="fas fa-exclamation-triangle"></i> Total must equal 100%
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="applyPercentageSplit()" style="margin-top: 1rem;">
+                            Apply Percentages
+                        </button>
+                    </div>
+
+                    <!-- Custom Amounts Split -->
+                    <div id="custom-split" class="split-method-content">
+                        <p style="color: var(--muted-text); margin-bottom: 1rem;">
+                            <i class="fas fa-info-circle"></i> Enter specific amounts for each member
+                        </p>
+                        <div id="customInputs"></div>
+                        <div class="split-summary">
+                            <div class="split-summary-row">
+                                <span>Bill Total:</span>
+                                <span id="customBillTotal">$0.00</span>
+                            </div>
+                            <div class="split-summary-row">
+                                <span>Allocated:</span>
+                                <span id="customAllocated">$0.00</span>
+                            </div>
+                            <div class="split-summary-row split-summary-total">
+                                <span>Remaining:</span>
+                                <span id="customRemaining">$0.00</span>
+                            </div>
+                            <div id="customWarning" class="split-warning" style="display: none;">
+                                <i class="fas fa-exclamation-triangle"></i> Allocated amount must equal bill total
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="applyCustomSplit()" style="margin-top: 1rem;">
+                            Apply Amounts
+                        </button>
+                    </div>
+
+                    <!-- Item-Based Split -->
+                    <div id="item-based-split" class="split-method-content">
+                        <p style="color: var(--muted-text); margin-bottom: 1rem;">
+                            <i class="fas fa-info-circle"></i> Assign each item to specific members
+                        </p>
+                        <div id="itemAssignment"></div>
+                        <div class="split-summary" id="itemBasedSummary" style="margin-top: 1rem;"></div>
+                        <button type="button" class="btn btn-primary" onclick="applyItemBasedSplit()" style="margin-top: 1rem;">
+                            Apply Item Assignments
+                        </button>
+                    </div>
+
+                    <!-- Unequal Shares Split -->
+                    <div id="unequal-split" class="split-method-content">
+                        <p style="color: var(--muted-text); margin-bottom: 1rem;">
+                            <i class="fas fa-info-circle"></i> Set different shares for each member (e.g., 2x for person who ate more)
+                        </p>
+                        <div id="unequalInputs"></div>
+                        <div class="split-summary">
+                            <div class="split-summary-row">
+                                <span>Total Shares:</span>
+                                <span id="totalShares">0</span>
+                            </div>
+                            <div class="split-summary-row split-summary-total">
+                                <span>Value per Share:</span>
+                                <span id="valuePerShare">$0.00</span>
+                            </div>
+                            <div id="unequalWarning" class="split-warning" style="display: none;">
+                                <i class="fas fa-exclamation-triangle"></i> All shares must be at least 1
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="applyUnequalSplit()" style="margin-top: 1rem;">
+                            Apply Shares
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Member Split Summary -->
+                <div id="memberSplitSummary" class="total-section" style="display: none;">
+                    <h4 style="margin-bottom: 1rem;">Final Split Summary</h4>
+                    <div id="memberSplitList" class="member-split-summary"></div>
+                    <div class="grand-total" style="margin-top: 1rem;">
+                        <span>Total:</span>
+                        <span id="splitTotal">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="total-section">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Tax:</span>
+                        <span id="taxDisplay">$0.00</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Tip:</span>
+                        <span id="tipDisplay">$0.00</span>
+                    </div>
+                    <div class="total-row grand-total">
+                        <span>Total:</span>
+                        <span id="grandTotal">$0.00</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full" id="submitBtn">Create Bill</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Debug Button -->
+    <button class="debug-btn" onclick="debugBill()">
+        <i class="fas fa-bug"></i> Debug
+    </button>
+
+    <script>
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const PAGE_API_BASE = typeof API_BASE !== 'undefined'
+            ? API_BASE
+            : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : 'https://smartbill-hrcu.onrender.com/api');
+        
+        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+        
+        let groups = [];
+        let groupMembers = [];
+        let items = [];
+        let currentUser = null;
+        let currentSplitMethod = 'equal';
+        let splitResults = {};
+        let splitSettings = {
+            percentages: {},
+            customAmounts: {},
+            itemAssignments: {},
+            unequalShares: {}
+        };
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = message;
+            toast.className = `toast-message toast-${type}`;
+            toast.style.display = 'block';
+            
+            if (type === 'success' && typeof showConfetti === 'function') {
+                setTimeout(() => showConfetti(800, 40), 100);
+            }
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function formatCurrency(amount, currency = 'KES') {
+            return new Intl.NumberFormat('en-KE', {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function parseDisplayedAmount(value) {
+            return parseFloat(String(value || '').replace(/[^0-9.-]/g, '')) || 0;
+        }
+
+        function getMemberType(member) {
+            return member.type === 'name-only' || !member.email ? 'name-only' : 'registered';
+        }
+
+        function getMemberKey(member) {
+            return `${getMemberType(member)}:${member.id}`;
+        }
+
+        function getMemberDomKey(member) {
+            return `${getMemberType(member)}-${member.id}`;
+        }
+
+        function getMemberDetail(member) {
+            return member.email || 'Name-only member';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+
+        function loadUserData() {
+            currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('userName').textContent = currentUser.name || 'User';
+            document.getElementById('navbarAvatarText').textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
+        }
+
+        async function loadUserAvatar() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (res.ok) {
+                    const user = await res.json();
+                    const avatarImg = document.getElementById('navbarAvatarImage');
+                    const avatarText = document.getElementById('navbarAvatarText');
+                    
+                    if (user.avatar) {
+                        avatarImg.src = user.avatar;
+                        avatarImg.style.display = 'block';
+                        avatarText.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading avatar:', error);
+            }
+        }
+
+        async function checkServerConnection() {
+            const statusEl = document.getElementById('connectionStatus');
+            
+            try {
+                const response = await fetch(`${PAGE_API_BASE}/health`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    statusEl.className = 'connection-status online';
+                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Connected to server';
+                } else {
+                    throw new Error('Server not responding');
+                }
+            } catch (error) {
+                statusEl.className = 'connection-status offline';
+                statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Cannot connect to server';
+            }
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // ============================================
+        // ITEM MANAGEMENT
+        // ============================================
+        
+        function addItem() {
+            items.push({ name: '', price: 0, qty: 1 });
+            renderItems();
+        }
+
+        function removeItem(index) {
+            items.splice(index, 1);
+            renderItems();
+            if (groupMembers.length > 0) {
+                initializeItemAssignments();
+            }
+        }
+
+        function updateItem(index, field, value) {
+            if (field === 'price' || field === 'qty') {
+                items[index][field] = parseFloat(value) || 0;
+            } else {
+                items[index][field] = value;
+            }
+            calculateTotal();
+            if (groupMembers.length > 0) {
+                initializeItemAssignments();
+            }
+        }
+
+        function renderItems() {
+            const container = document.getElementById('itemsList');
+            
+            if (items.length === 0) {
+                container.innerHTML = '<p style="color: var(--muted-text); text-align: center;">No items added yet. Click "Add Item" to get started.</p>';
+                return;
+            }
+            
+            let html = '';
+            items.forEach((item, index) => {
+                const itemTotal = (item.price * item.qty).toFixed(2);
+                html += `
+                    <div class="item-row" data-index="${index}">
+                        <input type="text" class="item-name" placeholder="Item name" value="${escapeHtml(item.name)}" onchange="updateItem(${index}, 'name', this.value)">
+                        <input type="number" class="item-price" placeholder="Price" value="${item.price}" step="0.01" min="0" onchange="updateItem(${index}, 'price', this.value)">
+                        <input type="number" class="item-qty" placeholder="Qty" value="${item.qty}" min="1" onchange="updateItem(${index}, 'qty', this.value)">
+                        <span class="item-total">${formatCurrency(parseFloat(itemTotal))}</span>
+                        <button type="button" class="btn-icon" onclick="removeItem(${index})"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // GROUP & MEMBERS
+        // ============================================
+        
+        async function loadGroups(preSelectedGroup = null) {
+            const select = document.getElementById('group');
+            const loadingEl = document.getElementById('groupLoading');
+            
+            try {
+                select.style.display = 'none';
+                loadingEl.style.display = 'block';
+                
+                const res = await fetch(`${PAGE_API_BASE}/groups`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!res.ok) throw new Error('Failed to load groups');
+                
+                groups = await res.json();
+                console.log('ðŸ“Š Groups loaded:', groups.length);
+                
+                select.innerHTML = '<option value="">Select a group</option>';
+                
+                if (groups.length === 0) {
+                    select.innerHTML += '<option value="" disabled>No groups found. Create a group first.</option>';
+                } else {
+                    groups.forEach(group => {
+                        const selected = (preSelectedGroup && group.id == preSelectedGroup) ? 'selected' : '';
+                        select.innerHTML += `<option value="${group.id}" ${selected}>${escapeHtml(group.name)} (${group.member_count || 0} members)</option>`;
+                    });
+                    
+                    if (preSelectedGroup) {
+                        await loadGroupMembers();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading groups:', error);
+                showToast('Failed to load groups', 'error');
+                select.innerHTML = '<option value="">Error loading groups</option>';
+            } finally {
+                select.style.display = 'block';
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        async function loadGroupMembers() {
+            const groupId = document.getElementById('group').value;
+            
+            if (!groupId) {
+                document.getElementById('splitMethodSection').style.display = 'none';
+                document.getElementById('memberSplitSummary').style.display = 'none';
+                return;
+            }
+
+            try {
+                showToast('Loading group members...', 'info');
+                
+                const res = await fetch(`${PAGE_API_BASE}/groups/${groupId}/all-members`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!res.ok) throw new Error('Failed to load members');
+                
+                groupMembers = (await res.json()).map(member => ({
+                    ...member,
+                    memberType: getMemberType(member),
+                    key: getMemberKey(member),
+                    domKey: getMemberDomKey(member)
+                }));
+                console.log('ðŸ‘¥ Group members loaded:', groupMembers.length);
+                
+                if (groupMembers.length === 0) {
+                    showToast('This group has no members', 'warning');
+                    document.getElementById('splitMethodSection').style.display = 'none';
+                    return;
+                }
+                
+                document.getElementById('splitMethodSection').style.display = 'block';
+                
+                updateEqualSplitPreview();
+                initializePercentageInputs();
+                initializeCustomInputs();
+                initializeItemAssignments();
+                initializeUnequalInputs();
+                
+            } catch (error) {
+                console.error('Error loading members:', error);
+                showToast('Failed to load group members', 'error');
+                document.getElementById('splitMethodSection').style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // SPLIT METHODS
+        // ============================================
+        
+        function changeSplitMethod(method) {
+            currentSplitMethod = method;
+            
+            document.querySelectorAll('.split-method-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.includes(method === 'equal' ? 'Equal' : 
+                    method === 'percentage' ? 'Percentage' : 
+                    method === 'custom' ? 'Custom' : 
+                    method === 'item-based' ? 'Item-Based' : 'Unequal')) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            document.querySelectorAll('.split-method-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${method}-split`).classList.add('active');
+            document.getElementById('memberSplitSummary').style.display = 'none';
+        }
+
+        function updateEqualSplitPreview() {
+            const total = parseDisplayedAmount(document.getElementById('grandTotal').textContent);
+            const container = document.getElementById('equalSplitPreview');
+            
+            if (groupMembers.length === 0) {
+                container.innerHTML = '<p style="color: var(--muted-text);">No members in this group</p>';
+                return;
+            }
+            
+            const sharePerPerson = total / groupMembers.length;
+            
+            let html = '<div class="member-split-summary">';
+            groupMembers.forEach(member => {
+                html += `
+                    <div class="member-split-summary-row">
+                        <span>${escapeHtml(member.name)}${member.memberType === 'name-only' ? ' (Name-only)' : ''}</span>
+                        <span class="amount">${formatCurrency(sharePerPerson)}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function initializePercentageInputs() {
+            const container = document.getElementById('percentageInputs');
+            const total = parseDisplayedAmount(document.getElementById('grandTotal').textContent);
+            
+            if (groupMembers.length === 0) {
+                container.innerHTML = '<p style="color: var(--muted-text);">No members in this group</p>';
+                return;
+            }
+            
+            const equalPercentage = 100 / groupMembers.length;
+            let html = '';
+            
+            groupMembers.forEach(member => {
+                splitSettings.percentages[member.key] = equalPercentage;
+                html += `
+                    <div class="member-split-row">
+                        <div class="member-info">
+                            <div class="member-name">${escapeHtml(member.name)}</div>
+                            <div class="member-email">${escapeHtml(getMemberDetail(member))}</div>
+                        </div>
+                        <input type="number" id="percentage-${member.domKey}" value="${equalPercentage.toFixed(1)}" min="0" max="100" step="0.1" onchange="updatePercentage('${member.key}', '${member.domKey}')">
+                        <span class="percentage-symbol">%</span>
+                        <span class="amount-display" id="amount-${member.domKey}">${formatCurrency((equalPercentage / 100) * total)}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            updatePercentageTotal();
+        }
+
+        function updatePercentage(memberKey, memberDomKey) {
+            const input = document.getElementById(`percentage-${memberDomKey}`);
+            let percentage = parseFloat(input.value) || 0;
+            percentage = Math.min(100, Math.max(0, percentage));
+            input.value = percentage.toFixed(1);
+            splitSettings.percentages[memberKey] = percentage;
+            updatePercentageTotal();
+        }
+
+        function updatePercentageTotal() {
+            const total = parseDisplayedAmount(document.getElementById('grandTotal').textContent);
+            let sum = 0;
+            
+            groupMembers.forEach(member => {
+                const percentage = splitSettings.percentages[member.key] || 0;
+                sum += percentage;
+                const amountSpan = document.getElementById(`amount-${member.domKey}`);
+                if (amountSpan) {
+                    amountSpan.textContent = formatCurrency((percentage / 100) * total);
+                }
+            });
+            
+            document.getElementById('percentageTotal').textContent = sum.toFixed(1) + '%';
+            document.getElementById('percentageRemaining').textContent = (100 - sum).toFixed(1) + '%';
+            document.getElementById('percentageWarning').style.display = Math.abs(sum - 100) > 0.1 ? 'flex' : 'none';
+        }
+
+        function applyPercentageSplit() {
+            const total = parseDisplayedAmount(document.getElementById('grandTotal').textContent);
+            let sum = 0;
+            
+            groupMembers.forEach(member => {
+                sum += splitSettings.percentages[member.key] || 0;
+            });
+            
+            if (Math.abs(sum - 100) > 0.1) {
+                showToast('Percentages must total 100%', 'error');
+                return;
+            }
+            
+            splitResults = {};
+            groupMembers.forEach(member => {
+                splitResults[member.key] = (splitSettings.percentages[member.key] / 100) * total;
+            });
+            updateMemberSplitSummary();
+        }
+
+        function initializeCustomInputs() {
+            const container = document.getElementById('customInputs');
+            const total = parseDisplayedAmount(document.getElementById('grandTotal').textContent);
+            
+            if (groupMembers.length === 0) {
+                container.innerHTML = '<p style="color: var(--muted-text);">No members in this group</p>';
+                return;
+            }
+            
+            const equalAmount = total / groupMembers.length;
+            let html = '';
+            
+            groupMembers.forEach(member => {
+                splitSettings.customAmounts[member.key] = equalAmount;
+                html += `
+                    <div class="member-split-row">
+                        <div class="member-info">
+                            <div class="member-name">${escapeHtml(member.name)}</div>
+                            <div class="member-email">${escapeHtml(getMemberDetail(member))}</div>
+                        </div>
+                        <span style="color: var(--muted-text);">$</span>
+                        <input type="number" id="custom-${member.domKey}" value="${equalAmount.toFixed(2)}" min="0" step="0.01" onchange="updateCustomAmount('${member.key}', '${member.domKey}')">
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            updateCustomTotal();
+        }
+
+        function updateCustomAmount(memberKey, memberDomKey) {
+            const input = document.getElementById(`custom-${memberDomKey}`);
+            let amount = parseFloat(input.value) || 0;
+            amount = Math.max(0, amount);
+            input.value = amount.toFixed(2);
+            splitSettings.customAmounts[memberKey] = amount;
+            updateCustomTotal();
+        }
+
+        function updateCustomTotal() {
+            const total = parseDisplayedAmount(document.getElementById('grandTotal').textContent);
+            let allocated = 0;
+            
+            groupMembers.forEach(member => {
+                allocated += splitSettings.customAmounts[member.key] || 0;
+            });
+            
+            document.getElementById('customBillTotal').textContent = formatCurrency(total);
+            document.getElementById('customAllocated').textContent = formatCurrency(allocated);
+            document.getElementById('customRemaining').textContent = formatCurrency(total - allocated);
+            document.getElementById('customWarning').style.display = Math.abs(total - allocated) > 0.01 ? 'flex' : 'none';
+        }
+
+        function applyCustomSplit() {
+            const total = parseDisplayedAmount(document.getElementById('grandTotal').textContent);
+            let allocated = 0;
+            
+            groupMembers.forEach(member => {
+                allocated += splitSettings.customAmounts[member.key] || 0;
+            });
+            
+            if (Math.abs(total - allocated) > 0.01) {
+                showToast('Allocated amounts must equal the bill total', 'error');
+                return;
+            }
+            
+            splitResults = { ...splitSettings.customAmounts };
+            updateMemberSplitSummary();
+        }
+
+        function initializeItemAssignments() {
+            const container = document.getElementById('itemAssignment');
+            
+            if (items.length === 0 || groupMembers.length === 0) {
+                container.innerHTML = '<p style="color: var(--muted-text);">Add items to assign them to members</p>';
+                return;
+            }
+            
+            let html = '';
+            items.forEach((item, itemIndex) => {
+                if (!item.name && item.price <= 0) return;
+                
+                const itemTotal = (item.price * item.qty).toFixed(2);
+                html += `
+                    <div class="item-assign-section">
+                        <div class="item-assign-header" onclick="toggleItemAssign(${itemIndex})">
+                            <span><strong>${escapeHtml(item.name || 'Unnamed Item')}</strong> - ${formatCurrency(parseFloat(itemTotal))}</span>
+                            <i class="fas fa-chevron-down" id="chevron-${itemIndex}"></i>
+                        </div>
+                        <div class="item-assign-grid" id="assign-grid-${itemIndex}">
+                `;
+                
+                groupMembers.forEach(member => {
+                    const isChecked = splitSettings.itemAssignments[itemIndex]?.[member.key] || false;
+                    html += `
+                        <div class="item-assign-checkbox">
+                            <input type="checkbox" id="item-${itemIndex}-member-${member.domKey}" ${isChecked ? 'checked' : ''} onchange="updateItemAssignment(${itemIndex}, '${member.key}', this.checked)">
+                            <label for="item-${itemIndex}-member-${member.domKey}">${escapeHtml(member.name)}</label>
+                        </div>
+                    `;
+                });
+                
+                html += `</div></div>`;
+            });
+            
+            container.innerHTML = html;
+            updateItemBasedSummary();
+        }
+
+        function toggleItemAssign(itemIndex) {
+            const grid = document.getElementById(`assign-grid-${itemIndex}`);
+            const chevron = document.getElementById(`chevron-${itemIndex}`);
+            
+            if (grid.classList.contains('show')) {
+                grid.classList.remove('show');
+                chevron.classList.remove('fa-chevron-up');
+                chevron.classList.add('fa-chevron-down');
+            } else {
+                grid.classList.add('show');
+                chevron.classList.remove('fa-chevron-down');
+                chevron.classList.add('fa-chevron-up');
+            }
+        }
+
+        function updateItemAssignment(itemIndex, memberKey, checked) {
+            if (!splitSettings.itemAssignments[itemIndex]) {
+                splitSettings.itemAssignments[itemIndex] = {};
+            }
+            splitSettings.itemAssignments[itemIndex][memberKey] = checked;
+            updateItemBasedSummary();
+        }
+
+        function updateItemBasedSummary() {
+            const summary = document.getElementById('itemBasedSummary');
+            const memberTotals = {};
+            
+            groupMembers.forEach(member => { memberTotals[member.key] = 0; });
+            
+            items.forEach((item, itemIndex) => {
+                const itemTotal = item.price * item.qty;
+                const assignments = splitSettings.itemAssignments[itemIndex] || {};
+                const assignedMembers = Object.keys(assignments).filter(id => assignments[id]);
+                
+                if (assignedMembers.length > 0) {
+                    const sharePerMember = itemTotal / assignedMembers.length;
+                    assignedMembers.forEach(memberKey => {
+                        memberTotals[memberKey] += sharePerMember;
+                    });
+                }
+            });
+            
+            let html = '<h4 style="margin-bottom: 0.5rem;">Member Totals:</h4>';
+            let totalAllocated = 0;
+            
+            groupMembers.forEach(member => {
+                const amount = memberTotals[member.key] || 0;
+                totalAllocated += amount;
+                html += `
+                    <div class="split-summary-row">
+                        <span>${escapeHtml(member.name)}:</span>
+                        <span style="font-weight: bold; color: var(--primary-500);">${formatCurrency(amount)}</span>
+                    </div>
+                `;
+            });
+            
+            const grandTotal = parseDisplayedAmount(document.getElementById('grandTotal').textContent);
+            html += `
+                <div class="split-summary-row split-summary-total">
+                    <span>Total Allocated:</span>
+                    <span>${formatCurrency(totalAllocated)}</span>
+                </div>
+                ${Math.abs(totalAllocated - grandTotal) > 0.01 ? `
+                    <div class="split-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Warning: Allocated (${formatCurrency(totalAllocated)}) does not match bill total (${formatCurrency(grandTotal)})
+                    </div>
+                ` : ''}
+            `;
+            summary.innerHTML = html;
+        }
+
+        function applyItemBasedSplit() {
+            const memberTotals = {};
+            groupMembers.forEach(member => { memberTotals[member.key] = 0; });
+            
+            items.forEach((item, itemIndex) => {
+                const itemTotal = item.price * item.qty;
+                const assignments = splitSettings.itemAssignments[itemIndex] || {};
+                const assignedMembers = Object.keys(assignments).filter(id => assignments[id]);
+                
+                if (assignedMembers.length > 0) {
+                    const sharePerMember = itemTotal / assignedMembers.length;
+                    assignedMembers.forEach(memberId => {
+                        memberTotals[memberId] += sharePerMember;
+                    });
+                }
+            });
+            
+            splitResults = memberTotals;
+            updateMemberSplitSummary();
+        }
+
+        function initializeUnequalInputs() {
+            const container = document.getElementById('unequalInputs');
+            const total = parseDisplayedAmount(document.getElementById('grandTotal').textContent);
+            
+            if (groupMembers.length === 0) {
+                container.innerHTML = '<p style="color: var(--muted-text);">No members in this group</p>';
+                return;
+            }
+            
+            let html = '';
+            groupMembers.forEach(member => {
+                splitSettings.unequalShares[member.key] = 1;
+                html += `
+                    <div class="member-split-row">
+                        <div class="member-info">
+                            <div class="member-name">${escapeHtml(member.name)}</div>
+                            <div class="member-email">${escapeHtml(getMemberDetail(member))}</div>
+                        </div>
+                        <input type="number" id="share-${member.domKey}" value="1" min="1" step="1" onchange="updateUnequalShare('${member.key}', '${member.domKey}')">
+                        <span style="color: var(--muted-text);">share(s)</span>
+                        <span class="amount-display" id="share-amount-${member.domKey}">${formatCurrency(total / groupMembers.length)}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            updateUnequalTotal();
+        }
+
+        function updateUnequalShare(memberKey, memberDomKey) {
+            const input = document.getElementById(`share-${memberDomKey}`);
+            let shares = parseInt(input.value) || 1;
+            shares = Math.max(1, shares);
+            input.value = shares;
+            splitSettings.unequalShares[memberKey] = shares;
+            updateUnequalTotal();
+        }
+
+        function updateUnequalTotal() {
+            const total = parseDisplayedAmount(document.getElementById('grandTotal').textContent);
+            let totalShares = 0;
+            
+            groupMembers.forEach(member => {
+                totalShares += splitSettings.unequalShares[member.key] || 1;
+            });
+            
+            const valuePerShare = total / totalShares;
+            
+            document.getElementById('totalShares').textContent = totalShares;
+            document.getElementById('valuePerShare').textContent = formatCurrency(valuePerShare);
+            
+            groupMembers.forEach(member => {
+                const amountSpan = document.getElementById(`share-amount-${member.domKey}`);
+                if (amountSpan) {
+                    amountSpan.textContent = formatCurrency((splitSettings.unequalShares[member.key] || 1) * valuePerShare);
+                }
+            });
+        }
+
+        function applyUnequalSplit() {
+            const total = parseDisplayedAmount(document.getElementById('grandTotal').textContent);
+            let totalShares = 0;
+            
+            groupMembers.forEach(member => {
+                totalShares += splitSettings.unequalShares[member.key] || 1;
+            });
+            
+            const valuePerShare = total / totalShares;
+            
+            splitResults = {};
+            groupMembers.forEach(member => {
+                splitResults[member.key] = (splitSettings.unequalShares[member.key] || 1) * valuePerShare;
+            });
+            updateMemberSplitSummary();
+        }
+
+        function updateMemberSplitSummary() {
+            const container = document.getElementById('memberSplitList');
+            let totalAllocated = 0;
+            let html = '';
+            
+            groupMembers.forEach(member => {
+                const amount = splitResults[member.key] || 0;
+                totalAllocated += amount;
+                html += `
+                    <div class="member-split-summary-row">
+                        <span>${escapeHtml(member.name)}${member.memberType === 'name-only' ? ' (Name-only)' : ''}</span>
+                        <span class="amount">${formatCurrency(amount)}</span>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            document.getElementById('splitTotal').textContent = formatCurrency(totalAllocated);
+            document.getElementById('memberSplitSummary').style.display = 'block';
+        }
+
+        // ============================================
+        // CALCULATIONS
+        // ============================================
+        
+        function calculateTotal() {
+            const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const tax = parseFloat(document.getElementById('tax').value) || 0;
+            const tip = parseFloat(document.getElementById('tip').value) || 0;
+            const total = subtotal + tax + tip;
+            
+            document.getElementById('subtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('taxDisplay').textContent = formatCurrency(tax);
+            document.getElementById('tipDisplay').textContent = formatCurrency(tip);
+            document.getElementById('grandTotal').textContent = formatCurrency(total);
+            
+            if (groupMembers.length > 0) {
+                updateEqualSplitPreview();
+                updatePercentageTotal();
+                updateCustomTotal();
+                updateUnequalTotal();
+                updateItemBasedSummary();
+            }
+        }
+
+        function setTaxPercentage(percent) {
+            const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const tax = subtotal * (percent / 100);
+            document.getElementById('tax').value = tax.toFixed(2);
+            calculateTotal();
+        }
+
+        function setTipPercentage(percent) {
+            const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const tip = subtotal * (percent / 100);
+            document.getElementById('tip').value = tip.toFixed(2);
+            calculateTotal();
+        }
+
+        // ============================================
+        // FORM SUBMISSION
+        // ============================================
+        
+        document.getElementById('billForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value.trim();
+            const groupId = document.getElementById('group').value;
+            const description = document.getElementById('description').value.trim();
+            const tax = parseFloat(document.getElementById('tax').value) || 0;
+            const tip = parseFloat(document.getElementById('tip').value) || 0;
+            
+            if (!title) {
+                showToast('Please enter a bill title', 'error');
+                return;
+            }
+            
+            if (!groupId) {
+                showToast('Please select a group', 'error');
+                return;
+            }
+            
+            const validItems = items.filter(item => item.name.trim() !== '' && item.price > 0);
+            if (validItems.length === 0) {
+                showToast('Please add at least one valid item', 'error');
+                return;
+            }
+            
+            const subtotal = validItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const total = subtotal + tax + tip;
+            const selectedGroup = groups.find(g => g.id == groupId);
+            
+            const splits = [];
+            if (Object.keys(splitResults).length > 0) {
+                groupMembers.forEach(member => {
+                    splits.push({
+                        member_id: member.id,
+                        member_type: member.memberType,
+                        name: member.name,
+                        amount: splitResults[member.key] || 0,
+                        paid: false
+                    });
+                });
+            } else {
+                const sharePerPerson = total / groupMembers.length;
+                groupMembers.forEach(member => {
+                    splits.push({
+                        member_id: member.id,
+                        member_type: member.memberType,
+                        name: member.name,
+                        amount: sharePerPerson,
+                        paid: false
+                    });
+                });
+            }
+            
+            const newBill = {
+                title: title,
+                group_id: parseInt(groupId),
+                group_name: selectedGroup ? selectedGroup.name : 'Unknown',
+                description: description,
+                items: validItems.map(item => ({
+                    name: item.name,
+                    amount: item.price,
+                    quantity: item.qty
+                })),
+                subtotal: subtotal,
+                tax: tax,
+                tip: tip,
+                total: total,
+                splits: splits,
+                split_method: currentSplitMethod,
+                status: 'pending',
+                created_by: currentUser?.id || 1,
+                created_by_name: currentUser?.name || 'You'
+            };
+            
+            console.log('ðŸ“ Creating bill:', newBill);
+            
+            document.getElementById('loadingOverlay').classList.add('show');
+            document.getElementById('submitBtn').disabled = true;
+            
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/bills`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(newBill)
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showToast('âœ… Bill created successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'bills.html';
+                    }, 1500);
+                } else {
+                    showToast(data.error || 'Failed to create bill', 'error');
+                    document.getElementById('loadingOverlay').classList.remove('show');
+                    document.getElementById('submitBtn').disabled = false;
+                }
+            } catch (error) {
+                console.error('Error creating bill:', error);
+                showToast('âŒ Failed to connect to server', 'error');
+                document.getElementById('loadingOverlay').classList.remove('show');
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        function debugBill() {
+            console.group('ðŸ” CREATE BILL DEBUG');
+            console.log('ðŸ“ Current User:', currentUser);
+            console.log('ðŸ“ Selected Group:', document.getElementById('group').value);
+            console.log('ðŸ“ Group Members:', groupMembers);
+            console.log('ðŸ“ Items:', items);
+            console.log('ðŸ“ Split Method:', currentSplitMethod);
+            console.log('ðŸ“ Split Results:', splitResults);
+            console.log('ðŸ“ Total:', formatCurrency(parseFloat(document.getElementById('grandTotal').textContent.replace(/[^0-9.-]/g, '') || 0)));
+            console.groupEnd();
+            showToast('Debug info logged to console (F12)', 'info');
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            checkServerConnection();
+            loadUserData();
+            loadUserAvatar();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const preSelectedGroup = urlParams.get('group');
+            
+            addItem(); // Add one empty item by default
+            loadGroups(preSelectedGroup);
+            calculateTotal();
+            
+            document.getElementById('tax').addEventListener('input', calculateTotal);
+            document.getElementById('tip').addEventListener('input', calculateTotal);
+        });
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
+

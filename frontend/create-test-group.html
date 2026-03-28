@@ -1,0 +1,482 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Test Group - SmartBill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
+    <script src="js/api.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .test-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h1 i {
+            color: var(--primary-500);
+        }
+
+        .user-info {
+            background: var(--surface-color);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .user-info p {
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group label i {
+            margin-right: 0.5rem;
+            color: var(--primary-500);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .result.success {
+            background: var(--success-100);
+            border-left: 4px solid var(--success-500);
+            color: var(--success-700);
+        }
+
+        .result.error {
+            background: var(--danger-100);
+            border-left: 4px solid var(--danger-500);
+            color: var(--danger-700);
+        }
+
+        .result i {
+            margin-right: 0.5rem;
+        }
+
+        .invite-code {
+            font-family: monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: rgba(102, 126, 234, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin: 0.5rem 0;
+            display: inline-block;
+        }
+
+        .btn-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--primary-500);
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .btn-link:hover {
+            background: var(--primary-600);
+            transform: translateY(-1px);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            gap: 0.75rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dark mode adjustments */
+        body.dark-mode .result.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+
+        body.dark-mode .result.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fecaca;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <a href="groups.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Groups
+        </a>
+
+        <div class="test-card">
+            <h1>
+                <i class="fas fa-flask"></i>
+                Test Group Creator
+            </h1>
+            
+            <div class="user-info" id="userInfo">
+                <p><i class="fas fa-spinner fa-spin"></i> Loading user info...</p>
+            </div>
+            
+            <form id="groupForm">
+                <div class="form-group">
+                    <label for="groupName">
+                        <i class="fas fa-tag"></i> Group Name
+                    </label>
+                    <input type="text" id="groupName" value="My Test Group" required>
+                </div>
+                <div class="form-group">
+                    <label for="groupDesc">
+                        <i class="fas fa-align-left"></i> Description (optional)
+                    </label>
+                    <input type="text" id="groupDesc" value="Test group for debugging">
+                </div>
+                <button type="submit" id="submitBtn">
+                    <i class="fas fa-plus-circle"></i> Create Test Group
+                </button>
+            </form>
+            
+            <div id="result" class="result"></div>
+        </div>
+
+        <div style="margin-top: 1rem; text-align: center; color: rgba(255,255,255,0.7); font-size: 0.85rem;">
+            <i class="fas fa-info-circle"></i> This is a test page. For production, use <a href="create-group.html" style="color: white;">create-group.html</a>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const PAGE_API_BASE = typeof API_BASE !== 'undefined'
+            ? API_BASE
+            : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : 'https://smartbill-hrcu.onrender.com/api');
+        
+        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+        
+        const token = localStorage.getItem('token');
+        
+        // Check authentication
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        
+        function showResult(type, message, details = null) {
+            const resultDiv = document.getElementById('result');
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            
+            let html = `<i class="fas ${icon}"></i> ${message}`;
+            
+            if (details) {
+                html += `<div style="margin-top: 0.75rem; font-size: 0.9rem;">`;
+                if (details.group_id) {
+                    html += `<p><strong>Group ID:</strong> ${details.group_id}</p>`;
+                }
+                if (details.invite_code) {
+                    html += `<p><strong>Invite Code:</strong> <span class="invite-code">${details.invite_code}</span></p>`;
+                    html += `<button onclick="copyInviteCode('${details.invite_code}')" class="btn-link" style="margin-top: 0.5rem; background: none; color: var(--primary-500); border: 1px solid var(--primary-500);">
+                                <i class="fas fa-copy"></i> Copy Invite Code
+                            </button>`;
+                }
+                if (details.group_id) {
+                    html += `<div style="margin-top: 1rem;">
+                                <a href="group-details.html?id=${details.group_id}" class="btn-link">
+                                    <i class="fas fa-eye"></i> View Group
+                                </a>
+                            </div>`;
+                }
+                html += `</div>`;
+            }
+            
+            resultDiv.innerHTML = html;
+            resultDiv.className = `result ${type} show`;
+            
+            // Auto scroll to result
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function copyInviteCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                showResult('success', 'Invite code copied to clipboard!');
+            }).catch(() => {
+                showResult('error', 'Failed to copy invite code');
+            });
+        }
+
+        // ============================================
+        // LOAD USER INFO
+        // ============================================
+        
+        async function loadUserInfo() {
+            try {
+                const res = await fetch(`${PAGE_API_BASE}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (res.ok) {
+                    const user = await res.json();
+                    document.getElementById('userInfo').innerHTML = `
+                        <p><i class="fas fa-user-circle"></i> Logged in as: <strong>${escapeHtml(user.name)}</strong> (${escapeHtml(user.email)})</p>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">
+                            <i class="fas fa-calendar-alt"></i> Member since: ${new Date(user.created_at).toLocaleDateString()}
+                        </p>
+                    `;
+                } else {
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    document.getElementById('userInfo').innerHTML = `
+                        <p><i class="fas fa-user-circle"></i> Logged in as: <strong>${escapeHtml(user.name || 'Unknown')}</strong> (${escapeHtml(user.email || 'No email')})</p>
+                    `;
+                }
+            } catch (error) {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                document.getElementById('userInfo').innerHTML = `
+                    <p><i class="fas fa-user-circle"></i> Logged in as: <strong>${escapeHtml(user.name || 'Unknown')}</strong> (${escapeHtml(user.email || 'No email')})</p>
+                    <p style="color: var(--warning-500);"><i class="fas fa-exclamation-triangle"></i> Could not fetch profile details</p>
+                `;
+            }
+        }
+
+        // ============================================
+        // CREATE GROUP
+        // ============================================
+        
+        document.getElementById('groupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('groupName').value.trim();
+            const description = document.getElementById('groupDesc').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnText = submitBtn.innerHTML;
+            
+            if (!name) {
+                showResult('error', 'Please enter a group name');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Creating...';
+            
+            // Clear previous result
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = '';
+            
+            try {
+                console.log('ðŸ“¡ Creating group:', { name, description });
+                
+                const res = await fetch(`${PAGE_API_BASE}/groups`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description,
+                        members: []
+                    })
+                });
+                
+                const data = await res.json();
+                console.log('ðŸ“¥ Response:', { status: res.status, data });
+                
+                if (res.ok) {
+                    showResult('success', `âœ… Group "${name}" created successfully!`, {
+                        group_id: data.group_id,
+                        invite_code: data.invite_code
+                    });
+                    
+                    // Clear form
+                    document.getElementById('groupName').value = '';
+                    document.getElementById('groupDesc').value = '';
+                    
+                    // Trigger confetti
+                    if (typeof showConfetti === 'function') {
+                        showConfetti();
+                    }
+                } else {
+                    showResult('error', `âŒ Error: ${data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('âŒ Error creating group:', error);
+                showResult('error', `âŒ Network error: ${error.message}. Please check your connection.`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserInfo();
+            
+            // Focus on group name input
+            document.getElementById('groupName').focus();
+            
+            // Enter key support
+            document.getElementById('groupDesc').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('groupForm').dispatchEvent(new Event('submit'));
+                }
+            });
+        });
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
+

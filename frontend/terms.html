@@ -1,0 +1,684 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - SmartBill by Bill Odhiambo</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
+    <script src="js/api.js"></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .dark-mode-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f4ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1.2rem;
+        }
+
+        .dark-mode-toggle:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 100px auto 50px;
+            padding: 0 20px;
+        }
+
+        /* Terms Hero */
+        .terms-hero {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 60px 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .terms-hero h1 {
+            font-size: 3rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .terms-hero p {
+            font-size: 1.2rem;
+            color: var(--muted-text);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .last-updated {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: var(--primary-50);
+            display: inline-block;
+            border-radius: 50px;
+            color: #667eea;
+            font-size: 0.9rem;
+            border: 1px solid var(--primary-200);
+        }
+
+        /* Terms Content */
+        .terms-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section h2 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2 i {
+            color: #667eea;
+            font-size: 1.5rem;
+        }
+
+        .section h3 {
+            font-size: 1.3rem;
+            color: var(--text-color);
+            margin: 20px 0 10px;
+        }
+
+        .section p {
+            color: var(--muted-text);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .section ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        .section li {
+            color: var(--muted-text);
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+
+        .section li i {
+            color: #667eea;
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        .highlight-box {
+            background: var(--primary-50);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid var(--primary-200);
+        }
+
+        .highlight-box p {
+            margin-bottom: 0;
+        }
+
+        .warning-box {
+            background: var(--warning-100);
+            border-left: 4px solid var(--warning-500);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .warning-box p {
+            margin-bottom: 0;
+            color: var(--warning-700);
+        }
+
+        .warning-box i {
+            color: var(--warning-500);
+        }
+
+        .contact-info {
+            background: linear-gradient(135deg, var(--primary-50), rgba(118, 75, 162, 0.1));
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .contact-info p {
+            margin-bottom: 10px;
+        }
+
+        .contact-info i {
+            color: #667eea;
+            width: 25px;
+        }
+
+        .contact-info a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        /* Heart Animation */
+        .heart {
+            color: #ef4444;
+            display: inline-block;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a202c;
+            color: white;
+            padding: 60px 20px 30px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .footer-section a {
+            color: #a0aec0;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 40px auto 0;
+            padding-top: 30px;
+            border-top: 1px solid #2d3748;
+            text-align: center;
+            color: #a0aec0;
+        }
+
+        @media (max-width: 768px) {
+            .terms-hero h1 {
+                font-size: 2rem;
+            }
+
+            .terms-content {
+                padding: 30px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-receipt"></i>
+                <span>SmartBill</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="features.html">Features</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="login.html" class="btn btn-outline">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+                <a href="signup.html" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Sign Up
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Terms Hero -->
+        <section class="terms-hero">
+            <h1>Terms of Service</h1>
+            <p>Please read these terms carefully before using SmartBill.</p>
+            <div class="last-updated">
+                <i class="fas fa-calendar-alt"></i> Last Updated: March 2024
+            </div>
+        </section>
+
+        <!-- Terms Content -->
+        <section class="terms-content">
+            <!-- Introduction -->
+            <div class="section">
+                <h2><i class="fas fa-file-contract"></i> 1. Agreement to Terms</h2>
+                <p>By accessing or using SmartBill ("the Application"), you agree to be bound by these Terms of Service. If you disagree with any part of the terms, you may not access the Application.</p>
+                <p>These terms constitute a legally binding agreement between you and Bill Odhiambo ("I," "me," or "my") regarding your use of the Application.</p>
+            </div>
+
+            <!-- Eligibility -->
+            <div class="section">
+                <h2><i class="fas fa-user-check"></i> 2. Eligibility</h2>
+                <p>By using SmartBill, you represent and warrant that:</p>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> You are at least 13 years of age</li>
+                    <li><i class="fas fa-check-circle"></i> You have the legal capacity to enter into these terms</li>
+                    <li><i class="fas fa-check-circle"></i> You are not located in a country that is subject to trade sanctions</li>
+                    <li><i class="fas fa-check-circle"></i> You will provide accurate and complete information when creating an account</li>
+                </ul>
+            </div>
+
+            <!-- Account Responsibilities -->
+            <div class="section">
+                <h2><i class="fas fa-id-card"></i> 3. Account Responsibilities</h2>
+                <p>When you create an account with us, you are responsible for:</p>
+                <ul>
+                    <li><i class="fas fa-lock"></i> Maintaining the security of your password</li>
+                    <li><i class="fas fa-shield-alt"></i> All activities that occur under your account</li>
+                    <li><i class="fas fa-bell"></i> Notifying us immediately of any unauthorized use</li>
+                    <li><i class="fas fa-user"></i> Ensuring the accuracy of your personal information</li>
+                </ul>
+                
+                <div class="warning-box">
+                    <p><i class="fas fa-exclamation-triangle"></i> <strong>Important:</strong> You are solely responsible for any losses or damages resulting from unauthorized access to your account due to your failure to secure your password.</p>
+                </div>
+            </div>
+
+            <!-- User Conduct -->
+            <div class="section">
+                <h2><i class="fas fa-gavel"></i> 4. User Conduct</h2>
+                <p>You agree not to use SmartBill to:</p>
+                <ul>
+                    <li><i class="fas fa-ban"></i> Violate any laws or regulations</li>
+                    <li><i class="fas fa-user-plus"></i> Create fake or misleading accounts</li>
+                    <li><i class="fas fa-harassment"></i> Harass, abuse, or harm others</li>
+                    <li><i class="fas fa-database"></i> Attempt to gain unauthorized access to our systems</li>
+                    <li><i class="fas fa-malware"></i> Distribute viruses or malicious code</li>
+                    <li><i class="fas fa-ad"></i> Send spam or unsolicited messages</li>
+                    <li><i class="fas fa-copyright"></i> Infringe on intellectual property rights</li>
+                </ul>
+            </div>
+
+            <!-- Bill Splitting and Payments -->
+            <div class="section">
+                <h2><i class="fas fa-hand-holding-usd"></i> 5. Bill Splitting and Payments</h2>
+                <p>SmartBill facilitates the tracking of shared expenses and IOUs between users. Important terms regarding financial features:</p>
+                
+                <h3>5.1 No Financial Transactions</h3>
+                <p>SmartBill does NOT process actual financial transactions. We do not collect, store, or process credit card information, bank details, or handle real money transfers. The Application simply tracks who owes what to whom.</p>
+                
+                <h3>5.2 User Responsibility</h3>
+                <p>You are solely responsible for:</p>
+                <ul>
+                    <li><i class="fas fa-dollar-sign"></i> Actually paying the amounts you owe to other users</li>
+                    <li><i class="fas fa-credit-card"></i> Collecting payments from users who owe you</li>
+                    <li><i class="fas fa-file-invoice"></i> Any disputes regarding payments between users</li>
+                    <li><i class="fas fa-calculator"></i> Verifying the accuracy of bill calculations</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <p><i class="fas fa-info-circle"></i> <strong>Note:</strong> SmartBill is a tool for tracking shared expenses. The actual exchange of money happens between users outside the Application.</p>
+                </div>
+            </div>
+
+            <!-- Groups and Members -->
+            <div class="section">
+                <h2><i class="fas fa-users"></i> 6. Groups and Members</h2>
+                <h3>6.1 Group Creation</h3>
+                <p>As a group creator, you may have administrative privileges including the ability to add/remove members and manage bills.</p>
+                
+                <h3>6.2 Member Conduct</h3>
+                <p>Group members are expected to:</p>
+                <ul>
+                    <li><i class="fas fa-clock"></i> Pay their shares in a timely manner</li>
+                    <li><i class="fas fa-check-circle"></i> Accurately mark payments when made</li>
+                    <li><i class="fas fa-comments"></i> Communicate with group members about payments</li>
+                </ul>
+
+                <h3>6.3 Disputes</h3>
+                <p>I am not responsible for resolving disputes between group members regarding payments or bill accuracy. Users should work together to resolve any disagreements.</p>
+            </div>
+
+            <!-- Intellectual Property -->
+            <div class="section">
+                <h2><i class="fas fa-copyright"></i> 7. Intellectual Property</h2>
+                <p>The Application and its original content, features, and functionality are owned by Bill Odhiambo and are protected by international copyright, trademark, and other intellectual property laws.</p>
+                <p>You may not:</p>
+                <ul>
+                    <li><i class="fas fa-copy"></i> Copy or reproduce any part of the Application</li>
+                    <li><i class="fas fa-code"></i> Reverse engineer or decompile the Application</li>
+                    <li><i class="fas fa-sell"></i> Sell, license, or commercially exploit the Application</li>
+                    <li><i class="fas fa-download"></i> Remove any copyright notices</li>
+                </ul>
+            </div>
+
+            <!-- Termination -->
+            <div class="section">
+                <h2><i class="fas fa-stop-circle"></i> 8. Termination</h2>
+                <p>I may terminate or suspend your account immediately, without prior notice or liability, for any reason, including without limitation if you breach the Terms.</p>
+                <p>Upon termination:</p>
+                <ul>
+                    <li><i class="fas fa-trash"></i> Your right to use the Application will immediately cease</li>
+                    <li><i class="fas fa-database"></i> Your data may be deleted from our servers</li>
+                    <li><i class="fas fa-file"></i> Any outstanding bills or IOUs are your responsibility to settle</li>
+                </ul>
+            </div>
+
+            <!-- Limitation of Liability -->
+            <div class="section">
+                <h2><i class="fas fa-exclamation-triangle"></i> 9. Limitation of Liability</h2>
+                <p>To the maximum extent permitted by law, in no event shall Bill Odhiambo be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:</p>
+                <ul>
+                    <li><i class="fas fa-ban"></i> Your use or inability to use the Application</li>
+                    <li><i class="fas fa-user"></i> Any conduct or content of any third party</li>
+                    <li><i class="fas fa-dollar-sign"></i> Unpaid bills or disputes between users</li>
+                    <li><i class="fas fa-database"></i> Unauthorized access to your data</li>
+                </ul>
+
+                <div class="warning-box">
+                    <p><i class="fas fa-exclamation-circle"></i> <strong>Disclaimer:</strong> The Application is provided "AS IS" and "AS AVAILABLE" without warranties of any kind, either express or implied.</p>
+                </div>
+            </div>
+
+            <!-- Indemnification -->
+            <div class="section">
+                <h2><i class="fas fa-shield"></i> 10. Indemnification</h2>
+                <p>You agree to defend, indemnify, and hold harmless Bill Odhiambo from and against any claims, liabilities, damages, losses, and expenses, including without limitation reasonable legal fees, arising out of or in any way connected with:</p>
+                <ul>
+                    <li><i class="fas fa-ban"></i> Your violation of these Terms</li>
+                    <li><i class="fas fa-gavel"></i> Your violation of any third-party rights</li>
+                    <li><i class="fas fa-dollar-sign"></i> Disputes between you and other users</li>
+                    <li><i class="fas fa-malware"></i> Your use of the Application</li>
+                </ul>
+            </div>
+
+            <!-- Changes to Terms -->
+            <div class="section">
+                <h2><i class="fas fa-sync-alt"></i> 11. Changes to Terms</h2>
+                <p>I reserve the right to modify or replace these Terms at any time. If a revision is material, I will try to provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at my sole discretion.</p>
+                <p>By continuing to access or use the Application after those revisions become effective, you agree to be bound by the revised terms.</p>
+            </div>
+
+            <!-- Governing Law -->
+            <div class="section">
+                <h2><i class="fas fa-gavel"></i> 12. Governing Law</h2>
+                <p>These Terms shall be governed and construed in accordance with the laws of Kenya, without regard to its conflict of law provisions.</p>
+                <p>Any disputes arising under these Terms shall be resolved in the courts of Nairobi, Kenya.</p>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="section">
+                <h2><i class="fas fa-envelope"></i> 13. Contact Information</h2>
+                <p>If you have any questions about these Terms, please contact me:</p>
+                
+                <div class="contact-info">
+                    <p><i class="fas fa-user"></i> <strong>Bill Odhiambo</strong> (Creator)</p>
+                    <p><i class="fas fa-envelope"></i> Email: <a href="mailto:billodhiambo483@gmail.com">billodhiambo483@gmail.com</a></p>
+                    <p><i class="fas fa-phone"></i> Phone: <a href="tel:+254717182517">+254 717 182 517</a></p>
+                    <p><i class="fab fa-whatsapp"></i> WhatsApp: <a href="https://wa.me/254717182517" target="_blank">+254 717 182 517</a></p>
+                    <p><i class="fab fa-instagram"></i> Instagram: <a href="https://www.instagram.com/billdud.e" target="_blank">@billdud.e</a></p>
+                    <p><i class="fab fa-telegram"></i> Telegram: <a href="https://t.me/billdude483" target="_blank">@billdude483</a></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>SmartBill</h4>
+                <p>Created by Bill Odhiambo. A simple, fair way to split bills with friends, roommates, and groups.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="features.html">Features</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html" class="active">Terms of Service</a>
+                <a href="security.html">Security</a>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <a href="https://www.instagram.com/billdud.e" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+                <a href="https://wa.me/254717182517" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                <a href="https://t.me/billdude483" target="_blank"><i class="fab fa-telegram"></i> Telegram</a>
+                <a href="mailto:billodhiambo483@gmail.com"><i class="fas fa-envelope"></i> Email</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Created with <span class="heart">â¤ï¸</span> by Bill Odhiambo | Â© 2024 SmartBill. All rights reserved.</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                <a href="https://www.instagram.com/billdud.e" target="_blank" style="color: #a0aec0; text-decoration: none;">
+                    <i class="fab fa-instagram"></i> @billdud.e
+                </a> | 
+                <a href="https://t.me/billdude483" target="_blank" style="color: #a0aec0; text-decoration: none;">
+                    <i class="fab fa-telegram"></i> @billdude483
+                </a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // DARK MODE TOGGLE
+        // ============================================
+        (function() {
+            const darkMode = localStorage.getItem('darkMode');
+            const toggle = document.getElementById('darkModeToggle');
+            const icon = toggle.querySelector('i');
+            
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+            
+            toggle.addEventListener('click', function() {
+                if (document.body.classList.contains('dark-mode')) {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('darkMode', 'disabled');
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                } else {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('darkMode', 'enabled');
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            });
+        })();
+
+        // ============================================
+        // SMOOTH SCROLL
+        // ============================================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,838 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Data - SmartBill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <script src="js/api.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/currency.js" defer></script>
+    <style>
+        /* Your existing styles (keep as they are) */
+        .export-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+        }
+        .export-hero {
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: minmax(0, 2.1fr) minmax(260px, 1fr);
+            gap: 1.5rem;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #7c3aed 55%, #0ea5e9 100%);
+            color: white;
+            box-shadow: 0 18px 40px rgba(102, 126, 234, 0.22);
+        }
+        .export-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.24), transparent 30%),
+                radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.18), transparent 34%);
+            pointer-events: none;
+        }
+        .export-hero-content,
+        .export-hero-side {
+            position: relative;
+            z-index: 1;
+        }
+        .export-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(10px);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .export-hero h1 {
+            color: white;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.08;
+            margin-bottom: 0.75rem;
+        }
+        .export-hero p {
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 640px;
+            font-size: 1rem;
+        }
+        .export-hero-side {
+            display: grid;
+            gap: 1rem;
+            align-content: start;
+        }
+        .hero-mini-card {
+            padding: 1rem 1.1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        .hero-mini-card .label {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.8;
+            margin-bottom: 0.4rem;
+        }
+        .hero-mini-card .value {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+        .formats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        .format-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.2rem;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+        }
+        .format-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary-500);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.12);
+        }
+        .format-card.selected {
+            border-color: var(--primary-500);
+            background: var(--primary-50);
+        }
+        .format-icon {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, var(--primary-50), rgba(118, 75, 162, 0.1));
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.8rem;
+        }
+        .format-icon i {
+            font-size: 1.8rem;
+            color: var(--primary-500);
+        }
+        .format-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            color: var(--text-color);
+        }
+        .format-card p {
+            font-size: 0.8rem;
+            color: var(--muted-text);
+        }
+        .export-card-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.35rem;
+            padding: 1.4rem;
+            box-shadow: var(--shadow-md);
+        }
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+        .card-head h3 {
+            margin: 0;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1.1rem;
+        }
+        .card-head h3 i {
+            color: var(--primary-500);
+        }
+        .date-range-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .date-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .date-input-group label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--muted-text);
+        }
+        .date-input-group input {
+            padding: 0.7rem 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        .date-input-group input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .quick-dates {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+        .quick-date-btn {
+            padding: 0.35rem 1rem;
+            background: var(--surface-color);
+            border: none;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-color);
+        }
+        .quick-date-btn:hover {
+            background: var(--primary-500);
+            color: white;
+        }
+        .checkbox-group {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+        .checkbox-label input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary-500);
+        }
+        .export-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary-500), var(--secondary-500));
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+        }
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .export-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+        }
+        .loading-spinner.show {
+            display: block;
+        }
+        .loading-spinner i {
+            font-size: 1.5rem;
+            color: var(--primary-500);
+        }
+        .loading-spinner p {
+            margin-top: 0.5rem;
+            color: var(--muted-text);
+        }
+        .result-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.35rem;
+            padding: 1.4rem;
+            display: none;
+        }
+        .result-section.show {
+            display: block;
+            animation: fadeInUp 0.3s ease;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .result-header h3 {
+            font-size: 1rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .result-stats {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .stat-badge {
+            background: var(--surface-color);
+            padding: 0.4rem 0.9rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-color);
+        }
+        .result-data {
+            background: var(--surface-color);
+            border-radius: 0.8rem;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.75rem;
+            max-height: 250px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: var(--text-color);
+        }
+        .download-btn {
+            background: var(--success-500);
+            color: white;
+            border: none;
+            padding: 0.45rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s;
+        }
+        .download-btn:hover {
+            background: var(--success-600);
+            transform: translateY(-1px);
+        }
+        .toast-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+        .toast-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .toast-error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        .toast-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @media (max-width: 768px) {
+            .export-hero, .formats-grid, .date-range-grid, .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+            .export-hero-side {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="toastMessage" class="toast-message" style="display: none;"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-receipt"></i>
+                <span>SmartBill</span>
+            </a>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="groups.html">Groups</a>
+                <a href="bills.html">Bills</a>
+                <a href="analytics.html">Analytics</a>
+                <a href="export.html" class="active">Export</a>
+                <a href="alerts.html">Alerts</a>
+                <a href="profile.html">Profile</a>
+            </div>
+            <div class="user-menu">
+                <div class="currency-selector" id="currencySelector">
+                    <button class="currency-btn" onclick="toggleCurrencyDropdown()">
+                        <span id="selectedCurrencyFlag">🇰🇪</span>
+                        <span id="selectedCurrencyCode">KES</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="currency-dropdown" id="currencyDropdown">
+                        <div class="currency-dropdown-header">
+                            <h4>Select Currency</h4>
+                        </div>
+                        <div class="currency-list" id="currencyList"></div>
+                    </div>
+                </div>
+                <button class="dark-mode-toggle" id="darkModeToggle"><i class="fas fa-moon"></i></button>
+                <div class="user-avatar" id="userAvatar" onclick="window.location.href='profile.html'">
+                    <img id="navbarAvatarImage" src="" style="display: none;">
+                    <span id="navbarAvatarText">U</span>
+                </div>
+                <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container export-shell">
+        <section class="export-hero">
+            <div class="export-hero-content">
+                <div class="export-eyebrow"><i class="fas fa-download"></i> Data Export</div>
+                <h1>Download your financial data</h1>
+                <p>Export bills, groups, and payment history as CSV, JSON, or PDF reports.</p>
+            </div>
+            <div class="export-hero-side">
+                <div class="hero-mini-card"><div class="label">Available Data</div><div class="value" id="availableBills">0 bills</div></div>
+                <div class="hero-mini-card"><div class="label">Tracked Groups</div><div class="value" id="availableGroups">0 groups</div></div>
+            </div>
+        </section>
+
+        <div class="formats-grid">
+            <div class="format-card selected" data-format="csv" onclick="selectFormat('csv')">
+                <div class="format-icon"><i class="fas fa-file-csv"></i></div>
+                <h3>CSV</h3><p>Excel, Google Sheets</p>
+            </div>
+            <div class="format-card" data-format="json" onclick="selectFormat('json')">
+                <div class="format-icon"><i class="fas fa-file-code"></i></div>
+                <h3>JSON</h3><p>Developer friendly</p>
+            </div>
+            <div class="format-card" data-format="pdf" onclick="selectFormat('pdf')">
+                <div class="format-icon"><i class="fas fa-file-pdf"></i></div>
+                <h3>PDF Report</h3><p>Print ready</p>
+            </div>
+        </div>
+
+        <div class="export-card-section">
+            <div class="card-head"><h3><i class="fas fa-calendar-alt"></i> Date Range</h3></div>
+            <div class="date-range-grid">
+                <div class="date-input-group"><label>From</label><input type="date" id="startDate"></div>
+                <div class="date-input-group"><label>To</label><input type="date" id="endDate"></div>
+            </div>
+            <div class="quick-dates">
+                <button class="quick-date-btn" onclick="setQuickDate('week')">Last 7 days</button>
+                <button class="quick-date-btn" onclick="setQuickDate('month')">This month</button>
+                <button class="quick-date-btn" onclick="setQuickDate('year')">This year</button>
+                <button class="quick-date-btn" onclick="setQuickDate('all')">All time</button>
+            </div>
+        </div>
+
+        <div class="export-card-section">
+            <div class="card-head"><h3><i class="fas fa-sliders-h"></i> Include in export</h3></div>
+            <div class="checkbox-group">
+                <label class="checkbox-label"><input type="checkbox" id="includeBills" checked> Bills</label>
+                <label class="checkbox-label"><input type="checkbox" id="includeGroups" checked> Groups</label>
+                <label class="checkbox-label"><input type="checkbox" id="includePayments" checked> Payment status</label>
+            </div>
+        </div>
+
+        <div class="loading-spinner" id="loadingSpinner"><i class="fas fa-spinner fa-spin"></i><p>Preparing your export...</p></div>
+
+        <button class="export-btn" id="exportBtn" onclick="exportData()"><i class="fas fa-download"></i> Export Now</button>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-header">
+                <h3><i class="fas fa-eye"></i> Preview</h3>
+                <button class="download-btn" id="downloadBtn" onclick="downloadFile()"><i class="fas fa-save"></i> Download</button>
+            </div>
+            <div class="result-stats" id="resultStats"></div>
+            <div class="result-data" id="resultData"></div>
+        </div>
+    </main>
+
+    <script>
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : 'https://smartbill-hrcu.onrender.com/api';
+        console.log('🔧 API_BASE:', API_BASE);
+
+        let selectedFormat = 'csv';
+        let exportDataCache = null;
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = message;
+            toast.className = `toast-message toast-${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        function setQuickDate(range) {
+            const start = document.getElementById('startDate');
+            const end = document.getElementById('endDate');
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            switch(range) {
+                case 'week': {
+                    const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+                    start.value = weekAgo.toISOString().split('T')[0];
+                    end.value = today;
+                    break;
+                }
+                case 'month': {
+                    const monthAgo = new Date(); monthAgo.setMonth(monthAgo.getMonth() - 1);
+                    start.value = monthAgo.toISOString().split('T')[0];
+                    end.value = today;
+                    break;
+                }
+                case 'year': {
+                    const yearAgo = new Date(); yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+                    start.value = yearAgo.toISOString().split('T')[0];
+                    end.value = today;
+                    break;
+                }
+                case 'all': start.value = ''; end.value = ''; break;
+            }
+        }
+
+        function selectFormat(format) {
+            selectedFormat = format;
+            document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+            document.querySelector(`.format-card[data-format="${format}"]`).classList.add('selected');
+        }
+
+        // ============================================
+        // EXPORT DATA FETCHING
+        // ============================================
+        async function exportData() {
+            const btn = document.getElementById('exportBtn');
+            const spinner = document.getElementById('loadingSpinner');
+            btn.disabled = true;
+            spinner.classList.add('show');
+
+            try {
+                const token = localStorage.getItem('token');
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const includeBills = document.getElementById('includeBills').checked;
+                const includeGroups = document.getElementById('includeGroups').checked;
+                const includePayments = document.getElementById('includePayments').checked;
+
+                let data = {};
+                let allBills = [];
+                let allGroups = [];
+
+                if (includeBills) {
+                    const billsRes = await fetch(`${API_BASE}/bills`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!billsRes.ok) throw new Error('Failed to fetch bills');
+                    let bills = await billsRes.json();
+
+                    // Filter by date range
+                    if (startDate && endDate) {
+                        bills = bills.filter(b => {
+                            const d = new Date(b.created_at).toISOString().split('T')[0];
+                            return d >= startDate && d <= endDate;
+                        });
+                    }
+
+                    allBills = bills;
+                    data.bills = bills;
+
+                    // Fetch payment status for each bill if requested
+                    if (includePayments) {
+                        for (const bill of data.bills) {
+                            const statusRes = await fetch(`${API_BASE}/bills/${bill.id}/payment-status`, {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (statusRes.ok) bill.payments = await statusRes.json();
+                        }
+                    }
+                }
+
+                if (includeGroups) {
+                    const groupsRes = await fetch(`${API_BASE}/groups`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!groupsRes.ok) throw new Error('Failed to fetch groups');
+                    allGroups = await groupsRes.json();
+                    data.groups = allGroups;
+                }
+
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                data.exportDate = new Date().toISOString();
+                data.user = user;
+                data.dateRange = {
+                    from: startDate || 'All time',
+                    to: endDate || 'All time'
+                };
+
+                exportDataCache = data;
+
+                // Update stats and preview
+                const totalAmount = allBills.reduce((sum, b) => sum + (parseFloat(b.total) || 0), 0);
+                const statsHtml = `
+                    <div class="stat-badge"><i class="fas fa-receipt"></i> ${allBills.length} bills</div>
+                    <div class="stat-badge"><i class="fas fa-users"></i> ${allGroups.length} groups</div>
+                    <div class="stat-badge"><i class="fas fa-dollar-sign"></i> KSh ${totalAmount.toLocaleString()}</div>
+                    <div class="stat-badge"><i class="fas fa-calendar"></i> ${data.dateRange.from} → ${data.dateRange.to}</div>
+                `;
+                document.getElementById('resultStats').innerHTML = statsHtml;
+
+                const preview = { ...data };
+                preview.bills = `${allBills.length} bills`;
+                preview.groups = `${allGroups.length} groups`;
+                document.getElementById('resultData').textContent = JSON.stringify(preview, null, 2);
+                document.getElementById('resultSection').classList.add('show');
+
+                showToast('Data ready for download', 'success');
+            } catch (error) {
+                console.error('Export error:', error);
+                showToast('Export failed: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.remove('show');
+            }
+        }
+
+        // ============================================
+        // DOWNLOAD FUNCTIONS
+        // ============================================
+        function downloadFile() {
+            if (!exportDataCache) {
+                showToast('No data to export. Click "Export Now" first.', 'error');
+                return;
+            }
+
+            const date = new Date().toISOString().split('T')[0];
+            let content, filename, mime;
+
+            switch (selectedFormat) {
+                case 'csv':
+                    content = toCSV(exportDataCache);
+                    filename = `smartbill_export_${date}.csv`;
+                    mime = 'text/csv';
+                    break;
+                case 'pdf':
+                    generatePDF(exportDataCache);
+                    return;
+                default:
+                    content = JSON.stringify(exportDataCache, null, 2);
+                    filename = `smartbill_export_${date}.json`;
+                    mime = 'application/json';
+            }
+
+            const blob = new Blob([content], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast(`Downloaded as ${selectedFormat.toUpperCase()}`, 'success');
+        }
+
+        function toCSV(data) {
+            const rows = [];
+            // Bills section
+            if (data.bills?.length) {
+                rows.push(['BILLS']);
+                rows.push(['ID', 'Title', 'Group', 'Total', 'Status', 'Date', 'Paid Amount', 'Outstanding']);
+                for (const bill of data.bills) {
+                    const paidAmount = bill.payments?.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0) || 0;
+                    const outstanding = (parseFloat(bill.total) || 0) - paidAmount;
+                    rows.push([
+                        bill.id,
+                        bill.title,
+                        bill.group_name || 'Unknown',
+                        parseFloat(bill.total).toFixed(2),
+                        bill.status || 'pending',
+                        new Date(bill.created_at).toLocaleDateString(),
+                        paidAmount.toFixed(2),
+                        outstanding.toFixed(2)
+                    ]);
+                }
+                rows.push([]);
+            }
+            // Groups section
+            if (data.groups?.length) {
+                rows.push(['GROUPS']);
+                rows.push(['ID', 'Name', 'Description', 'Members', 'Created']);
+                data.groups.forEach(g => {
+                    rows.push([
+                        g.id,
+                        g.name,
+                        g.description || '',
+                        g.member_count || 0,
+                        new Date(g.created_at).toLocaleDateString()
+                    ]);
+                });
+                rows.push([]);
+            }
+            // Summary
+            rows.push(['SUMMARY']);
+            rows.push(['Total Bills', data.bills?.length || 0]);
+            rows.push(['Total Groups', data.groups?.length || 0]);
+            const totalAmount = data.bills?.reduce((s, b) => s + (parseFloat(b.total) || 0), 0) || 0;
+            rows.push(['Total Amount', `KSh ${totalAmount.toFixed(2)}`]);
+            rows.push(['Export Date', new Date().toLocaleString()]);
+            rows.push(['Date Range', `${data.dateRange.from} - ${data.dateRange.to}`]);
+
+            return rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+        }
+
+        function generatePDF(data) {
+            const win = window.open('', '_blank');
+            const totalAmount = data.bills?.reduce((s, b) => s + (parseFloat(b.total) || 0), 0) || 0;
+            const html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>SmartBill Export Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 40px; }
+                        h1 { color: #667eea; border-bottom: 2px solid #667eea; }
+                        h2 { color: #764ba2; margin-top: 30px; }
+                        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background: #f5f5f5; }
+                        .summary { background: #f0f4ff; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                        .footer { margin-top: 40px; text-align: center; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>SmartBill Export Report</h1>
+                    <p>Generated: ${new Date().toLocaleString()}</p>
+                    <p>Date Range: ${data.dateRange.from} - ${data.dateRange.to}</p>
+                    <div class="summary">
+                        <strong>Summary</strong><br>
+                        Bills: ${data.bills?.length || 0}<br>
+                        Groups: ${data.groups?.length || 0}<br>
+                        Total Amount: KSh ${totalAmount.toFixed(2)}
+                    </div>
+                    ${data.bills?.length ? `
+                        <h2>Bills (${data.bills.length})</h2>
+                        <table><thead><tr><th>Title</th><th>Group</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+                        <tbody>
+                            ${data.bills.map(b => `
+                                <tr><td>${escapeHtml(b.title)}</td><td>${escapeHtml(b.group_name)}</td><td>KSh ${parseFloat(b.total).toFixed(2)}</td><td>${b.status}</td><td>${new Date(b.created_at).toLocaleDateString()}</td></tr>
+                            `).join('')}
+                        </tbody></table>
+                    ` : ''}
+                    ${data.groups?.length ? `
+                        <h2>Groups (${data.groups.length})</h2>
+                        <table><thead><tr><th>Name</th><th>Members</th><th>Created</th></tr></thead>
+                        <tbody>
+                            ${data.groups.map(g => `
+                                <tr><td>${escapeHtml(g.name)}</td><td>${g.member_count || 0}</td><td>${new Date(g.created_at).toLocaleDateString()}</td></tr>
+                            `).join('')}
+                        </tbody></table>
+                    ` : ''}
+                    <div class="footer"><p>SmartBill - Created by Bill Odhiambo</p></div>
+                </body>
+                </html>
+            `;
+            win.document.write(html);
+            win.document.close();
+            win.print();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // ============================================
+        // LOAD COUNTS
+        // ============================================
+        async function loadCounts() {
+            try {
+                const token = localStorage.getItem('token');
+                const [billsRes, groupsRes] = await Promise.all([
+                    fetch(`${API_BASE}/bills`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(`${API_BASE}/groups`, { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
+                if (billsRes.ok) {
+                    const bills = await billsRes.json();
+                    document.getElementById('availableBills').textContent = `${bills.length} bill${bills.length !== 1 ? 's' : ''}`;
+                }
+                if (groupsRes.ok) {
+                    const groups = await groupsRes.json();
+                    document.getElementById('availableGroups').textContent = `${groups.length} group${groups.length !== 1 ? 's' : ''}`;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+        function toggleMenu() { document.getElementById('navLinks')?.classList.toggle('active'); }
+
+        // Set default dates
+        (function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastMonth = new Date(); lastMonth.setMonth(lastMonth.getMonth() - 1);
+            document.getElementById('startDate').value = lastMonth.toISOString().split('T')[0];
+            document.getElementById('endDate').value = today;
+        })();
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCounts();
+            // Ensure format card is selected
+            document.querySelector('.format-card.selected').classList.add('selected');
+        });
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
