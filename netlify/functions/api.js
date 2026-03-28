@@ -24,11 +24,27 @@ const pool = mysql.createPool({
 // Health check
 app.get('/api/health', async (req, res) => {
   try {
+    console.log('Testing database connection...');
+    console.log('DB_HOST:', process.env.DB_HOST);
+    console.log('DB_PORT:', process.env.DB_PORT);
+
     const connection = await pool.getConnection();
     connection.release();
-    res.json({ status: 'ok', message: 'Connected to Railway MySQL' });
+
+    res.json({
+      status: 'ok',
+      message: 'Connected to Railway MySQL',
+      db_host: process.env.DB_HOST,
+      db_port: process.env.DB_PORT
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Health check error:', error);
+    res.status(500).json({
+      error: error.message,
+      code: error.code,
+      db_host: process.env.DB_HOST,
+      db_port: process.env.DB_PORT
+    });
   }
 });
 
