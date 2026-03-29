@@ -470,7 +470,7 @@ app.get('/api/groups/:id/all-members', authenticateToken, async (req, res) => {
     }
 
     const [members] = await pool.query(
-      `SELECT u.id, u.name, u.email, 'user' AS type, gm.role
+      `SELECT u.id, u.name, u.email, 'registered' AS type, gm.role
        FROM group_members gm
        JOIN users u ON gm.user_id = u.id
        WHERE gm.group_id = ?`,
@@ -478,7 +478,7 @@ app.get('/api/groups/:id/all-members', authenticateToken, async (req, res) => {
     );
 
     const [nameMembers] = await pool.query(
-      `SELECT id, name, 'name_member' AS type
+      `SELECT id, name, NULL AS email, 'name-only' AS type, 'member' AS role
        FROM group_name_members
        WHERE group_id = ?`,
       [req.params.id]
@@ -721,6 +721,30 @@ app.post('/api/groups/:groupId/name-members', authenticateToken, async (req, res
     });
   } catch (_error) {
     res.status(500).json({ error: 'Failed to add member' });
+  }
+});
+
+app.delete('/api/groups/:groupId/name-members/:memberId', authenticateToken, async (req, res) => {
+  try {
+    const { groupId, memberId } = req.params;
+    const group = await getGroupForUser(groupId, req.user.id);
+
+    if (!group || group.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can remove members' });
+    }
+
+    const [result] = await pool.query(
+      'DELETE FROM group_name_members WHERE group_id = ? AND id = ?',
+      [groupId, memberId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+
+    res.json({ message: 'Name-only member removed successfully' });
+  } catch (_error) {
+    res.status(500).json({ error: 'Failed to remove member' });
   }
 });
 
