@@ -168,6 +168,20 @@ async function initDatabase() {
     `);
     console.log('notifications table ready');
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS group_goals (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        group_id INT NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        target DECIMAL(10,2) NOT NULL,
+        deadline DATE,
+        created_by INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('group_goals table ready');
+
     console.log('All tables created/verified successfully');
   } catch (error) {
     console.error('Database initialization error:', error);
@@ -433,6 +447,57 @@ app.get('/api/groups/:id', authenticateToken, async (req, res) => {
     });
   } catch (_error) {
     res.status(500).json({ error: 'Failed to fetch group' });
+  }
+});
+
+app.get('/api/groups/:id/all-members', authenticateToken, async (req, res) => {
+  try {
+    const group = await getGroupForUser(req.params.id, req.user.id);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    const [members] = await pool.query(
+      `SELECT u.id, u.name, u.email, 'user' AS type, gm.role
+       FROM group_members gm
+       JOIN users u ON gm.user_id = u.id
+       WHERE gm.group_id = ?`,
+      [req.params.id]
+    );
+
+    const [nameMembers] = await pool.query(
+      `SELECT id, name, 'name_member' AS type
+       FROM group_name_members
+       WHERE group_id = ?`,
+      [req.params.id]
+    );
+
+    res.json([...members, ...nameMembers]);
+  } catch (error) {
+    console.error('Error fetching members:', error);
+    res.status(500).json({ error: 'Failed to load members' });
+  }
+});
+
+app.get('/api/groups/:id/goal', authenticateToken, async (req, res) => {
+  try {
+    const group = await getGroupForUser(req.params.id, req.user.id);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    const [goal] = await pool.query(
+      `SELECT * FROM group_goals WHERE group_id = ? ORDER BY created_at DESC LIMIT 1`,
+      [req.params.id]
+    );
+
+    if (goal.length === 0) {
+      return res.json(null);
+    }
+
+    res.json(goal[0]);
+  } catch (_error) {
+    res.status(500).json({ error: 'Failed to load group goal' });
   }
 });
 
