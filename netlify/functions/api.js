@@ -337,14 +337,18 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
 });
 
 app.get('/api/profile', async (req, res) => {
-  const authHeader = req.headers.authorization;
-  console.log('Profile request - Auth header present:', !!authHeader);
+  let token = req.headers.authorization?.split(' ')[1];
 
-  if (!authHeader) {
+  if (!token && req.query.token) {
+    token = req.query.token;
+  }
+
+  console.log('Profile request - Token present:', !!token);
+
+  if (!token) {
     return res.status(401).json({ error: 'No token provided' });
   }
 
-  const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log('Profile request for user ID:', decoded.id);
@@ -360,7 +364,7 @@ app.get('/api/profile', async (req, res) => {
 
     res.json(rows[0]);
   } catch (error) {
-    console.error('Profile error:', error);
+    console.error('Profile error:', error.message);
     res.status(401).json({ error: 'Invalid or expired token' });
   }
 });
@@ -1157,6 +1161,36 @@ app.post('/api/payments', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   } finally {
     connection.release();
+  }
+});
+
+app.post('/api/name-payments', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ error: 'No token' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    await jwt.verify(token, process.env.JWT_SECRET);
+    const { bill_id, name_member_id, amount, method, notes } = req.body;
+
+    const [result] = await pool.query(
+      `INSERT INTO name_payments (bill_id, name_member_id, amount, method, notes)
+       VALUES (?, ?, ?, ?, ?)`,
+      [bill_id, name_member_id, amount, method || 'cash', notes || null]
+    );
+
+    await pool.query(
+      `UPDATE bill_name_splits SET paid = TRUE, paid_at = NOW()
+       WHERE bill_id = ? AND name_member_id = ?`,
+      [bill_id, name_member_id]
+    );
+
+    res.json({ success: true, payment_id: result.insertId });
+  } catch (error) {
+    console.error('Name payment error:', error);
+    res.status(500).json({ error: 'Failed to record payment' });
   }
 });
 
