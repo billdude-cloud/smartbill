@@ -21,6 +21,161 @@ const pool = mysql.createPool({
   connectTimeout: 30000
 });
 
+const GROUPS_TABLE = 'bill_groups';
+
+async function initDatabase() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(100) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        avatar VARCHAR(255) DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('users table ready');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS ${GROUPS_TABLE} (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT,
+        created_by INT NOT NULL,
+        invite_code VARCHAR(20) UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('bill_groups table ready');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS group_members (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        group_id INT NOT NULL,
+        user_id INT NOT NULL,
+        role VARCHAR(20) DEFAULT 'member',
+        joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_member (group_id, user_id)
+      )
+    `);
+    console.log('group_members table ready');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS group_name_members (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        group_id INT NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        created_by INT DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('group_name_members table ready');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS bills (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        group_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        subtotal DECIMAL(10,2) DEFAULT 0.00,
+        tax DECIMAL(10,2) DEFAULT 0.00,
+        tip DECIMAL(10,2) DEFAULT 0.00,
+        total DECIMAL(10,2) NOT NULL,
+        created_by INT NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('bills table ready');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS bill_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        bill_id INT NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        quantity INT DEFAULT 1
+      )
+    `);
+    console.log('bill_items table ready');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS bill_splits (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        bill_id INT NOT NULL,
+        user_id INT NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        paid BOOLEAN DEFAULT FALSE,
+        paid_at TIMESTAMP NULL,
+        UNIQUE KEY unique_split (bill_id, user_id)
+      )
+    `);
+    console.log('bill_splits table ready');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS bill_name_splits (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        bill_id INT NOT NULL,
+        name_member_id INT NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        paid BOOLEAN DEFAULT FALSE,
+        paid_at TIMESTAMP NULL,
+        UNIQUE KEY unique_name_split (bill_id, name_member_id)
+      )
+    `);
+    console.log('bill_name_splits table ready');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS payments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        bill_id INT NOT NULL,
+        user_id INT NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        method VARCHAR(50),
+        notes TEXT,
+        paid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('payments table ready');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS name_payments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        bill_id INT NOT NULL,
+        name_member_id INT NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        method VARCHAR(50),
+        notes TEXT,
+        paid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('name_payments table ready');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        type VARCHAR(50) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        is_read BOOLEAN DEFAULT FALSE,
+        related_id INT DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('notifications table ready');
+
+    console.log('All tables created/verified successfully');
+  } catch (error) {
+    console.error('Database initialization error:', error);
+  }
+}
+
+initDatabase();
+
 function signToken(user) {
   return jwt.sign(
     { id: user.id, email: user.email, name: user.name },
@@ -59,7 +214,7 @@ function authenticateToken(req, res, next) {
 async function getGroupForUser(groupId, userId) {
   const [rows] = await pool.query(
     `SELECT g.*, gm.role
-     FROM groups g
+     FROM ${GROUPS_TABLE} g
      JOIN group_members gm ON gm.group_id = g.id
      WHERE g.id = ? AND gm.user_id = ?`,
     [groupId, userId]
@@ -72,7 +227,7 @@ async function getBillForUser(billId, userId) {
   const [rows] = await pool.query(
     `SELECT b.*, g.name AS group_name, u.name AS created_by_name
      FROM bills b
-     JOIN groups g ON g.id = b.group_id
+     JOIN ${GROUPS_TABLE} g ON g.id = b.group_id
      JOIN users u ON u.id = b.created_by
      WHERE b.id = ?
        AND b.group_id IN (
@@ -241,7 +396,7 @@ app.get('/api/groups', authenticateToken, async (req, res) => {
            COALESCE((SELECT COUNT(*) FROM group_members gm WHERE gm.group_id = g.id), 0) +
            COALESCE((SELECT COUNT(*) FROM group_name_members gnm WHERE gnm.group_id = g.id), 0)
          ) AS member_count
-       FROM groups g
+       FROM ${GROUPS_TABLE} g
        WHERE g.id IN (
          SELECT group_id FROM group_members WHERE user_id = ?
        )
@@ -294,7 +449,7 @@ app.post('/api/groups', authenticateToken, async (req, res) => {
 
     const inviteCode = generateInviteCode();
     const [result] = await connection.query(
-      'INSERT INTO groups (name, description, created_by, invite_code) VALUES (?, ?, ?, ?)',
+      `INSERT INTO ${GROUPS_TABLE} (name, description, created_by, invite_code) VALUES (?, ?, ?, ?)`,
       [name, description || '', req.user.id, inviteCode]
     );
 
@@ -329,7 +484,7 @@ app.post('/api/groups/join', authenticateToken, async (req, res) => {
     }
 
     const [groups] = await pool.query(
-      'SELECT id, name, invite_code FROM groups WHERE invite_code = ?',
+      `SELECT id, name, invite_code FROM ${GROUPS_TABLE} WHERE invite_code = ?`,
       [inviteCode]
     );
 
@@ -482,7 +637,7 @@ app.delete('/api/groups/:id', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: 'Only the group creator can delete this group' });
     }
 
-    await pool.query('DELETE FROM groups WHERE id = ?', [req.params.id]);
+    await pool.query(`DELETE FROM ${GROUPS_TABLE} WHERE id = ?`, [req.params.id]);
     res.json({ message: 'Group deleted successfully' });
   } catch (_error) {
     res.status(500).json({ error: 'Failed to delete group' });
@@ -497,7 +652,7 @@ app.get('/api/bills', authenticateToken, async (req, res) => {
     let query = `
       SELECT b.*, g.name AS group_name, u.name AS created_by_name
       FROM bills b
-      JOIN groups g ON b.group_id = g.id
+      JOIN ${GROUPS_TABLE} g ON b.group_id = g.id
       JOIN users u ON b.created_by = u.id
       WHERE b.group_id IN (
         SELECT group_id FROM group_members WHERE user_id = ?
