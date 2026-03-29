@@ -182,9 +182,9 @@ async function initDatabase() {
     `);
     console.log('group_goals table ready');
 
-    console.log('All tables created/verified successfully');
+    console.log('All tables ready');
   } catch (error) {
-    console.error('Database initialization error:', error);
+    console.error('Database init error:', error);
   }
 }
 
@@ -336,11 +336,22 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/api/profile', authenticateToken, async (req, res) => {
+app.get('/api/profile', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  console.log('Profile request - Auth header present:', !!authHeader);
+
+  if (!authHeader) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Profile request for user ID:', decoded.id);
+
     const [rows] = await pool.query(
       'SELECT id, name, email, avatar, created_at FROM users WHERE id = ?',
-      [req.user.id]
+      [decoded.id]
     );
 
     if (rows.length === 0) {
@@ -348,8 +359,9 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
     }
 
     res.json(rows[0]);
-  } catch (_error) {
-    res.status(500).json({ error: 'Server error' });
+  } catch (error) {
+    console.error('Profile error:', error);
+    res.status(401).json({ error: 'Invalid or expired token' });
   }
 });
 
@@ -634,6 +646,56 @@ app.post('/api/groups/:groupId/members', authenticateToken, async (req, res) => 
   }
 });
 
+app.post('/api/groups/:id/members', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ error: 'No token' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const groupId = req.params.id;
+    const email = String(req.body.email || '').trim().toLowerCase();
+
+    const [adminCheck] = await pool.query(
+      'SELECT role FROM group_members WHERE group_id = ? AND user_id = ? AND role = "admin"',
+      [groupId, decoded.id]
+    );
+
+    if (adminCheck.length === 0) {
+      return res.status(403).json({ error: 'Only admins can add members' });
+    }
+
+    const [user] = await pool.query(
+      'SELECT id, name, email FROM users WHERE LOWER(email) = ?',
+      [email]
+    );
+    if (user.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const [existing] = await pool.query(
+      'SELECT id FROM group_members WHERE group_id = ? AND user_id = ?',
+      [groupId, user[0].id]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({ error: 'User is already a member' });
+    }
+
+    await pool.query(
+      'INSERT INTO group_members (group_id, user_id, role) VALUES (?, ?, ?)',
+      [groupId, user[0].id, 'member']
+    );
+
+    res.json({ message: 'Member added successfully' });
+  } catch (error) {
+    console.error('Add member error:', error);
+    res.status(500).json({ error: 'Failed to add member' });
+  }
+});
+
 app.post('/api/groups/:groupId/name-members', authenticateToken, async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -686,6 +748,43 @@ app.delete('/api/groups/:groupId/members/:memberId', authenticateToken, async (r
 
     res.json({ message: 'Registered member removed successfully' });
   } catch (_error) {
+    res.status(500).json({ error: 'Failed to remove member' });
+  }
+});
+
+app.delete('/api/groups/:id/members/:memberId', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ error: 'No token' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const groupId = req.params.id;
+    const memberId = req.params.memberId;
+
+    const [adminCheck] = await pool.query(
+      'SELECT role FROM group_members WHERE group_id = ? AND user_id = ? AND role = "admin"',
+      [groupId, decoded.id]
+    );
+
+    if (adminCheck.length === 0) {
+      return res.status(403).json({ error: 'Only admins can remove members' });
+    }
+
+    if (parseInt(memberId, 10) === decoded.id) {
+      return res.status(400).json({ error: 'Cannot remove yourself' });
+    }
+
+    await pool.query(
+      'DELETE FROM group_members WHERE group_id = ? AND user_id = ?',
+      [groupId, memberId]
+    );
+
+    res.json({ message: 'Member removed successfully' });
+  } catch (error) {
+    console.error('Remove member error:', error);
     res.status(500).json({ error: 'Failed to remove member' });
   }
 });
