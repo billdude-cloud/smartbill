@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -420,7 +420,7 @@
             <div class="user-menu">
                 <div class="currency-selector" id="currencySelector">
                     <button class="currency-btn" onclick="toggleCurrencyDropdown()">
-                        <span id="selectedCurrencyFlag">🇰🇪</span>
+                        <span id="selectedCurrencyFlag">????</span>
                         <span id="selectedCurrencyCode">KES</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -593,9 +593,9 @@
             ? API_BASE
             : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:5000/api'
-            : 'https://smartbill-hrcu.onrender.com/api');
+            : '/api');
         
-        console.log('🔧 PAGE_API_BASE:', PAGE_API_BASE);
+        console.log('?? PAGE_API_BASE:', PAGE_API_BASE);
         
         let allBills = [];
         let allGroups = [];
@@ -1056,15 +1056,15 @@
             if (quickInsightsEl) {
                 let html = '';
                 if (totalUnpaid > 0) {
-                    html += `<div class="insight-item"><div><strong>⚠️ Pending Payments</strong><small>${formatCurrency(totalUnpaid)} still needs to be settled</small></div></div>`;
+                    html += `<div class="insight-item"><div><strong>?? Pending Payments</strong><small>${formatCurrency(totalUnpaid)} still needs to be settled</small></div></div>`;
                 }
                 if (userUnpaid > 0) {
-                    html += `<div class="insight-item"><div><strong>💸 You Owe</strong><small>${formatCurrency(userUnpaid)} from your unpaid shares</small></div></div>`;
+                    html += `<div class="insight-item"><div><strong>?? You Owe</strong><small>${formatCurrency(userUnpaid)} from your unpaid shares</small></div></div>`;
                 }
                 if (settlementRate < 30 && totalVolume > 0) {
-                    html += `<div class="insight-item"><div><strong>📊 Low Settlement Rate</strong><small>Only ${settlementRate.toFixed(1)}% of bills are paid. Consider sending reminders.</small></div></div>`;
+                    html += `<div class="insight-item"><div><strong>?? Low Settlement Rate</strong><small>Only ${settlementRate.toFixed(1)}% of bills are paid. Consider sending reminders.</small></div></div>`;
                 } else if (settlementRate > 80 && totalVolume > 0) {
-                    html += `<div class="insight-item"><div><strong>🎉 Great Settlement Rate!</strong><small>${settlementRate.toFixed(1)}% of bills are paid. Keep it up!</small></div></div>`;
+                    html += `<div class="insight-item"><div><strong>?? Great Settlement Rate!</strong><small>${settlementRate.toFixed(1)}% of bills are paid. Keep it up!</small></div></div>`;
                 }
                 if (allBills.length === 0) {
                     html = '<div class="insight-item">No bills yet. Create your first bill to see insights!</div>';
@@ -1077,7 +1077,7 @@
             if (groupInsightsEl) {
                 const entries = Object.entries(groupOutstanding).filter(([_, value]) => value > 0).sort((a, b) => b[1] - a[1]);
                 if (entries.length === 0) {
-                    groupInsightsEl.innerHTML = '<div class="insight-item">All groups are fully settled! 🎉</div>';
+                    groupInsightsEl.innerHTML = '<div class="insight-item">All groups are fully settled! ??</div>';
                 } else {
                     let html = '';
                     for (const [groupName, amount] of entries.slice(0, 5)) {
@@ -1106,12 +1106,12 @@
                 }).length;
                 
                 let html = `
-                    <div class="insight-item"><div><strong>✅ Fully Paid</strong><small>${paidBills} of ${allBills.length} bills (${allBills.length > 0 ? ((paidBills / allBills.length) * 100).toFixed(0) : 0}%)</small></div></div>
-                    <div class="insight-item"><div><strong>🔄 Partially Paid</strong><small>${partialBills} bills need follow-up</small></div></div>
-                    <div class="insight-item"><div><strong>⏳ Pending</strong><small>${pendingBills} bills have no payments yet</small></div></div>
+                    <div class="insight-item"><div><strong>? Fully Paid</strong><small>${paidBills} of ${allBills.length} bills (${allBills.length > 0 ? ((paidBills / allBills.length) * 100).toFixed(0) : 0}%)</small></div></div>
+                    <div class="insight-item"><div><strong>?? Partially Paid</strong><small>${partialBills} bills need follow-up</small></div></div>
+                    <div class="insight-item"><div><strong>? Pending</strong><small>${pendingBills} bills have no payments yet</small></div></div>
                 `;
                 if (totalUnpaid > 0) {
-                    html += `<div class="insight-item"><div><strong>💰 Total to Collect</strong><small>${formatCurrency(totalUnpaid)} unpaid across all bills</small></div></div>`;
+                    html += `<div class="insight-item"><div><strong>?? Total to Collect</strong><small>${formatCurrency(totalUnpaid)} unpaid across all bills</small></div></div>`;
                 }
                 paymentInsightsEl.innerHTML = html;
             }

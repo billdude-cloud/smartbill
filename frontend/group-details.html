@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -840,7 +840,7 @@
             <div class="user-menu">
                 <div class="currency-selector" id="currencySelector">
                     <button class="currency-btn" onclick="toggleCurrencyDropdown()">
-                        <span id="selectedCurrencyFlag">🇰🇪</span>
+                        <span id="selectedCurrencyFlag">????</span>
                         <span id="selectedCurrencyCode">KES</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -1154,7 +1154,7 @@
             }
             
             try {
-                console.log('📡 Loading group with ID:', groupId);
+                console.log('?? Loading group with ID:', groupId);
                 
                 const res = await fetch(`${PAGE_API_BASE}/groups/${groupId}`, {
                     headers: {
@@ -1162,7 +1162,7 @@
                     }
                 });
                 
-                console.log('📥 Response status:', res.status);
+                console.log('?? Response status:', res.status);
                 
                 if (!res.ok) {
                     if (res.status === 403) {
@@ -1221,7 +1221,7 @@
                 }
                 
                 const data = await res.json();
-                console.log('📊 Group data:', data);
+                console.log('?? Group data:', data);
                 
                 currentGroup = data.group;
                 isAdmin = data.user_role === 'admin';
@@ -1233,7 +1233,7 @@
                 displayGroup();
                 
             } catch (error) {
-                console.error('❌ Error loading group:', error);
+                console.error('? Error loading group:', error);
                 container.innerHTML = `
                     <div class="error-container">
                         <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
@@ -1265,7 +1265,7 @@
                 }
                 
                 allMembers = await res.json();
-                console.log('👥 Members loaded:', allMembers.length);
+                console.log('?? Members loaded:', allMembers.length);
                 
             } catch (error) {
                 console.error('Error loading members:', error);
@@ -1287,7 +1287,7 @@
                 }
                 
                 groupBills = await res.json();
-                console.log('📄 Bills loaded:', groupBills.length);
+                console.log('?? Bills loaded:', groupBills.length);
                 
             } catch (error) {
                 console.error('Error loading bills:', error);

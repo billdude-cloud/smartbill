@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -657,7 +657,7 @@
         // Check if already logged in
         if (typeof SmartBillAPI !== 'undefined' && SmartBillAPI.isAuthenticated && SmartBillAPI.isAuthenticated()) {
             const user = SmartBillAPI.getCurrentUser();
-            console.log('ðŸ” Already logged in as:', user?.name);
+            console.log('🔐 Already logged in as:', user?.name);
             window.location.href = 'dashboard.html';
         } else if (localStorage.getItem('token')) {
             window.location.href = 'dashboard.html';

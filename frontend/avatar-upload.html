@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -383,9 +383,9 @@
             ? API_BASE
             : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:5000/api'
-            : 'https://smartbill-hrcu.onrender.com/api');
+            : '/api');
         
-        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+        console.log('🔧 PAGE_API_BASE:', PAGE_API_BASE);
         
         let selectedFile = null;
         let currentAvatar = null;
@@ -579,7 +579,7 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    showToast('âœ… Profile picture uploaded successfully!', 'success');
+                    showToast('✅ Profile picture uploaded successfully!', 'success');
                     
                     setTimeout(() => {
                         document.getElementById('defaultAvatar').style.display = 'none';
@@ -617,7 +617,7 @@
         // AVATAR REMOVAL
         // ============================================
         async function removeAvatar() {
-            if (!confirm('âš ï¸ Are you sure you want to remove your profile picture?')) return;
+            if (!confirm('⚠️ Are you sure you want to remove your profile picture?')) return;
 
             const removeBtn = document.getElementById('removeBtn');
             const originalText = removeBtn.innerHTML;
@@ -633,7 +633,7 @@
                 });
 
                 if (res.ok) {
-                    showToast('âœ… Profile picture removed successfully!', 'success');
+                    showToast('✅ Profile picture removed successfully!', 'success');
                     
                     const user = JSON.parse(localStorage.getItem('user') || '{}');
                     document.getElementById('avatarImage').style.display = 'none';

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -793,7 +793,7 @@
             <div class="user-menu">
                 <div class="currency-selector" id="currencySelector">
                     <button class="currency-btn" onclick="toggleCurrencyDropdown()">
-                        <span id="selectedCurrencyFlag">ðŸ‡°ðŸ‡ª</span>
+                        <span id="selectedCurrencyFlag">🇰🇪</span>
                         <span id="selectedCurrencyCode">KES</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -948,9 +948,9 @@
             ? API_BASE
             : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:5000/api'
-            : 'https://smartbill-hrcu.onrender.com/api');
+            : '/api');
         
-        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+        console.log('🔧 PAGE_API_BASE:', PAGE_API_BASE);
         
         let currentUser = null;
 
@@ -1200,7 +1200,7 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    showToast('âœ… Avatar uploaded successfully!', 'success');
+                    showToast('✅ Avatar uploaded successfully!', 'success');
                     currentUser.avatar = data.avatar;
                     displayProfile(currentUser);
                     hideAvatarModal();
@@ -1244,7 +1244,7 @@
                 });
 
                 if (res.ok) {
-                    showToast('âœ… Profile updated successfully!', 'success');
+                    showToast('✅ Profile updated successfully!', 'success');
                     currentUser.name = name;
                     displayProfile(currentUser);
                     
@@ -1308,7 +1308,7 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    showToast('âœ… Password changed successfully!', 'success');
+                    showToast('✅ Password changed successfully!', 'success');
                     document.getElementById('passwordForm').reset();
                     strengthDiv.style.display = 'none';
                 } else {
@@ -1327,7 +1327,7 @@
         // DELETE ACCOUNT
         // ============================================
         async function deleteAccount() {
-            if (!confirm('âš ï¸ Are you absolutely sure? This will permanently delete your account and all associated data. This action cannot be undone!')) {
+            if (!confirm('⚠️ Are you absolutely sure? This will permanently delete your account and all associated data. This action cannot be undone!')) {
                 return;
             }
             

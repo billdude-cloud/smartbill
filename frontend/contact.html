@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -751,7 +751,7 @@
             <div class="map-placeholder">
                 <i class="fas fa-map-marker-alt"></i>
                 <p>Nairobi, Kenya</p>
-                <p style="font-size: 0.9rem; margin-top: 10px;">ðŸ“ Based in Nairobi, serving users worldwide</p>
+                <p style="font-size: 0.9rem; margin-top: 10px;">📍 Based in Nairobi, serving users worldwide</p>
                 <p style="font-size: 0.9rem; margin-top: 5px;">
                     <i class="fas fa-globe"></i> Available for remote collaboration
                 </p>
@@ -833,7 +833,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>Created with <span class="heart">â¤ï¸</span> by Bill Odhiambo | Â© 2024 SmartBill. All rights reserved.</p>
+            <p>Created with <span class="heart">❤️</span> by Bill Odhiambo | © 2024 SmartBill. All rights reserved.</p>
             <p style="margin-top: 10px; font-size: 0.9rem;">
                 <a href="https://www.instagram.com/billdud.e" target="_blank" style="color: #a0aec0; text-decoration: none;">
                     <i class="fab fa-instagram"></i> @billdud.e
@@ -938,7 +938,7 @@
                 console.log('Message:', message);
                 
                 // Success!
-                showToast('âœ… Message sent successfully! I\'ll get back to you soon.', 'success');
+                showToast('✅ Message sent successfully! I\'ll get back to you soon.', 'success');
                 
                 // Reset form
                 document.getElementById('contactForm').reset();
@@ -950,7 +950,7 @@
                 
             } catch (error) {
                 console.error('Error:', error);
-                showToast('âŒ Failed to send message. Please try again.', 'error');
+                showToast('❌ Failed to send message. Please try again.', 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
@@ -1004,7 +1004,7 @@
                     ? API_BASE
                     : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
                     ? 'http://localhost:5000/api'
-                    : 'https://smartbill-hrcu.onrender.com/api');
+                    : '/api');
                 
                 const res = await fetch(`${API_BASE}/profile`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }

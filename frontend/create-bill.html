@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -563,7 +563,7 @@
             <div class="user-menu">
                 <div class="currency-selector" id="currencySelector">
                     <button class="currency-btn" onclick="toggleCurrencyDropdown()">
-                        <span id="selectedCurrencyFlag">ðŸ‡°ðŸ‡ª</span>
+                        <span id="selectedCurrencyFlag">🇰🇪</span>
                         <span id="selectedCurrencyCode">KES</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -818,9 +818,9 @@
             ? API_BASE
             : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:5000/api'
-            : 'https://smartbill-hrcu.onrender.com/api');
+            : '/api');
         
-        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+        console.log('🔧 PAGE_API_BASE:', PAGE_API_BASE);
         
         let groups = [];
         let groupMembers = [];
@@ -1026,7 +1026,7 @@
                 if (!res.ok) throw new Error('Failed to load groups');
                 
                 groups = await res.json();
-                console.log('ðŸ“Š Groups loaded:', groups.length);
+                console.log('📊 Groups loaded:', groups.length);
                 
                 select.innerHTML = '<option value="">Select a group</option>';
                 
@@ -1078,7 +1078,7 @@
                     key: getMemberKey(member),
                     domKey: getMemberDomKey(member)
                 }));
-                console.log('ðŸ‘¥ Group members loaded:', groupMembers.length);
+                console.log('👥 Group members loaded:', groupMembers.length);
                 
                 if (groupMembers.length === 0) {
                     showToast('This group has no members', 'warning');
@@ -1638,7 +1638,7 @@
                 created_by_name: currentUser?.name || 'You'
             };
             
-            console.log('ðŸ“ Creating bill:', newBill);
+            console.log('📝 Creating bill:', newBill);
             
             document.getElementById('loadingOverlay').classList.add('show');
             document.getElementById('submitBtn').disabled = true;
@@ -1656,7 +1656,7 @@
                 const data = await res.json();
                 
                 if (res.ok) {
-                    showToast('âœ… Bill created successfully!', 'success');
+                    showToast('✅ Bill created successfully!', 'success');
                     setTimeout(() => {
                         window.location.href = 'bills.html';
                     }, 1500);
@@ -1667,7 +1667,7 @@
                 }
             } catch (error) {
                 console.error('Error creating bill:', error);
-                showToast('âŒ Failed to connect to server', 'error');
+                showToast('❌ Failed to connect to server', 'error');
                 document.getElementById('loadingOverlay').classList.remove('show');
                 document.getElementById('submitBtn').disabled = false;
             }
@@ -1687,14 +1687,14 @@
         }
 
         function debugBill() {
-            console.group('ðŸ” CREATE BILL DEBUG');
-            console.log('ðŸ“ Current User:', currentUser);
-            console.log('ðŸ“ Selected Group:', document.getElementById('group').value);
-            console.log('ðŸ“ Group Members:', groupMembers);
-            console.log('ðŸ“ Items:', items);
-            console.log('ðŸ“ Split Method:', currentSplitMethod);
-            console.log('ðŸ“ Split Results:', splitResults);
-            console.log('ðŸ“ Total:', formatCurrency(parseFloat(document.getElementById('grandTotal').textContent.replace(/[^0-9.-]/g, '') || 0)));
+            console.group('🔍 CREATE BILL DEBUG');
+            console.log('📍 Current User:', currentUser);
+            console.log('📍 Selected Group:', document.getElementById('group').value);
+            console.log('📍 Group Members:', groupMembers);
+            console.log('📍 Items:', items);
+            console.log('📍 Split Method:', currentSplitMethod);
+            console.log('📍 Split Results:', splitResults);
+            console.log('📍 Total:', formatCurrency(parseFloat(document.getElementById('grandTotal').textContent.replace(/[^0-9.-]/g, '') || 0)));
             console.groupEnd();
             showToast('Debug info logged to console (F12)', 'info');
         }

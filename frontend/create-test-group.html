@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -283,9 +283,9 @@
             ? API_BASE
             : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:5000/api'
-            : 'https://smartbill-hrcu.onrender.com/api');
+            : '/api');
         
-        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+        console.log('🔧 PAGE_API_BASE:', PAGE_API_BASE);
         
         const token = localStorage.getItem('token');
         
@@ -402,7 +402,7 @@
             resultDiv.innerHTML = '';
             
             try {
-                console.log('ðŸ“¡ Creating group:', { name, description });
+                console.log('📡 Creating group:', { name, description });
                 
                 const res = await fetch(`${PAGE_API_BASE}/groups`, {
                     method: 'POST',
@@ -418,10 +418,10 @@
                 });
                 
                 const data = await res.json();
-                console.log('ðŸ“¥ Response:', { status: res.status, data });
+                console.log('📥 Response:', { status: res.status, data });
                 
                 if (res.ok) {
-                    showResult('success', `âœ… Group "${name}" created successfully!`, {
+                    showResult('success', `✅ Group "${name}" created successfully!`, {
                         group_id: data.group_id,
                         invite_code: data.invite_code
                     });
@@ -435,11 +435,11 @@
                         showConfetti();
                     }
                 } else {
-                    showResult('error', `âŒ Error: ${data.error || 'Unknown error'}`);
+                    showResult('error', `❌ Error: ${data.error || 'Unknown error'}`);
                 }
             } catch (error) {
-                console.error('âŒ Error creating group:', error);
-                showResult('error', `âŒ Network error: ${error.message}. Please check your connection.`);
+                console.error('❌ Error creating group:', error);
+                showResult('error', `❌ Network error: ${error.message}. Please check your connection.`);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;

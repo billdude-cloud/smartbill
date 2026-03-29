@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -269,7 +269,7 @@
             <div class="user-menu">
                 <div class="currency-selector" id="currencySelector">
                     <button class="currency-btn" onclick="toggleCurrencyDropdown()">
-                        <span id="selectedCurrencyFlag">🇰🇪</span>
+                        <span id="selectedCurrencyFlag">????</span>
                         <span id="selectedCurrencyCode">KES</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -356,9 +356,9 @@
         // ============================================
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:5000/api'
-            : 'https://smartbill-hrcu.onrender.com/api';
+            : '/api';
         
-        console.log('🔧 GROUPS_API_BASE:', API_BASE);
+        console.log('?? GROUPS_API_BASE:', API_BASE);
         
         // Check authentication
         if (!localStorage.getItem('token')) {
@@ -454,7 +454,7 @@
                 
                 if (res.ok) {
                     const groups = await res.json();
-                    console.log('📊 Groups loaded:', groups.length);
+                    console.log('?? Groups loaded:', groups.length);
                     displayGroups(groups);
                 } else {
                     showError('Failed to load groups');

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -417,7 +417,7 @@
             <div class="user-menu">
                 <div class="currency-selector" id="currencySelector">
                     <button class="currency-btn" onclick="toggleCurrencyDropdown()">
-                        <span id="selectedCurrencyFlag">ðŸ‡°ðŸ‡ª</span>
+                        <span id="selectedCurrencyFlag">🇰🇪</span>
                         <span id="selectedCurrencyCode">KES</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -451,7 +451,7 @@
                     Smart Notifications
                 </div>
                 <h1>Stay on top of your spending</h1>
-                <p>Set a monthly budget and receive realâ€‘time alerts when you're approaching your limit.</p>
+                <p>Set a monthly budget and receive real‑time alerts when you're approaching your limit.</p>
             </div>
             <div class="alerts-hero-side">
                 <div class="hero-mini-card">
@@ -502,9 +502,9 @@
             ? API_BASE
             : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:5000/api'
-            : 'https://smartbill-hrcu.onrender.com/api');
+            : '/api');
         
-        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+        console.log('🔧 PAGE_API_BASE:', PAGE_API_BASE);
         
         let currentBudget = parseFloat(localStorage.getItem('monthlyBudget')) || 0;
         let currentUser = null;
@@ -536,7 +536,7 @@
 
         function formatCurrency(amount) {
             const currency = typeof getCurrentCurrency === 'function' ? getCurrentCurrency() : 'KES';
-            const symbols = { USD: '$', EUR: 'â‚¬', GBP: 'Â£', KES: 'KSh ', JPY: 'Â¥' };
+            const symbols = { USD: '$', EUR: '€', GBP: '£', KES: 'KSh ', JPY: '¥' };
             const symbol = symbols[currency] || `${currency} `;
             return `${symbol}${amount.toFixed(2)}`;
         }
@@ -697,16 +697,16 @@
             
             // Update status
             if (percentage >= 100) {
-                document.getElementById('statusValue').textContent = 'âš ï¸ Exceeded';
+                document.getElementById('statusValue').textContent = '⚠️ Exceeded';
                 document.getElementById('alertsActive').textContent = 'Active';
             } else if (percentage >= 75) {
-                document.getElementById('statusValue').textContent = 'âš ï¸ Near Limit';
+                document.getElementById('statusValue').textContent = '⚠️ Near Limit';
                 document.getElementById('alertsActive').textContent = 'Active';
             } else if (percentage > 0) {
-                document.getElementById('statusValue').textContent = 'âœ… On Track';
+                document.getElementById('statusValue').textContent = '✅ On Track';
                 document.getElementById('alertsActive').textContent = 'Active';
             } else {
-                document.getElementById('statusValue').textContent = 'ðŸ“Š No Data';
+                document.getElementById('statusValue').textContent = '📊 No Data';
                 document.getElementById('alertsActive').textContent = 'Monitoring';
             }
         }

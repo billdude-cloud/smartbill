@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -813,7 +813,7 @@
             <div class="user-menu">
                 <div class="currency-selector" id="currencySelector">
                     <button class="currency-btn" onclick="toggleCurrencyDropdown()">
-                        <span id="selectedCurrencyFlag">🇰🇪</span>
+                        <span id="selectedCurrencyFlag">????</span>
                         <span id="selectedCurrencyCode">KES</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -940,7 +940,7 @@
             ? API_BASE
             : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:5000/api'
-            : 'https://smartbill-hrcu.onrender.com/api');
+            : '/api');
         
         console.log('PAGE_API_BASE:', PAGE_API_BASE);
         
@@ -1729,7 +1729,7 @@
         // ============================================
         
         async function debugConnection() {
-            console.group('🔍 DEBUG INFORMATION');
+            console.group('?? DEBUG INFORMATION');
             console.log('Browser Info:', {
                 url: window.location.href,
                 userAgent: navigator.userAgent

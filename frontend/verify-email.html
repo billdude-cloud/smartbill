@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -427,9 +427,9 @@
             ? API_BASE
             : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:5000/api'
-            : 'https://smartbill-hrcu.onrender.com/api');
+            : '/api');
         
-        console.log('ðŸ”§ PAGE_API_BASE:', PAGE_API_BASE);
+        console.log('🔧 PAGE_API_BASE:', PAGE_API_BASE);
 
         // Get email from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
@@ -558,7 +558,7 @@
             verifyBtn.innerHTML = '<span class="spinner"></span> Verifying...';
 
             try {
-                console.log('ðŸ“¡ Sending verification request to:', `${PAGE_API_BASE}/verify-email-code`);
+                console.log('📡 Sending verification request to:', `${PAGE_API_BASE}/verify-email-code`);
                 
                 const response = await fetch(`${PAGE_API_BASE}/verify-email-code`, {
                     method: 'POST',
@@ -569,7 +569,7 @@
                 });
 
                 const data = await response.json();
-                console.log('ðŸ“¥ Response:', { status: response.status, data });
+                console.log('📥 Response:', { status: response.status, data });
 
                 if (response.ok) {
                     if (data.token && data.user) {
@@ -588,7 +588,7 @@
                     showToast(data.error || 'Invalid verification code', 'error');
                 }
             } catch (error) {
-                console.error('âŒ Verification error:', error);
+                console.error('❌ Verification error:', error);
                 showMessage('error', 'Network error. Please check your connection and try again.');
                 showToast('Network error. Please try again.', 'error');
             } finally {
@@ -620,7 +620,7 @@
             resendBtn.innerHTML = '<span class="spinner"></span> Sending...';
 
             try {
-                console.log('ðŸ“¡ Sending resend request to:', `${PAGE_API_BASE}/resend-verification`);
+                console.log('📡 Sending resend request to:', `${PAGE_API_BASE}/resend-verification`);
                 
                 const response = await fetch(`${PAGE_API_BASE}/resend-verification`, {
                     method: 'POST',
@@ -631,7 +631,7 @@
                 });
 
                 const data = await response.json();
-                console.log('ðŸ“¥ Response:', { status: response.status, data });
+                console.log('📥 Response:', { status: response.status, data });
 
                 if (response.ok) {
                     showMessage('success', data.message || 'Verification code sent! Check your email.');
@@ -650,7 +650,7 @@
                     resendBtn.innerHTML = originalBtnText;
                 }
             } catch (error) {
-                console.error('âŒ Resend error:', error);
+                console.error('❌ Resend error:', error);
                 showMessage('error', 'Network error. Please try again.');
                 showToast('Network error. Please try again.', 'error');
                 resendBtn.disabled = false;
